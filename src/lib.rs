@@ -2,7 +2,7 @@
 
 mod actions;
 
-mod resources;
+pub mod resources;
 
 mod components;
 
