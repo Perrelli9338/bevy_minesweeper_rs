@@ -1,12 +1,14 @@
+use bevy::a11y::accesskit::TextAlign;
 use bevy::app::{App, Plugin, Update};
 use bevy::prelude::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use crate::actions::{Actions, set_movement_actions};
-use crate::components::Coordinates;
-use crate::GameState;
+use crate::components::*;
+use crate::{components, GameState};
 use crate::resources::{settings::{TileSize, TileSize::*, GameSettings},
                        board::TileMap};
 use crate::resources::settings::Position;
+use crate::resources::loading::TextureAssets;
+use crate::resources::tile::Tile;
 
 
 pub(crate) mod tile;
@@ -35,7 +37,7 @@ impl Plugin for BoardPlugin {
 
 impl BoardPlugin {
 
-    pub fn create(mut commands: Commands, options: Option<Res<GameSettings>>) {
+    pub fn create(mut commands: Commands, options: Option<Res<GameSettings>>, textures: Res<TextureAssets>) {
         let config = match options {
             None => GameSettings::default(),
             Some(c) => c.clone(),
@@ -85,27 +87,97 @@ impl BoardPlugin {
                     ..Default::default()
                 })
                     .insert(Name::new("Background"));
-                tile_map.iter().enumarete().map(
-                    |(y, line)| line.iter().enumerate().map(
-                        |x, tile| parent.spawn(SpriteBundle {
-                            sprite: Sprite {
-                                color: Color::BLACK,
-                                custom_size: Some(Vec2::splat(tile_size - config.tile_padding)),
-                                ..Default::default()
-                            },
-                            transform: Transform::from_xyz(
-                                tile_size / 2.,
-                                tile_size / 2.,
-                                1.,
-                            ),
-                            ..Default::default()
-                        })
-                        .insert(Name::new(format!("{}, {}", x, y)))
-                        .insert(Coordinates { x, y })
-                    ));
+
+                Self::generate(
+                    parent,
+                    tile_map,
+                    tile_size,
+                    config.tile_padding,
+                    Color::linear_rgb(0., 0., 255.),
+                    textures.font.clone(),
+                    textures.bomb.clone()
+                );
+            });
+    }
+    fn generate(
+        parent: &mut ChildBuilder,
+        tile_map: TileMap,
+        tile_size: f32,
+        tile_padding: f32,
+        background_color: Color,
+        font: Handle<Font>,
+        bomb_image: Handle<Image>
+    ){
+        for (y , line) in tile_map.iter().enumerate() {
+            for (x, tile) in line.iter().enumerate() {
+            let mut commands = parent.spawn(SpriteBundle {
+                sprite: Sprite {
+                    color: background_color,
+                    custom_size: Some(Vec2::splat(tile_size - tile_padding as f32)),
+                    ..Default::default()
+                },
+                transform: Transform::from_xyz(
+                    (x as f32 * tile_size) + (tile_size / 2.),
+                    (y as f32 * tile_size) + (tile_size / 2.),
+                    1.,
+                ),
+                ..Default::default()
             });
 
+                match tile {
+                    Tile::Bomb => {
+                        commands.insert(components::Bomb);
+                        commands.with_children(|parent| {
+                            parent.spawn(SpriteBundle {
+                                sprite: Sprite {
+                                    custom_size: Some(Vec2::splat(tile_size - tile_padding)),
+                                    ..Default::default()
+                                },
+                                transform: Transform::from_xyz(0., 0., 1.),
+                                texture: bomb_image.clone(),
+                                ..Default::default()
+                            });
+                        });
+                    }
+                    Tile::BombNeighbour(bombs_count) => {
+                        commands.insert(components::BombNeighbor{count: *bombs_count});
+                        commands.with_children(|parent| {
+                            parent.spawn(Self::bomb_count_text_bundle(
+                                *bombs_count,
+                                font.clone(),
+                                tile_size - tile_padding,
+                            ));
+                        });
+                    }
+                    Tile::Empty => (),
+                    _ => (),
+                }
+                }
+            }
     }
+
+    fn bomb_count_text_bundle(count: u8, font: Handle<Font>, font_size: f32) -> Text2dBundle {
+        let color = match count {
+            _ => Color::BLACK,
+        };
+
+        let style = TextStyle {
+            font,
+            font_size,
+            color,
+        };
+        // adopted 0.9 to 0.10 and simplified API
+        let text =
+            Text::from_section(count.to_string(), style).with_justify(JustifyText::Center);
+
+        Text2dBundle {
+            text,
+            // z-order, print text on top of the tile
+            transform: Transform::from_xyz(0.0, 0.0, 1.0),
+            ..Default::default()
+        }
+    }
+
     pub fn new() {
         let mut tile_map = TileMap::new(20, 20);
         tile_map.set_bombs(40);

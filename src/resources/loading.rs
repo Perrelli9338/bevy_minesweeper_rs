@@ -32,4 +32,10 @@ pub struct AudioAssets {
 pub struct TextureAssets {
     #[asset(path = "textures/bevy.png")]
     pub bevy: Handle<Image>,
+    #[asset(path = "textures/bomb.png")]
+    pub bomb: Handle<Image>,
+    #[asset(path = "textures/flag.png")]
+    pub flag: Handle<Image>,
+    #[asset(path = "pixeled.ttf")]
+    pub font: Handle<Font>
 }

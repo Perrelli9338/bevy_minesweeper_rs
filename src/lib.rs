@@ -43,8 +43,7 @@ impl Plugin for GamePlugin {
             ActionsPlugin,
             LoadingPlugin,
             MenuPlugin,
-            InternalAudioPlugin,
-            PlayerPlugin
+            InternalAudioPlugin
         ));
 
         #[cfg(debug_assertions)]

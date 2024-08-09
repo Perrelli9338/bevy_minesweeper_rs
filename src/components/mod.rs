@@ -6,6 +6,12 @@ mod coordinates;
 
 pub(crate) mod menu;
 pub(crate) mod player;
+pub use bomb::Bomb;
+pub use bomb_neighbor::BombNeighbor;
+
+mod bomb;
+mod bomb_neighbor;
+mod Uncover;
 
 pub struct ComponentsPlugin;
 

@@ -1,7 +1,8 @@
+use bevy::ecs::component::Component;
 use std::fmt::format;
 use colored::Colorize;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Component)]
 pub enum Tile {
     Bomb,
     BombNeighbour(u8),
