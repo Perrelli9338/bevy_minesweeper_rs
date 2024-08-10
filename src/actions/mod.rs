@@ -10,6 +10,11 @@ mod game_control;
 
 pub const FOLLOW_EPSILON: f32 = 5.;
 
+#[derive(Default, Resource)]
+pub struct Actions {
+    pub player_movement: Option<Vec2>,
+}
+
 pub struct ActionsPlugin;
 
 // This plugin listens for keyboard input and converts the input into Actions
@@ -25,11 +30,6 @@ impl Plugin for ActionsPlugin {
             exit_system.run_if(in_state(GameState::Close)),
         );
     }
-}
-
-#[derive(Default, Resource)]
-pub struct Actions {
-    pub player_movement: Option<Vec2>,
 }
 
 pub fn set_movement_actions(

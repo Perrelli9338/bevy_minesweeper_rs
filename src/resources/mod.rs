@@ -51,10 +51,9 @@ impl BoardPlugin {
         let mut tile_map = TileMap::new(config.map_size.0, config.map_size.1);
 
         let board_size = Vec2::new(
-            tile_map.width() as f32 * tile_size,
-            tile_map.width() as f32 * tile_size,
+            tile_map.get_width() as f32 * tile_size,
+            tile_map.get_width() as f32 * tile_size,
         );
-        log::info!("board size: {}", board_size);
 
         let position = match config.position {
             Position::Centered { offset } => {
@@ -181,7 +180,5 @@ impl BoardPlugin {
     pub fn new() {
         let mut tile_map = TileMap::new(20, 20);
         tile_map.set_bombs(40);
-        #[cfg(debug_assertions)]
-        log::info!("{}", tile_map.log());
     }
 }

@@ -2,6 +2,21 @@ use crate::resources::loading::TextureAssets;
 use crate::GameState;
 use bevy::prelude::*;
 
+#[derive(Component)]
+struct ButtonColors {
+    normal: Color,
+    hovered: Color,
+}
+
+#[derive(Component)]
+struct ChangeState(GameState);
+
+#[derive(Component)]
+struct OpenLink(&'static str);
+
+#[derive(Component)]
+struct Menu;
+
 pub struct MenuPlugin;
 
 // This plugin is responsible for the game menu (containing only one button...)
@@ -14,12 +29,6 @@ impl Plugin for MenuPlugin {
     }
 }
 
-#[derive(Component)]
-struct ButtonColors {
-    normal: Color,
-    hovered: Color,
-}
-
 impl Default for ButtonColors {
     fn default() -> Self {
         ButtonColors {
@@ -29,13 +38,8 @@ impl Default for ButtonColors {
     }
 }
 
-#[derive(Component)]
-struct Menu;
-
 fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
     let round_corner = 8.;
-
-    info!("menu");
     commands.spawn(Camera2dBundle::default());
     commands
         .spawn((
@@ -151,12 +155,6 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 });
         });
 }
-
-#[derive(Component)]
-struct ChangeState(GameState);
-
-#[derive(Component)]
-struct OpenLink(&'static str);
 
 fn click_play_button(
     mut next_state: ResMut<NextState<GameState>>,

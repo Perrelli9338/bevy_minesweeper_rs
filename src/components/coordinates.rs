@@ -2,7 +2,6 @@ use std::fmt::{self, Display, Formatter};
 use std::ops::{Add, Sub};
 use bevy::prelude::Component;
 
-#[cfg_attr(feature = "debug", derive(InspectorOptions))]
 #[derive(Clone, Copy, Component)]
 pub struct Coordinates {
     pub x: u16,

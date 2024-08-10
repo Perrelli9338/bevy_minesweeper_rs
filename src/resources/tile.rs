@@ -14,18 +14,4 @@ impl Tile {
     pub const fn is_bomb(&self) -> bool {
         matches!(self, Self::Bomb)
     }
-    
-    pub fn log(&self) -> String {
-        format!(
-            "{}",
-            match self {
-                Tile::Bomb => "*".red(),
-                Tile::BombNeighbour(bombs_count) => match bombs_count {
-                    _ => bombs_count.to_string().white()
-                },
-                Tile::Empty => " ".black(),
-                Tile::Flag => "?".yellow()
-            }
-        )
-    }
 }

@@ -42,27 +42,6 @@ impl TileMap {
         }
     }
 
-    #[cfg(debug_assertions)]
-    pub fn log(&self) -> String {
-        let mut buffer = format!(
-            "Map: ({},{}) with {} bombs:\n",
-            self.width, self.height, self.bomb_count
-        );
-
-        let table_separator: String = (0..=(self.width + 1)).into_iter().map(|_| '-').collect();
-        buffer = format!("{}{}\n", buffer, table_separator);
-
-        for line in self.iter().rev() {
-            buffer = format!("{}|", buffer);
-            for tile in line.iter() {
-                buffer = format!("{}{}", buffer, tile.log())
-            }
-            buffer = format!("{}|\n", buffer);
-        }
-
-        format!("{}{}", buffer, table_separator)
-    }
-
     pub fn safe_square_at(&self, coordinates: Coordinates) -> impl Iterator<Item=Coordinates> {
         RANGE.iter().copied().map(move |tuple| coordinates + tuple)
     }
@@ -82,18 +61,6 @@ impl TileMap {
 
         let res = self.safe_square_at(coordinates).filter(|c| self.is_bomb_at(*c)).count();
         res as u8
-    }
-
-    pub fn width(&self) -> u16 {
-        self.width
-    }
-
-    pub fn height(&self) -> u16 {
-        self.height
-    }
-
-    pub fn bomb_count(&self) -> u16 {
-        self.bomb_count
     }
 
     pub fn set_bombs(&mut self, bomb_count: u16) {
@@ -126,6 +93,18 @@ impl TileMap {
                 }
             }
         }
+    }
+
+    pub fn get_width(&self) -> u16 {
+        self.width
+    }
+
+    pub fn get_height(&self) -> u16 {
+        self.height
+    }
+
+    pub fn get_bomb_count(&self) -> u16 {
+        self.bomb_count
     }
 
 }

@@ -45,10 +45,5 @@ impl Plugin for GamePlugin {
             MenuPlugin,
             InternalAudioPlugin
         ));
-
-        #[cfg(debug_assertions)]
-        {
-            app.add_plugins((FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin::default()));
-        }
     }
 }
