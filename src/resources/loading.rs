@@ -13,7 +13,6 @@ impl Plugin for LoadingPlugin {
         app.add_loading_state(
             LoadingState::new(GameState::Loading)
                 .continue_to_state(GameState::Menu)
-                .load_collection::<AudioAssets>()
                 .load_collection::<FontAssets>()
                 .load_collection::<TextureAssets>(),
         );
@@ -44,5 +43,7 @@ pub struct TextureAssets {
     #[asset(path = "textures/flag.png")]
     pub flag: Handle<Image>,
     #[asset(path = "textures/tile_uncovered.png")]
-    pub tile: Handle<Image>
+    pub tile: Handle<Image>,
+    #[asset(path = "textures/tile_covered.png")]
+    pub covered_tile: Handle<Image>
 }

@@ -5,9 +5,7 @@ use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::GameState;
-use crate::resources::loading::TextureAssets;
-
-
+use crate::resources::settings::{GameSettings, TileSize::Fixed};
 
 #[derive(Component, Clone)]
 struct ButtonColors {
@@ -22,17 +20,51 @@ struct ChangeState(GameState);
 struct OpenLink(&'static str);
 
 #[derive(Component)]
-struct Menu;
+pub struct UISettings {
+    pub button_colors: ButtonColors,
+    pub button_style: Style,
+    pub button_border_style: BorderRadius,
+    pub button_settings_style: Style,
+}
+
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
+#[derive(States)]
+pub enum MenuStates {
+    Main,
+    Settings,
+    #[default]
+    Disabled,
+}
 
 #[derive(Component)]
-pub struct UISettings {
-    pub round_corner: f32,
+enum MenuButtonAction {
+    Play,
+    Settings,
+    BackToMainMenu,
+    Quit,
 }
 
 impl Default for UISettings {
     fn default() -> Self {
         Self {
-            round_corner: 8.,
+            button_colors: ButtonColors::default(),
+            button_style: Style {
+                width: Val::Px(140.0),
+                height: Val::Px(50.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..Default::default()
+            },
+            button_settings_style: Style {
+                width: Val::Px(25.0),
+                height: Val::Px(50.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..Default::default()
+            },
+            button_border_style: BorderRadius::all(
+                Val::Px(8.),
+            )
         }
     }
 }
@@ -43,12 +75,24 @@ pub struct MenuPlugin;
 // The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
-        app.init_state::<GameState>().add_plugins((
-            main_menu_plugin::main_menu,
-            settings_menu_plugin::settings_menu
-        ))
-            .add_systems(Startup, set_camera);
+        app.init_state::<MenuStates>()
+            .add_plugins((
+                main_menu_plugin::main_menu,
+                settings_menu_plugin::settings_menu
+            ))
+            .add_systems(Startup, setup)
+            .add_systems(OnEnter(GameState::Menu), menu_setup)
+            .add_systems(Update, (menu_action, button_states).run_if(in_state(GameState::Menu)))
+            .insert_resource(GameSettings {
+                map_size: (8, 8),
+                bomb_count: 10,
+                tile_padding: 3.0,
+                tile_size: Fixed(50.0),
+                easy_mode: true,
+                position: Default::default(),
+            });
     }
+
 }
 
 impl Default for ButtonColors {
@@ -60,8 +104,13 @@ impl Default for ButtonColors {
     }
 }
 
-fn set_camera(mut commands: Commands){
+fn setup(mut commands: Commands){
     commands.spawn(Camera2dBundle::default());
+}
+
+fn menu_setup(mut menu_state: ResMut<NextState<MenuStates>>
+){
+  menu_state.set(MenuStates::Main);
 }
 
 fn button_states(
@@ -94,8 +143,35 @@ fn button_states(
     }
 }
 
-fn cleanup_menu(mut commands: Commands, menu: Query<Entity, With<Menu>>) {
-    for entity in menu.iter() {
+fn menu_action(
+    interaction_query: Query<
+        (&Interaction, &MenuButtonAction),
+        (Changed<Interaction>, With<Button>),
+    >,
+    mut app_exit_events: EventWriter<AppExit>,
+    mut menu_state: ResMut<NextState<MenuStates>>,
+    mut game_state: ResMut<NextState<GameState>>,
+) {
+    for (interaction, menu_button_action) in &interaction_query {
+        if *interaction == Interaction::Pressed {
+            match menu_button_action {
+                MenuButtonAction::Quit => {
+                    app_exit_events.send(AppExit::Success);
+                }
+                MenuButtonAction::Play => {
+                    game_state.set(GameState::Playing);
+                    menu_state.set(MenuStates::Disabled);
+                }
+                MenuButtonAction::Settings => menu_state.set(MenuStates::Settings),
+                MenuButtonAction::BackToMainMenu => menu_state.set(MenuStates::Main),
+            }
+        }
+    }
+}
+
+fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+    for entity in &to_despawn {
         commands.entity(entity).despawn_recursive();
     }
 }
+

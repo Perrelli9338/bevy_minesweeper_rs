@@ -1,12 +1,11 @@
 #![allow(clippy::type_complexity)]
 
-mod actions;
-
 pub mod resources;
 
-mod components;
+mod system;
 
-use actions::ActionsPlugin;
+mod components;
+use system::SystemPlugins;
 use resources::audio::InternalAudioPlugin;
 use resources::loading::LoadingPlugin;
 use components::menu::MenuPlugin;
@@ -15,7 +14,7 @@ use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
-use crate::resources::BoardPlugin;
+use crate::resources::ResourcesPlugin;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -27,10 +26,10 @@ enum GameState {
     Loading,
     // During this State the actual game logic is executed
     Playing,
+    Win,
+    Lose,
     // Here the menu is drawn and waiting for player interaction
     Menu,
-    // Change values of the game with UI
-    Settings,
     // Close the game
     Close,
 }
@@ -40,11 +39,10 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>().add_plugins((
-            BoardPlugin,
-            ActionsPlugin,
+            SystemPlugins,
+            ResourcesPlugin,
             LoadingPlugin,
-            MenuPlugin,
-            InternalAudioPlugin
+            MenuPlugin
         ));
     }
 }

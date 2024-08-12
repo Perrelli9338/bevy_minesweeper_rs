@@ -1,48 +1,44 @@
-use crate::resources::Tile::*;
-use crate::components::*;
-use bevy::app::{App, Plugin, Update};
-use bevy::prelude::*;
-use crate::{components, GameState};
-use crate::resources::{settings::{TileSize, TileSize::*, GameSettings},
-                       board::TileMap};
-use crate::resources::settings::Position;
-use crate::resources::loading::FontAssets;
-use crate::resources::loading::TextureAssets;
-use crate::resources::tile::Tile;
-use bevy::color::palettes::*;
-use bevy::sprite::{Anchor, MaterialMesh2dBundle};
-
+use std::collections::{HashMap, HashSet};
+use bevy::{app::{App, Plugin},
+           prelude::*,
+           color::palettes::*,
+           math::Vec3Swizzles
+};
+use crate::{components, components::{*, uncover::uncover}, GameState,
+            resources::{board::Board, tile_map::TileMap,
+                        settings::{Position, GameSettings, TileSize, TileSize::*},
+                        loading::{FontAssets, TextureAssets},
+                        tile::{Tile, Tile::*}}};
+use events::*;
+use bounds::Bounds2;
 
 pub(crate) mod tile;
 pub(crate) mod audio;
 pub(crate) mod loading;
-pub(crate) mod board;
+pub(crate) mod tile_map;
 pub(crate) mod settings;
 
-pub struct BoardPlugin;
+pub(crate) mod events;
+mod bounds;
 
-impl Plugin for BoardPlugin {
+pub(crate) mod board;
+
+pub struct ResourcesPlugin;
+
+impl Plugin for ResourcesPlugin {
     fn build(&self, app: &mut App){
-        app.insert_resource(GameSettings {
-            map_size: (8, 8),
-            bomb_count: 10,
-            tile_padding: 3.0,
-            tile_size: Fixed(50.0),
-            ..Default::default()
-        })
-        .add_systems(OnEnter(GameState::Playing), Self::create);
+        app.add_systems(OnEnter(GameState::Playing), Self::create);
     }
 
 }
 
-impl BoardPlugin {
+impl ResourcesPlugin {
 
-    pub fn create(mut commands: Commands, options: Option<Res<GameSettings>>, assets: (Res<TextureAssets>, Res<FontAssets>)) {
+    pub fn create(mut commands: Commands, options: Res<GameSettings>, assets: (Res<TextureAssets>, Res<FontAssets>)) {
+        let mut safe_start: Option<Entity> = None;
+        
         let (textures, fonts) = assets;
-        let config = match options {
-            None => GameSettings::default(),
-            Some(c) => c.clone(),
-        };
+        let config = options.clone();
 
         let tile_size = match config.tile_size {
             TileSize::Fixed(size) => size,
@@ -50,6 +46,8 @@ impl BoardPlugin {
         };
 
         let mut tile_map = TileMap::new(config.map_size.0, config.map_size.1);
+
+        let mut covered_tiles = HashMap::with_capacity((tile_map.get_width() * tile_map.get_height()).into());
 
         let board_size = Vec2::new(
             tile_map.get_width() as f32 * tile_size,
@@ -69,7 +67,7 @@ impl BoardPlugin {
 
         tile_map.set_bombs(config.bomb_count);
 
-        commands.spawn((
+        let e = commands.spawn((
             Name::new("Board"),
             SpatialBundle {
                 transform: Transform::from_translation(position),
@@ -79,34 +77,65 @@ impl BoardPlugin {
             .with_children(|parent| {
                 Self::generate(
                     parent,
-                    tile_map,
+                    &tile_map,
                     tile_size,
                     config.tile_padding,
                     fonts.font.clone(),
-                    Color::from(basic::GRAY),
+                    Color::WHITE,
                     textures.bomb.clone(),
                     textures.tile.clone(),
-
+                    textures.covered_tile.clone(),
+                    Color::from(basic::TEAL),
+                    &mut covered_tiles,
+                    &mut safe_start,
                 );
-            });
+            }).id();
+        
+        if config.easy_mode {
+            if let Some(entity) = safe_start {
+                commands.entity(entity).insert(uncover);
+            }
+        }
+
+        commands.insert_resource(Board {
+            tile_map: tile_map.clone(),
+            bounds: Bounds2 {
+                position: position.xy(),
+                size: board_size,
+            },
+            tile_size,
+            covered_tiles,
+            flagged_tiles: HashSet::new(),
+            entity: e,
+        });
     }
     fn generate(
         parent: &mut ChildBuilder,
-        tile_map: TileMap,
+        tile_map: &TileMap,
         tile_size: f32,
         tile_padding: f32,
         font: Handle<Font>,
         background_color: Color,
         bomb_image: Handle<Image>,
-        tile_image: Handle<Image>
+        tile_image: Handle<Image>,
+        covered_tile_image: Handle<Image>,
+        covered_background_color: Color,
+        covered_tiles: &mut HashMap<Coordinates, Entity>,
+        safe_start: &mut Option<Entity>,
     ){
+        let size = tile_size - tile_padding;
+        let sprites_size = Some(Vec2::splat(size));
         for (y , line) in tile_map.iter().enumerate() {
             for (x, tile) in line.iter().enumerate() {
+                let coordinates = Coordinates {
+                    x: x as u16,
+                    y: y as u16,
+                };
                 let mut commands = parent.spawn(
                     SpriteBundle {
                         sprite: Sprite {
                             color: background_color,
-                            custom_size: Some(Vec2::splat(tile_size - tile_padding)),
+                            custom_size: sprites_size,
                             ..Default::default()
                         },
                         
@@ -118,6 +147,25 @@ impl BoardPlugin {
                         texture: tile_image.clone(),
                         ..Default::default()
                 });
+                
+                commands.insert(coordinates);
+
+                commands.with_children(|parent| {
+                    let e = parent.spawn(SpriteBundle {
+                        sprite: Sprite {
+                            custom_size: sprites_size,
+                            color: covered_background_color,
+                            ..Default::default()
+                        },
+                        transform: Transform::from_xyz(0.0, 0.0, 2.0),
+                        texture: covered_tile_image.clone(),
+                        ..Default::default()
+                    }).id();
+                    covered_tiles.insert(coordinates, e);
+                    if safe_start.is_none() && *tile == Tile::Empty {
+                        *safe_start = Some(e);
+                    }
+                });
 
                 match tile {
                     Tile::Bomb => {
@@ -125,7 +173,7 @@ impl BoardPlugin {
                         commands.with_children(|parent| {
                             parent.spawn(SpriteBundle {
                                 sprite: Sprite {
-                                    custom_size: Some(Vec2::splat(tile_size - tile_padding)),
+                                    custom_size: sprites_size,
                                     ..Default::default()
                                 },
                                 transform: Transform::from_xyz(0., 0., 1.),
@@ -140,7 +188,7 @@ impl BoardPlugin {
                             parent.spawn(Self::bomb_count_text_bundle(
                                 *bombs_count,
                                 font.clone(),
-                                tile_size - tile_padding
+                                size
                             ));
                         });
                     }

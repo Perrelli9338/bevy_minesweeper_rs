@@ -1,15 +1,16 @@
 use bevy::prelude::*;
-use crate::components::menu::{ButtonColors, ChangeState, cleanup_menu, button_states, Menu, set_camera, UISettings};
+use crate::components::menu::{ButtonColors, ChangeState, UISettings, MenuStates, cleanup, MenuButtonAction};
 use crate::GameState;
 use crate::resources::loading::TextureAssets;
 
+#[derive(Component)]
+struct Menu;
 pub struct main_menu;
 
 impl Plugin for main_menu {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Menu), Self::create)
-            .add_systems(Update, button_states.run_if(in_state(GameState::Menu)))
-            .add_systems(OnExit(GameState::Menu), cleanup_menu);
+        app.add_systems(OnEnter(MenuStates::Main), Self::create)
+            .add_systems(OnExit(MenuStates::Main), cleanup::<Menu>);
     }
 }
 
@@ -64,103 +65,31 @@ impl main_menu {
                     });
             })
             .with_children(|children| {
-                let button_colors = ButtonColors::default();
+                for (action, text) in [
+                    (MenuButtonAction::Play, "Play"),
+                    (MenuButtonAction::Settings, "Settings"),
+                    (MenuButtonAction::Quit, "Exit"),
+                ] {
                 children
                     .spawn((
                         ButtonBundle {
-                            style: Style {
-                                width: Val::Px(140.0),
-                                height: Val::Px(50.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..Default::default()
-                            },
-                            background_color: button_colors.normal.into(),
-                            border_radius: BorderRadius::new(
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                            ),
+                            style: settings.button_style.clone(),
+                            background_color: settings.button_colors.clone().normal.into(),
+                            border_radius: settings.button_border_style.clone(),
                             ..Default::default()
                         },
-                        button_colors,
-                        ChangeState(GameState::Playing),
+                        settings.button_colors.clone(),
+                        action
                     ))
                     .with_children(|parent| {
                         parent.spawn(TextBundle::from_section(
-                            "Play",
+                            text,
                             TextStyle {
                                 ..default()
                             }
                         ));
                     });
-            })
-            .with_children(|children| {
-                let button_colors = ButtonColors::default();
-                children
-                    .spawn((
-                        ButtonBundle {
-                            style: Style {
-                                width: Val::Px(140.0),
-                                height: Val::Px(50.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..Default::default()
-                            },
-                            background_color: button_colors.normal.into(),
-                            border_radius: BorderRadius::new(
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                            ),
-                            ..Default::default()
-                        },
-                        button_colors,
-                        ChangeState(GameState::Settings),
-                    ))
-                    .with_children(|parent| {
-                        parent.spawn(TextBundle::from_section(
-                            "Settings",
-                            TextStyle {
-                                ..default()
-                            }
-                        ));
-                    });
-            })
-            .with_children(|children| {
-                let button_colors = ButtonColors::default();
-                children
-                    .spawn((
-                        ButtonBundle {
-                            style: Style {
-                                width: Val::Px(140.0),
-                                height: Val::Px(50.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..Default::default()
-                            },
-                            background_color: button_colors.normal.into(),
-                            border_radius: BorderRadius::new(
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                            ),
-                            ..Default::default()
-                        },
-                        button_colors,
-                        ChangeState(GameState::Close),
-                    ))
-                    .with_children(|parent| {
-                        parent.spawn(TextBundle::from_section(
-                            "Exit",
-                            TextStyle {
-                                ..default()
-                            }
-                        ));
-                    });
+            }
             });
     }
     

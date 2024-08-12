@@ -1,18 +1,33 @@
 use bevy::app::{App, Plugin, Update};
 use bevy::prelude::*;
-use crate::components::menu::{ButtonColors, ChangeState, cleanup_menu, button_states, Menu, UISettings, OpenLink};
+use crate::components::menu::{ButtonColors, ChangeState, button_states, UISettings, OpenLink, MenuStates, cleanup, MenuButtonAction};
 use crate::GameState;
 use crate::resources::settings::GameSettings;
 use crate::resources::settings::TileSize::Fixed;
+
+#[derive(Component)]
+enum SettingsMenuButtonAction {
+    DecrementBombCount,
+    IncrementBombCount,
+    IncrementWidthBoard,
+    DecrementWidthBoard,
+    IncrementHeightBoard,
+    DecrementHeightBoard,
+    SafeStartOn,
+    SafeStartOff,
+}
+
+
+#[derive(Component)]
+pub struct MenuSettings;
 
 pub struct settings_menu;
 
 impl Plugin for settings_menu {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Settings), Self::create)
-            .add_systems(Update, button_states.run_if(in_state(GameState::Settings)))
-            .add_systems(Update, button_functions.run_if(in_state(GameState::Settings)))
-            .add_systems(OnExit(GameState::Settings), cleanup_menu);
+        app.add_systems(OnEnter(MenuStates::Settings), Self::create)
+            .add_systems(Update, Self::button_functions.run_if(in_state(MenuStates::Settings)))
+            .add_systems(OnExit(MenuStates::Settings), cleanup::<MenuSettings>);
     }
 }
 
@@ -38,7 +53,7 @@ impl settings_menu {
                     },
                     ..default()
                 },
-                Menu,
+                MenuSettings,
             ))
             .with_children(|children| {
                 children.spawn(TextBundle::from_section(
@@ -50,83 +65,68 @@ impl settings_menu {
                 ));
             })
             .with_children(|children| {
-                children.spawn((
-                    NodeBundle {
-                        style: Style {
-                            flex_direction: FlexDirection::Row,
-                            column_gap: Val::Px(15.),
-                            padding: UiRect::all(Val::Px(15.)),
+                for (first_action, second_action, text, value) in [
+                    (SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width", config.map_size.0.to_string()),
+                    (SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height", config.map_size.1.to_string()),
+                    (SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs", config.bomb_count.to_string()),
+                    (SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start", match config.easy_mode { true => "On", false => "Off" }.to_string()),
+                ] {
+                    children.spawn((
+                        NodeBundle {
+                            style: Style {
+                                flex_direction: FlexDirection::Row,
+                                column_gap: Val::Px(15.),
+                                padding: UiRect::all(Val::Px(15.)),
+                                ..default()
+                            },
                             ..default()
                         },
-                        ..default()
-                    },
-                    Menu,
-                ))
-                    .with_children(|children| {
-                                let button_colors = ButtonColors::default();
-                                children.spawn(TextBundle::from_section(
-                                    "Bombs",
-                                    TextStyle {
-                                        font_size: 42.,
-                                        ..default()
-                                    }
-                                ));
-                                children
-                                    .spawn((
-                                        ButtonBundle {
-                                            style: Style {
-                                                width: Val::Px(25.0),
-                                                height: Val::Px(50.0),
-                                                justify_content: JustifyContent::Center,
-                                                align_items: AlignItems::Center,
-                                                ..Default::default()
-                                            },
-                                            background_color: button_colors.clone().normal.into(),
-                                            border_radius: BorderRadius::new(
-                                                Val::Px(settings.round_corner),
-                                                Val::Px(settings.round_corner),
-                                                Val::Px(settings.round_corner),
-                                                Val::Px(settings.round_corner),
-                                            ),
-                                            ..Default::default()
-                                        },
-                                        button_colors.clone(),
-                                    ))
-                                    .with_children(|parent| {
-                                        parent.spawn(TextBundle::from_section(
-                                            "<",
-                                            TextStyle {
-                                                ..default()
-                                            }
-                                        ));
-                                    });
+                        MenuSettings,
+                    ))
+                        .with_children(|children| {
                             children.spawn(TextBundle::from_section(
-                                config.bomb_count.to_string(),
+                                text,
                                 TextStyle {
                                     font_size: 42.,
                                     ..default()
                                 }
-                         ));
+                            ));
                             children
                                 .spawn((
                                     ButtonBundle {
-                                        style: Style {
-                                            width: Val::Px(25.0),
-                                            height: Val::Px(50.0),
-                                            justify_content: JustifyContent::Center,
-                                            align_items: AlignItems::Center,
-                                            ..Default::default()
-                                        },
-                                        background_color: button_colors.clone().normal.into(),
-                                        border_radius: BorderRadius::new(
-                                            Val::Px(settings.round_corner),
-                                            Val::Px(settings.round_corner),
-                                            Val::Px(settings.round_corner),
-                                            Val::Px(settings.round_corner),
-                                        ),
+                                        style: settings.button_settings_style.clone(),
+                                        background_color: settings.button_colors.clone().normal.into(),
+                                        border_radius: settings.button_border_style.clone(),
                                         ..Default::default()
                                     },
-                                    button_colors.clone(),
+                                    first_action,
+                                    settings.button_colors.clone(),
+                                ))
+                                .with_children(|parent| {
+                                    parent.spawn(TextBundle::from_section(
+                                        "<",
+                                        TextStyle {
+                                            ..default()
+                                        }
+                                    ));
+                                });
+                            children.spawn(TextBundle::from_section(
+                                value,
+                                TextStyle {
+                                    font_size: 42.,
+                                    ..default()
+                                }
+                            ));
+                            children
+                                .spawn((
+                                    ButtonBundle {
+                                        style: settings.button_settings_style.clone(),
+                                        background_color: settings.button_colors.normal.clone().into(),
+                                        border_radius: settings.button_border_style.clone(),
+                                        ..Default::default()
+                                    },
+                                    second_action,
+                                    settings.button_colors.clone(),
                                 ))
                                 .with_children(|parent| {
                                     parent.spawn(TextBundle::from_section(
@@ -136,32 +136,20 @@ impl settings_menu {
                                         }
                                     ));
                                 });
-                    });
+                        });
+                }
             })
             .with_children(|children| {
-                let button_colors = ButtonColors::default();
                 children
                     .spawn((
                         ButtonBundle {
-                            style: Style {
-                                width: Val::Px(140.0),
-                                height: Val::Px(50.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..Default::default()
-                            },
-                            background_color: button_colors.normal.into(),
-                            border_radius: BorderRadius::new(
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                                Val::Px(settings.round_corner),
-                            ),
+                            style: settings.button_style.clone(),
+                            background_color: settings.button_colors.normal.clone().into(),
+                            border_radius: settings.button_border_style.clone(),
                             ..Default::default()
                         },
-                        button_colors,
-                        ChangeState(GameState::Menu),
-
+                        settings.button_colors.clone(),
+                        MenuButtonAction::BackToMainMenu,
                     ))
                     .with_children(|parent| {
                         parent.spawn(TextBundle::from_section(
@@ -175,35 +163,88 @@ impl settings_menu {
 
     }
 
-}
-
-fn button_functions(mut next_state: ResMut<NextState<GameState>>,
-                    mut interaction_query: Query<
-                        (
-                            &Interaction,
-                            &mut BackgroundColor,
-                            &ButtonColors,
-                            Option<&ChangeState>,
-                            Option<&OpenLink>,
-                        ),
-                        (Changed<Interaction>, With<Button>),
-                    >,
-                    mut options: ResMut<GameSettings>,
-) {
-    for (interaction, mut color, button_colors, change_state, open_link) in &mut interaction_query {
-        match *interaction {
-            Interaction::Pressed => {
-                if let Some(state) = change_state {
-                    let config = &mut options;
-                    config.bomb_count -= 1;
+    fn button_functions(
+        mut commands: Commands,
+        mut query: Query<&mut Text>,
+        mut interaction_query: Query<
+            (
+                &Interaction,
+                &SettingsMenuButtonAction
+            ),
+            (Changed<Interaction>, With<Button>),
+        >,
+        mut options: ResMut<GameSettings>,
+    ) {
+        let config = &mut options;
+        for (interaction, menu_button_action) in &mut interaction_query {
+            match *interaction {
+                Interaction::Pressed => {
+                    match menu_button_action {
+                        SettingsMenuButtonAction::DecrementBombCount => {
+                            if(config.bomb_count > 1) {
+                                config.bomb_count -= 1;
+                            }
+                        }
+                        SettingsMenuButtonAction::IncrementBombCount => {
+                            if (config.bomb_count < (config.map_size.0 * config.map_size.1) - 1) {
+                                config.bomb_count += 1;
+                            }
+                        }
+                        SettingsMenuButtonAction::IncrementWidthBoard => {
+                            if (config.map_size.0 <= 32) {
+                                config.map_size.0 += 1;
+                            }
+                        }
+                        SettingsMenuButtonAction::DecrementWidthBoard => {
+                            if config.map_size.0 > 1 && config.bomb_count <= (config.map_size.0 * config.map_size.1) - config.bomb_count {
+                                config.map_size.0 -= 1;
+                            }
+                        }
+                        SettingsMenuButtonAction::DecrementHeightBoard => {
+                            if config.map_size.1 > 1 && config.bomb_count <= (config.map_size.0 * config.map_size.1) - config.bomb_count {
+                                config.map_size.1 -= 1;
+                            }
+                        }
+                        SettingsMenuButtonAction::IncrementHeightBoard => {
+                            if (config.map_size.1 <= 32) {
+                                config.map_size.1 += 1;
+                            }
+                        }
+                        SettingsMenuButtonAction::SafeStartOn => {
+                            config.easy_mode = true;
+                        }
+                        SettingsMenuButtonAction::SafeStartOff => {
+                            config.easy_mode = false;
+                        }
+                    }
+                    if let Some(mut safe_start) = query.iter_mut().nth(16){
+                        safe_start.sections[0].value =
+                            match config.easy_mode {
+                                true => "On",
+                                false => "Off"
+                            }.to_string();
+                    }
+                    if let Some(mut width) = query.iter_mut().nth(4){
+                        width.sections[0].value = config.map_size.0.to_string();
+                    }
+                    if let Some(mut height) = query.iter_mut().nth(8){
+                        height.sections[0].value = config.map_size.1.to_string();
+                    }
+                    if let Some(mut bombs_count) = query.iter_mut().nth(12){
+                        bombs_count.sections[0].value = config.bomb_count.to_string();
+                    }
+                    commands.insert_resource(GameSettings {
+                        map_size: config.map_size,
+                        bomb_count: config.bomb_count,
+                        position: config.clone().position,
+                        tile_size: config.clone().tile_size,
+                        tile_padding: config.tile_padding,
+                        easy_mode: config.easy_mode,
+                    })
                 }
-            }
-            Interaction::Hovered => {
-                *color = button_colors.hovered.into();
-            }
-            Interaction::None => {
-                *color = button_colors.normal.into();
+                _ => {}
             }
         }
     }
+
 }

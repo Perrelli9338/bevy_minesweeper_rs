@@ -5,13 +5,14 @@ pub use coordinates::Coordinates;
 mod coordinates;
 
 pub(crate) mod menu;
-pub(crate) mod player;
 pub use bomb::Bomb;
 pub use bomb_neighbor::BombNeighbor;
+pub use flag::flagged;
 
 mod bomb;
 mod bomb_neighbor;
-mod uncover;
+pub(crate) mod uncover;
+pub(crate) mod flag;
 
 pub struct ComponentsPlugin;
 
