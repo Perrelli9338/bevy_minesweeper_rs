@@ -1,14 +1,16 @@
-use bevy::a11y::accesskit::TextAlign;
+use crate::resources::Tile::*;
+use crate::components::*;
 use bevy::app::{App, Plugin, Update};
 use bevy::prelude::*;
-use crate::actions::{Actions, set_movement_actions};
-use crate::components::*;
 use crate::{components, GameState};
 use crate::resources::{settings::{TileSize, TileSize::*, GameSettings},
                        board::TileMap};
 use crate::resources::settings::Position;
+use crate::resources::loading::FontAssets;
 use crate::resources::loading::TextureAssets;
 use crate::resources::tile::Tile;
+use bevy::color::palettes::*;
+use bevy::sprite::{Anchor, MaterialMesh2dBundle};
 
 
 pub(crate) mod tile;
@@ -21,13 +23,11 @@ pub struct BoardPlugin;
 
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App){
-        #[cfg(feature = "debug")]
-        app.add_plugins(WorldInspectorPlugin::new());
         app.insert_resource(GameSettings {
-            map_size: (20, 20),
-            bomb_count: 40,
+            map_size: (8, 8),
+            bomb_count: 10,
             tile_padding: 3.0,
-            tile_size: Fixed(20.0),
+            tile_size: Fixed(50.0),
             ..Default::default()
         })
         .add_systems(OnEnter(GameState::Playing), Self::create);
@@ -37,7 +37,8 @@ impl Plugin for BoardPlugin {
 
 impl BoardPlugin {
 
-    pub fn create(mut commands: Commands, options: Option<Res<GameSettings>>, textures: Res<TextureAssets>) {
+    pub fn create(mut commands: Commands, options: Option<Res<GameSettings>>, assets: (Res<TextureAssets>, Res<FontAssets>)) {
+        let (textures, fonts) = assets;
         let config = match options {
             None => GameSettings::default(),
             Some(c) => c.clone(),
@@ -76,25 +77,16 @@ impl BoardPlugin {
             },
         ))
             .with_children(|parent| {
-                parent.spawn(SpriteBundle {
-                    sprite: Sprite {
-                        color: Color::WHITE,
-                        custom_size: Some(board_size),
-                        ..Default::default()
-                    },
-                    transform: Transform::from_xyz(board_size.x / 2., board_size.y / 2., 0.),
-                    ..Default::default()
-                })
-                    .insert(Name::new("Background"));
-
                 Self::generate(
                     parent,
                     tile_map,
                     tile_size,
                     config.tile_padding,
-                    Color::linear_rgb(0., 0., 255.),
-                    textures.font.clone(),
-                    textures.bomb.clone()
+                    fonts.font.clone(),
+                    Color::from(basic::GRAY),
+                    textures.bomb.clone(),
+                    textures.tile.clone(),
+
                 );
             });
     }
@@ -103,25 +95,29 @@ impl BoardPlugin {
         tile_map: TileMap,
         tile_size: f32,
         tile_padding: f32,
-        background_color: Color,
         font: Handle<Font>,
-        bomb_image: Handle<Image>
+        background_color: Color,
+        bomb_image: Handle<Image>,
+        tile_image: Handle<Image>
     ){
         for (y , line) in tile_map.iter().enumerate() {
             for (x, tile) in line.iter().enumerate() {
-            let mut commands = parent.spawn(SpriteBundle {
-                sprite: Sprite {
-                    color: background_color,
-                    custom_size: Some(Vec2::splat(tile_size - tile_padding as f32)),
-                    ..Default::default()
-                },
-                transform: Transform::from_xyz(
-                    (x as f32 * tile_size) + (tile_size / 2.),
-                    (y as f32 * tile_size) + (tile_size / 2.),
-                    1.,
-                ),
-                ..Default::default()
-            });
+                let mut commands = parent.spawn(
+                    SpriteBundle {
+                        sprite: Sprite {
+                            color: background_color,
+                            custom_size: Some(Vec2::splat(tile_size - tile_padding)),
+                            ..Default::default()
+                        },
+                        
+                        transform: Transform::from_xyz(
+                            (x as f32 * tile_size) + (tile_size / 2.),
+                            (y as f32 * tile_size) + (tile_size / 2.),
+                            1.,
+                        ),
+                        texture: tile_image.clone(),
+                        ..Default::default()
+                });
 
                 match tile {
                     Tile::Bomb => {
@@ -139,16 +135,15 @@ impl BoardPlugin {
                         });
                     }
                     Tile::BombNeighbour(bombs_count) => {
-                        commands.insert(components::BombNeighbor{count: *bombs_count});
+                        commands.insert(BombNeighbor{count: *bombs_count});
                         commands.with_children(|parent| {
                             parent.spawn(Self::bomb_count_text_bundle(
                                 *bombs_count,
                                 font.clone(),
-                                tile_size - tile_padding,
+                                tile_size - tile_padding
                             ));
                         });
                     }
-                    Tile::Empty => (),
                     _ => (),
                 }
                 }
@@ -157,7 +152,14 @@ impl BoardPlugin {
 
     fn bomb_count_text_bundle(count: u8, font: Handle<Font>, font_size: f32) -> Text2dBundle {
         let color = match count {
-            _ => Color::BLACK,
+            1 => Color::from(basic::BLUE),
+            2 => Color::from(basic::GREEN),
+            3 => Color::from(basic::RED),
+            4 => Color::from(basic::NAVY),
+            5 => Color::from(basic::MAROON),
+            6 => Color::from(basic::AQUA),
+            7 => Color::from(basic::PURPLE),
+            _ => Color::from(basic::SILVER),
         };
 
         let style = TextStyle {
@@ -166,8 +168,7 @@ impl BoardPlugin {
             color,
         };
         // adopted 0.9 to 0.10 and simplified API
-        let text =
-            Text::from_section(count.to_string(), style).with_justify(JustifyText::Center);
+        let text = Text::from_section(count.to_string(), style).with_no_wrap();
 
         Text2dBundle {
             text,

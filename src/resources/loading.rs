@@ -14,6 +14,7 @@ impl Plugin for LoadingPlugin {
             LoadingState::new(GameState::Loading)
                 .continue_to_state(GameState::Menu)
                 .load_collection::<AudioAssets>()
+                .load_collection::<FontAssets>()
                 .load_collection::<TextureAssets>(),
         );
     }
@@ -29,6 +30,12 @@ pub struct AudioAssets {
 }
 
 #[derive(AssetCollection, Resource)]
+pub struct FontAssets {
+    #[asset(path = "pixeled.ttf")]
+    pub font: Handle<Font>
+}
+
+#[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
     #[asset(path = "textures/bevy.png")]
     pub bevy: Handle<Image>,
@@ -36,6 +43,6 @@ pub struct TextureAssets {
     pub bomb: Handle<Image>,
     #[asset(path = "textures/flag.png")]
     pub flag: Handle<Image>,
-    #[asset(path = "pixeled.ttf")]
-    pub font: Handle<Font>
+    #[asset(path = "textures/tile_uncovered.png")]
+    pub tile: Handle<Image>
 }

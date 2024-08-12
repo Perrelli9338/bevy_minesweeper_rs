@@ -11,7 +11,7 @@ pub use bomb_neighbor::BombNeighbor;
 
 mod bomb;
 mod bomb_neighbor;
-mod Uncover;
+mod uncover;
 
 pub struct ComponentsPlugin;
 

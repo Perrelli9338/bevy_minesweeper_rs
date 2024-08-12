@@ -10,7 +10,6 @@ use actions::ActionsPlugin;
 use resources::audio::InternalAudioPlugin;
 use resources::loading::LoadingPlugin;
 use components::menu::MenuPlugin;
-use components::player::PlayerPlugin;
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
@@ -30,6 +29,8 @@ enum GameState {
     Playing,
     // Here the menu is drawn and waiting for player interaction
     Menu,
+    // Change values of the game with UI
+    Settings,
     // Close the game
     Close,
 }

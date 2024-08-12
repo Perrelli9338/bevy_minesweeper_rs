@@ -28,8 +28,7 @@ pub struct TileMap {
 
 impl TileMap {
     pub fn new (width: u16, height: u16) -> Self { // todo()!
-        let map = (0..height)
-            .into_iter()
+        let map = (0..height).into_iter()
             .map(|_|
             (0..width).into_iter().map(|_|
             Tile::Empty).collect()).collect();
