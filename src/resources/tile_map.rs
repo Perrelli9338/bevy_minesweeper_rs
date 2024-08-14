@@ -3,6 +3,7 @@ use crate::{
             resources::tile::Tile};
 
 use std::ops::{Deref, DerefMut};
+use bevy::utils::HashSet;
 
 
 use rand::{thread_rng, Rng};
@@ -20,6 +21,7 @@ const RANGE: [(i8, i8); 8] = [ // todo!()
 
 #[derive(Debug, Clone)]
 pub struct TileMap {
+    bomb_coordinates: HashSet<Coordinates>,
     bomb_count: u16,
     flag_count: u16,
     height: u16,
@@ -28,12 +30,13 @@ pub struct TileMap {
 }
 
 impl TileMap {
-    pub fn new (width: u16, height: u16) -> Self { // todo()!
+    pub fn new (width: u16, height: u16) -> Self {
         let map = (0..height).into_iter()
             .map(|_|
             (0..width).into_iter().map(|_|
             Tile::Empty).collect()).collect();
         Self {
+            bomb_coordinates: HashSet::new(),
             bomb_count: 9,
             flag_count: 0,
             height,
@@ -45,6 +48,10 @@ impl TileMap {
     pub fn safe_square_at(&self, coordinates: Coordinates) -> impl Iterator<Item=Coordinates> {
         RANGE.iter().copied().map(move |tuple| coordinates + tuple)
     }
+    
+    pub fn get_bomb_tiles(&self) -> impl Iterator<Item=Coordinates> + '_ {
+        self.bomb_coordinates.iter().copied()
+    } 
 
     pub fn is_bomb_at(&self, coordinates: Coordinates) -> bool {
         if coordinates.x >= self.width || coordinates.y >= self.height {
@@ -71,11 +78,7 @@ impl TileMap {
         while r_bombs > 0 {
             let row = rng.gen_range(0..self.height) as usize;
             let column = rng.gen_range(0..self.width) as usize;
-            if let Tile::Empty = self[row][column] {
-                self[row][column] = Tile::Bomb;
-                r_bombs -= 1;
-            }
-            if let Tile::BombNeighbour(0..=8) = self[row][column] {
+            if let Tile::Empty | Tile::BombNeighbour(0..=8) = self[row][column] {
                 self[row][column] = Tile::Bomb;
                 r_bombs -= 1;
             }
@@ -84,6 +87,7 @@ impl TileMap {
                 for col in 0..self.width {
                     let coords = Coordinates { y: row, x: col };
                     if self.is_bomb_at(coords) {
+                        self.bomb_coordinates.insert(coords);
                         continue;
                     };
 

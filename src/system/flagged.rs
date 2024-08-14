@@ -1,7 +1,7 @@
 use bevy::color::palettes::basic;
 use bevy::prelude::*;
 use crate::components::*;
-use crate::components::uncover::uncover;
+use crate::components::uncover::Uncover;
 use crate::components::flag::flagged;
 use crate::resources::board::{Board, FlagToggle};
 use crate::resources::events::{TileFlaggedEvent};
@@ -23,7 +23,6 @@ pub fn flag_tiles(
     for event in tile_flag_event_rdr.read() {
         match board.try_toggle_flag(&event.coordinates) {
             FlagToggle::FlagIsSet(e) => {
-                info!("Set flag");
                 commands.entity(e).with_children(|parent| {
                     parent.spawn(SpriteBundle {
                         sprite: Sprite {

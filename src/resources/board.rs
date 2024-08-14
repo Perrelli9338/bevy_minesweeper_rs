@@ -75,13 +75,22 @@ impl Board {
     }
     
     pub fn is_win(&self) -> bool {
-        return self.tile_map.get_bomb_count() as usize == self.flagged_tiles.len() && self.tile_map.get_bomb_count() as usize == self.covered_tiles.len() ;
+        return self.tile_map.get_bomb_count() as usize == self.flagged_tiles.len() && self.tile_map.get_bomb_count() as usize == self.covered_tiles.len();
     }
 
     pub fn uncover_tile_neighbour(&self, coordinate: Coordinates) -> Vec<Entity> {
         return self
             .tile_map
             .safe_square_at(coordinate)
+            .filter_map(|c| self.covered_tiles.get(&c))
+            .copied()
+            .collect();
+    }
+
+    pub fn uncover_bomb(&self, coordinate: Coordinates) -> Vec<Entity> {
+        return self
+            .tile_map
+            .get_bomb_tiles()
             .filter_map(|c| self.covered_tiles.get(&c))
             .copied()
             .collect();

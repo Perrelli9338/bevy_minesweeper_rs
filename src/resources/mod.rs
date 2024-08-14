@@ -4,7 +4,7 @@ use bevy::{app::{App, Plugin},
            color::palettes::*,
            math::Vec3Swizzles
 };
-use crate::{components, components::{*, uncover::uncover}, GameState,
+use crate::{components, components::{*, uncover::Uncover}, GameState,
             resources::{board::Board, tile_map::TileMap,
                         settings::{Position, GameSettings, TileSize, TileSize::*},
                         loading::{FontAssets, TextureAssets},
@@ -93,7 +93,7 @@ impl ResourcesPlugin {
         
         if config.easy_mode {
             if let Some(entity) = safe_start {
-                commands.entity(entity).insert(uncover);
+                commands.entity(entity).insert(Uncover);
             }
         }
 
@@ -173,6 +173,7 @@ impl ResourcesPlugin {
                         commands.with_children(|parent| {
                             parent.spawn(SpriteBundle {
                                 sprite: Sprite {
+                                    color: Color::from(basic::RED),
                                     custom_size: sprites_size,
                                     ..Default::default()
                                 },
@@ -224,10 +225,5 @@ impl ResourcesPlugin {
             transform: Transform::from_xyz(0.0, 0.0, 1.0),
             ..Default::default()
         }
-    }
-
-    pub fn new() {
-        let mut tile_map = TileMap::new(20, 20);
-        tile_map.set_bombs(40);
     }
 }
