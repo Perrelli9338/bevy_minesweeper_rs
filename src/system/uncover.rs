@@ -1,11 +1,8 @@
 use bevy::prelude::*;
 use crate::components::*;
 use crate::components::uncover::Uncover;
-use crate::components::flag::flagged;
-use crate::AppState;
-use crate::components::timer::GameTimer;
 use crate::resources::board::Board;
-use crate::resources::events::{GameLoseEvent, GameWinEvent, TileFlaggedEvent, TileTriggerEvent};
+use crate::resources::events::{GameLoseEvent, GameWinEvent, TileTriggerEvent};
 
 pub fn input_event(
     mut commands: Commands,

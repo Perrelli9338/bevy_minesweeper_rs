@@ -1,8 +1,5 @@
 use bevy::color::palettes::basic;
 use bevy::prelude::*;
-use crate::components::*;
-use crate::components::uncover::Uncover;
-use crate::components::flag::flagged;
 use crate::resources::board::{Board, FlagToggle};
 use crate::resources::events::{GameWinEvent, TileFlaggedEvent};
 use crate::resources::assets::TextureAssets;

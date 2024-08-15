@@ -1,6 +1,5 @@
 use bevy::app::{App, Plugin};
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 pub use coordinates::Coordinates;
 
 pub mod coordinates;
@@ -8,7 +7,6 @@ pub mod coordinates;
 pub(crate) mod menu;
 pub use bomb::Bomb;
 pub use bomb_neighbor::BombNeighbor;
-pub use flag::flagged;
 use crate::{AppState, system};
 use crate::components::menu::UISettings;
 use crate::components::timer::GameTimer;
@@ -96,7 +94,7 @@ fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>
         })
         .with_children(|children| {
             children.spawn(TextBundle::from_section(
-                "Click anywhere to return to main menu",
+                "Click to return to main menu",
                 TextStyle {
                     font_size: 21.,
                     ..default()

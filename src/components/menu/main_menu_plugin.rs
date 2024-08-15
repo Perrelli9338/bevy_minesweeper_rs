@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-use crate::components::menu::{ButtonColors, ChangeState, UISettings, MenuStates, cleanup, MenuButtonAction};
-use crate::AppState;
+use crate::components::menu::{UISettings, MenuStates, cleanup, MenuButtonAction};
 use crate::resources::assets::TextureAssets;
 
 #[derive(Component)]

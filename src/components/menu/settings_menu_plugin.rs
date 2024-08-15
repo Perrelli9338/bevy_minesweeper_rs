@@ -1,9 +1,7 @@
 use bevy::app::{App, Plugin, Update};
 use bevy::prelude::*;
-use crate::components::menu::{ButtonColors, ChangeState, button_states, UISettings, OpenLink, MenuStates, cleanup, MenuButtonAction};
-use crate::AppState;
+use crate::components::menu::{UISettings, MenuStates, cleanup, MenuButtonAction};
 use crate::resources::settings::GameSettings;
-use crate::resources::settings::TileSize::Fixed;
 
 #[derive(Component)]
 enum SettingsMenuButtonAction {
@@ -34,7 +32,7 @@ impl Plugin for settings_menu {
 impl settings_menu {
 
     fn create(mut commands: Commands, options: Option<Res<GameSettings>>) {
-        let mut config = match options {
+        let config = match options {
             None => GameSettings::default(),
             Some(c) => c.clone(),
         };
@@ -181,17 +179,17 @@ impl settings_menu {
                 Interaction::Pressed => {
                     match menu_button_action {
                         SettingsMenuButtonAction::DecrementBombCount => {
-                            if(config.bomb_count > 1) {
+                            if config.bomb_count > 1 {
                                 config.bomb_count -= 1;
                             }
                         }
                         SettingsMenuButtonAction::IncrementBombCount => {
-                            if (config.bomb_count < (config.map_size.0 * config.map_size.1) - 1) {
+                            if config.bomb_count < (config.map_size.0 * config.map_size.1) - 1 {
                                 config.bomb_count += 1;
                             }
                         }
                         SettingsMenuButtonAction::IncrementWidthBoard => {
-                            if (config.map_size.0 <= 32) {
+                            if config.map_size.0 <= 32 {
                                 config.map_size.0 += 1;
                             }
                         }
@@ -206,7 +204,7 @@ impl settings_menu {
                             }
                         }
                         SettingsMenuButtonAction::IncrementHeightBoard => {
-                            if (config.map_size.1 <= 32) {
+                            if config.map_size.1 <= 32 {
                                 config.map_size.1 += 1;
                             }
                         }

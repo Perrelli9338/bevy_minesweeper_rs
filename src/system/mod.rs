@@ -1,10 +1,10 @@
 use bevy::app::{App, Update};
-use bevy::hierarchy::DespawnRecursiveExt;
 use bevy::input::ButtonInput;
-use bevy::prelude::{Commands, DetectChanges, EventReader, EventWriter, in_state, IntoSystemConfigs, MouseButton, NextState, OnEnter, OnExit, Plugin, Query, Res, ResMut, Time, Touches, Window, With};
+use bevy::input::touch::ForceTouch;
+use bevy::prelude::{EventReader, EventWriter, in_state, IntoSystemConfigs, MouseButton, NextState, Plugin, Query, Res, ResMut, Touches, Window, With};
+use bevy::tasks::futures_lite::StreamExt;
 use bevy::window::PrimaryWindow;
-use crate::{AppState, resources, resources::GameState};
-use crate::components::timer::GameTimer;
+use crate::{AppState, resources::GameState};
 use crate::resources::board::Board;
 use crate::resources::events::*;
 
@@ -35,18 +35,36 @@ impl Plugin for SystemPlugins {
 pub fn game_input_handling(
     window_primary_query: Query<&Window, With<PrimaryWindow>>,
     board: Res<Board>,
-    mut mouse_input: Res<ButtonInput<MouseButton>>,
-    mut touch_input: Res<Touches>,
+    mouse_input: Res<ButtonInput<MouseButton>>,
+    touch_input: Res<Touches>,
     mut tile_trigger_ewr: EventWriter<TileTriggerEvent>,
     mut flag_trigger_ewr: EventWriter<TileFlaggedEvent>
 ) {
     let Ok(window) = window_primary_query.get_single() else { return };
-    if let Some(touch_position) = touch_input.first_pressed_position() {
-        if let Some(tile_coordinates) = board.press_position(window, touch_position) {
-            tile_trigger_ewr.send(TileTriggerEvent{
-                coordinates: tile_coordinates
-            });
+    for finger in touch_input.iter(){
+        let mut fingers = Vec::new();
+        if touch_input.just_pressed(finger.id()) {
+            fingers.push(finger);
         }
+        if fingers.len() >= 2 {
+            if let touch_position = fingers.get(2).unwrap().position() {
+                if let Some(tile_coordinates) = board.press_position(window, touch_position) {
+                    flag_trigger_ewr.send(TileFlaggedEvent{
+                        coordinates: tile_coordinates
+                    });
+                }
+            }
+        } else {
+            if let Some(touch_position) = touch_input.first_pressed_position() {
+                if let Some(tile_coordinates) = board.press_position(window, touch_position) {
+
+                    tile_trigger_ewr.send(TileTriggerEvent{
+                        coordinates: tile_coordinates
+                    });
+                }
+            }
+        }
+        
     }
     if mouse_input.just_pressed(MouseButton::Left) {
         if let Some(mouse_position) = window.cursor_position() {
@@ -70,8 +88,8 @@ pub fn game_input_handling(
 }
 
 pub fn endgame_input_handling(
-    mut mouse_input: Res<ButtonInput<MouseButton>>,
-    mut touch_input: Res<Touches>,
+    mouse_input: Res<ButtonInput<MouseButton>>,
+    touch_input: Res<Touches>,
     mut trigger_event: EventWriter<EndgameEvent>,
 ) {
     if touch_input.any_just_pressed()|| mouse_input.any_just_pressed([MouseButton::Right, MouseButton::Left, MouseButton::Middle]) {

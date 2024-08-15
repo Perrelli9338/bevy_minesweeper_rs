@@ -45,7 +45,8 @@ jobs:
       - name: Install rust toolchain for Apple Silicon
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
+          toolchain: nightly
+          components: rustfmt, clippy, rust-src
           targets: aarch64-apple-darwin
       - name: Build release for Apple Silicon
         run: |
@@ -53,7 +54,8 @@ jobs:
       - name: Install rust toolchain for Apple x86
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
+          toolchain: nightly
+          components: rustfmt, clippy, rust-src
           targets: x86_64-apple-darwin
       - name: Build release for x86 Apple
         run: |
@@ -91,12 +93,13 @@ jobs:
       - name: Install rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
+          toolchain: nightly
+          components: rustfmt, clippy, rust-src
       - name: Install Dependencies
-        run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
+        run: sudo apt-get update; sudo apt install -y pkg-config libx11-dev mold upx libwayland-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Build release
         run: |
-          cargo build --profile dist
+          cargo build -Z build-std=std --profile dist
       - name: Prepare release
         run: |
           chmod +x target/dist/${{ env.GAME_EXECUTABLE_NAME }}
@@ -126,7 +129,8 @@ jobs:
       - name: Install rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
+          toolchain: nightly
+          components: rustfmt, clippy, rust-src
       - name: Install dotnet
         if: ${{ env.BUILD_INSTALLER }}
         uses: actions/setup-dotnet@v3
@@ -177,9 +181,10 @@ jobs:
       - name: Install rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
+          toolchain: nightly
+          components: rustfmt, clippy, rust-src
       - name: Install Dependencies
-        run: sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev
+        run: sudo apt-get update; sudo apt install -y pkg-config libx11-dev mold upx libwayland-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Install trunk
         uses: jetli/trunk-action@v0.4.0
         with:

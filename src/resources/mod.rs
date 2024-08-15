@@ -7,14 +7,11 @@ use bevy::{app::{App, Plugin},
 use bevy_asset_loader::asset_collection::AssetCollection;
 use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
 use bevy_asset_loader::prelude::ConfigureLoadingState;
-use bevy_kira_audio::AudioSource;
 use crate::{components, components::{*, uncover::Uncover}, AppState,
             resources::{board::Board, tile_map::TileMap,
-                        settings::{Position, GameSettings, TileSize, TileSize::*},
-                        tile::{Tile, Tile::*}}};
-use events::*;
+                        settings::{Position, GameSettings, TileSize},
+                        tile::Tile}};
 use bounds::Bounds2;
-use crate::components::menu::MenuStates;
 use crate::resources::assets::{FontAssets, TextureAssets};
 
 pub(crate) mod tile;
@@ -190,7 +187,7 @@ impl ResourcePlugin {
                         ..Default::default()
                     }).id();
                     covered_tiles.insert(coordinates, e);
-                    if safe_start.is_none() && *tile == Tile::Empty {
+                    if safe_start.is_none() && *tile == Tile::Empty{
                         *safe_start = Some(e);
                     }
                 });

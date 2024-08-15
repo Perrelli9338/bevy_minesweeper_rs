@@ -2,7 +2,6 @@ mod main_menu_plugin;
 mod settings_menu_plugin;
 
 use bevy::prelude::*;
-use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 use crate::resources::settings::{GameSettings, TileSize::Fixed};

@@ -6,7 +6,6 @@ mod system;
 
 mod components;
 use system::SystemPlugins;
-use resources::audio::InternalAudioPlugin;
 use components::menu::MenuPlugin;
 
 use bevy::app::App;

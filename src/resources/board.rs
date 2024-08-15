@@ -7,11 +7,9 @@ use crate::{
 
 use bevy::{
     ecs::system::Resource,
-    math::Vec2,
-    log, prelude::*,
+    math::Vec2, prelude::*,
     window::Window
 };
-use crate::resources::events::{GameLoseEvent, GameWinEvent};
 
 pub(crate) enum FlagToggle {
     FlagIsSet(Entity),
