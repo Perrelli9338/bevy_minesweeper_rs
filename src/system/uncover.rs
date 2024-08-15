@@ -2,13 +2,15 @@ use bevy::prelude::*;
 use crate::components::*;
 use crate::components::uncover::Uncover;
 use crate::components::flag::flagged;
+use crate::AppState;
+use crate::components::timer::GameTimer;
 use crate::resources::board::Board;
-use crate::resources::events::TileTriggerEvent;
+use crate::resources::events::{GameLoseEvent, GameWinEvent, TileFlaggedEvent, TileTriggerEvent};
 
-pub fn trigger_event_handler(
+pub fn input_event(
     mut commands: Commands,
     board: Res<Board>,
-    mut tile_trigger_evr: EventReader<TileTriggerEvent>
+    mut tile_trigger_evr: EventReader<TileTriggerEvent>,
 ) {
     for e in tile_trigger_evr.read() {
         if !board.flagged_tiles.contains(&e.coordinates) {
@@ -24,6 +26,8 @@ pub fn uncover_tiles(
     mut board: ResMut<Board>,
     children: Query<(Entity, &Parent), With<Uncover>>,
     parents: Query<(&Coordinates, Option<&Bomb>, Option<&BombNeighbor>)>,
+    mut trigger_evr: EventWriter<GameLoseEvent>,
+    mut trigger_event: EventWriter<GameWinEvent>
 ) {
     for (entity, parent) in children.iter() {
         commands.entity(entity).despawn_recursive();
@@ -39,6 +43,7 @@ pub fn uncover_tiles(
                     for entity in board.uncover_bomb(*coordinates) {
                         commands.entity(entity).insert(Uncover);
                     }
+                    trigger_evr.send(GameLoseEvent);
                 }
                 else if bomb_counter.is_none() {
                     for entity in board.uncover_tile_neighbour(*coordinates) {
@@ -50,5 +55,8 @@ pub fn uncover_tiles(
         }
         
         
-    } 
+    }
+    if board.is_win(){
+        trigger_event.send(GameWinEvent);
+    }
 }

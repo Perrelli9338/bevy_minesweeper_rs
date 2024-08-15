@@ -82,7 +82,6 @@ impl TileMap {
                 self[row][column] = Tile::Bomb;
                 r_bombs -= 1;
             }
-
             for row in 0..self.height {
                 for col in 0..self.width {
                     let coords = Coordinates { y: row, x: col };
@@ -95,7 +94,6 @@ impl TileMap {
                     if bomb_count == 0 {
                         continue;
                     }
-
                     let tile = &mut self[row as usize][col as usize];
                     *tile = Tile::BombNeighbour(bomb_count);
                 }

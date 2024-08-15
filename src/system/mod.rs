@@ -1,38 +1,38 @@
 use bevy::app::{App, Update};
+use bevy::hierarchy::DespawnRecursiveExt;
 use bevy::input::ButtonInput;
-use bevy::input::common_conditions::input_just_pressed;
-use bevy::prelude::{EventWriter, in_state, IntoSystemConfigs, MouseButton, OnEnter, Plugin, Query, Res, Touches, Window, With};
+use bevy::prelude::{Commands, DetectChanges, EventReader, EventWriter, in_state, IntoSystemConfigs, MouseButton, NextState, OnEnter, OnExit, Plugin, Query, Res, ResMut, Time, Touches, Window, With};
 use bevy::window::PrimaryWindow;
-use crate::GameState;
+use crate::{AppState, resources, resources::GameState};
+use crate::components::timer::GameTimer;
 use crate::resources::board::Board;
 use crate::resources::events::*;
-use crate::resources::ResourcesPlugin;
 
 mod uncover;
 mod flagged;
+mod achievements;
 
 pub struct SystemPlugins;
-
-impl SystemPlugins {
-}
 
 impl Plugin for SystemPlugins {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Update, (
-                input_handling,
-                flagged::flag_tiles,
-                uncover::trigger_event_handler,
-                uncover::uncover_tiles,
-            ).run_if(in_state(GameState::Playing)))
+                game_state_handler, (
+                    game_input_handling,
+                    flagged::flag_tiles,
+                    uncover::input_event,
+                    uncover::uncover_tiles
+            ).run_if(in_state(GameState::Playing)),
+             ).run_if(in_state(AppState::Playing)))
         .add_event::<TileTriggerEvent>()
         .add_event::<TileFlaggedEvent>()
-        .add_event::<GameWin>()
-        .add_event::<GameLose>();
+        .add_event::<GameWinEvent>()
+        .add_event::<GameLoseEvent>();
     }
 }
 
-pub fn input_handling(
+pub fn game_input_handling(
     window_primary_query: Query<&Window, With<PrimaryWindow>>,
     board: Res<Board>,
     mut mouse_input: Res<ButtonInput<MouseButton>>,
@@ -67,4 +67,27 @@ pub fn input_handling(
         }
     }
 
+}
+
+pub fn endgame_input_handling(
+    mut mouse_input: Res<ButtonInput<MouseButton>>,
+    mut touch_input: Res<Touches>,
+    mut trigger_event: EventWriter<EndgameEvent>,
+) {
+    if touch_input.any_just_pressed()|| mouse_input.any_just_pressed([MouseButton::Right, MouseButton::Left, MouseButton::Middle]) {
+        trigger_event.send(EndgameEvent);
+    }
+}
+
+pub fn game_state_handler(
+    mut lose_evr: EventReader<GameLoseEvent>,
+    mut win_evr: EventReader<GameWinEvent>,
+    mut game_state: ResMut<NextState<GameState>>,
+) {
+    for e in lose_evr.read() {
+        game_state.set(GameState::Lose);
+    }
+    for e in win_evr.read() {
+        game_state.set(GameState::Win);
+    }
 }

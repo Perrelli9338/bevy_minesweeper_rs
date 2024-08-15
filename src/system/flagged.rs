@@ -4,8 +4,8 @@ use crate::components::*;
 use crate::components::uncover::Uncover;
 use crate::components::flag::flagged;
 use crate::resources::board::{Board, FlagToggle};
-use crate::resources::events::{TileFlaggedEvent};
-use crate::resources::loading::TextureAssets;
+use crate::resources::events::{GameWinEvent, TileFlaggedEvent};
+use crate::resources::assets::TextureAssets;
 use crate::resources::settings::{GameSettings, TileSize};
 
 pub fn flag_tiles(
@@ -14,6 +14,7 @@ pub fn flag_tiles(
     config: Res<GameSettings>,
     assets: Res<TextureAssets>,
     mut tile_flag_event_rdr: EventReader<TileFlaggedEvent>,
+    mut trigger_event: EventWriter<GameWinEvent>,
     query: Query<&Children>
 ) {
     let tile_size = match config.tile_size {
@@ -48,4 +49,7 @@ pub fn flag_tiles(
             _ => (),
             }
         }
+    if board.is_win(){
+        trigger_event.send(GameWinEvent);
+    }
 }

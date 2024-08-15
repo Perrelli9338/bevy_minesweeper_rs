@@ -13,8 +13,11 @@ pub struct TileFlaggedEvent{
 }
 
 #[derive(Debug, Clone, Copy, Event)]
-pub struct GameWin;
+pub struct GameWinEvent;
 
 #[derive(Debug, Clone, Copy, Event)]
-pub struct GameLose;
+pub struct GameLoseEvent;
+
+#[derive(Debug, Clone, Copy, Event)]
+pub struct EndgameEvent;
 

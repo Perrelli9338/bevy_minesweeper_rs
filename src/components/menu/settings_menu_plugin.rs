@@ -1,7 +1,7 @@
 use bevy::app::{App, Plugin, Update};
 use bevy::prelude::*;
 use crate::components::menu::{ButtonColors, ChangeState, button_states, UISettings, OpenLink, MenuStates, cleanup, MenuButtonAction};
-use crate::GameState;
+use crate::AppState;
 use crate::resources::settings::GameSettings;
 use crate::resources::settings::TileSize::Fixed;
 

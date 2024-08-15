@@ -4,13 +4,18 @@ use bevy::{app::{App, Plugin},
            color::palettes::*,
            math::Vec3Swizzles
 };
-use crate::{components, components::{*, uncover::Uncover}, GameState,
+use bevy_asset_loader::asset_collection::AssetCollection;
+use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
+use bevy_asset_loader::prelude::ConfigureLoadingState;
+use bevy_kira_audio::AudioSource;
+use crate::{components, components::{*, uncover::Uncover}, AppState,
             resources::{board::Board, tile_map::TileMap,
                         settings::{Position, GameSettings, TileSize, TileSize::*},
-                        loading::{FontAssets, TextureAssets},
                         tile::{Tile, Tile::*}}};
 use events::*;
 use bounds::Bounds2;
+use crate::components::menu::MenuStates;
+use crate::resources::assets::{FontAssets, TextureAssets};
 
 pub(crate) mod tile;
 pub(crate) mod audio;
@@ -22,17 +27,40 @@ pub(crate) mod events;
 mod bounds;
 
 pub(crate) mod board;
+pub(crate) mod assets;
 
-pub struct ResourcesPlugin;
+pub struct ResourcePlugin;
 
-impl Plugin for ResourcesPlugin {
-    fn build(&self, app: &mut App){
-        app.add_systems(OnEnter(GameState::Playing), Self::create);
+impl Plugin for ResourcePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_loading_state(
+            LoadingState::new(AppState::Loading)
+                .continue_to_state(AppState::Menu)
+                .load_collection::<FontAssets>()
+                .load_collection::<TextureAssets>(),
+        )
+        .init_state::<GameState>()
+        .add_systems(OnEnter(AppState::Playing), Self::new)
+        .add_systems(OnEnter(GameState::Playing), Self::create);
     }
-
 }
 
-impl ResourcesPlugin {
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
+#[derive(States, Component)]
+pub enum GameState {
+    Win,
+    Lose,
+    Pause,
+    Playing,
+    #[default]
+    Disabled,
+}
+
+impl ResourcePlugin {
+    
+    pub fn new(mut game_state: ResMut<NextState<GameState>>){
+        game_state.set(GameState::Playing)
+    }
 
     pub fn create(mut commands: Commands, options: Res<GameSettings>, assets: (Res<TextureAssets>, Res<FontAssets>)) {
         let mut safe_start: Option<Entity> = None;

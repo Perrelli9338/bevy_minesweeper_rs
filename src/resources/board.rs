@@ -11,6 +11,7 @@ use bevy::{
     log, prelude::*,
     window::Window
 };
+use crate::resources::events::{GameLoseEvent, GameWinEvent};
 
 pub(crate) enum FlagToggle {
     FlagIsSet(Entity),
@@ -18,7 +19,8 @@ pub(crate) enum FlagToggle {
     Nothing,
 }
 
-#[derive(Debug, Resource)]
+#[derive(Debug, Clone)]
+#[derive(Resource)]
 pub struct Board {
     pub tile_map: TileMap,
     pub bounds: Bounds2,
@@ -75,7 +77,7 @@ impl Board {
     }
     
     pub fn is_win(&self) -> bool {
-        return self.tile_map.get_bomb_count() as usize == self.flagged_tiles.len() && self.tile_map.get_bomb_count() as usize == self.covered_tiles.len();
+        return self.tile_map.get_bomb_count() as usize == self.flagged_tiles.len() && self.tile_map.get_bomb_count() as usize == self.covered_tiles.len()
     }
 
     pub fn uncover_tile_neighbour(&self, coordinate: Coordinates) -> Vec<Entity> {

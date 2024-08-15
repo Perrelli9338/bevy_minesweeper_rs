@@ -4,7 +4,7 @@ mod settings_menu_plugin;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::GameState;
+use crate::AppState;
 use crate::resources::settings::{GameSettings, TileSize::Fixed};
 
 #[derive(Component, Clone)]
@@ -14,7 +14,7 @@ struct ButtonColors {
 }
 
 #[derive(Component)]
-struct ChangeState(GameState);
+struct ChangeState(AppState);
 
 #[derive(Component)]
 struct OpenLink(&'static str);
@@ -81,8 +81,8 @@ impl Plugin for MenuPlugin {
                 settings_menu_plugin::settings_menu
             ))
             .add_systems(Startup, setup)
-            .add_systems(OnEnter(GameState::Menu), menu_setup)
-            .add_systems(Update, (menu_action, button_states).run_if(in_state(GameState::Menu)))
+            .add_systems(OnEnter(AppState::Menu), menu_setup)
+            .add_systems(Update, (menu_action, button_states).run_if(in_state(AppState::Menu)))
             .insert_resource(GameSettings {
                 map_size: (8, 8),
                 bomb_count: 10,
@@ -108,13 +108,12 @@ fn setup(mut commands: Commands){
     commands.spawn(Camera2dBundle::default());
 }
 
-fn menu_setup(mut menu_state: ResMut<NextState<MenuStates>>
-){
+fn menu_setup(mut menu_state: ResMut<NextState<MenuStates>>){
   menu_state.set(MenuStates::Main);
 }
 
 fn button_states(
-    mut next_state: ResMut<NextState<GameState>>,
+    mut next_state: ResMut<NextState<AppState>>,
     mut interaction_query: Query<
         (
             &Interaction,
@@ -150,7 +149,7 @@ fn menu_action(
     >,
     mut app_exit_events: EventWriter<AppExit>,
     mut menu_state: ResMut<NextState<MenuStates>>,
-    mut game_state: ResMut<NextState<GameState>>,
+    mut game_state: ResMut<NextState<AppState>>,
 ) {
     for (interaction, menu_button_action) in &interaction_query {
         if *interaction == Interaction::Pressed {
@@ -159,7 +158,7 @@ fn menu_action(
                     app_exit_events.send(AppExit::Success);
                 }
                 MenuButtonAction::Play => {
-                    game_state.set(GameState::Playing);
+                    game_state.set(AppState::Playing);
                     menu_state.set(MenuStates::Disabled);
                 }
                 MenuButtonAction::Settings => menu_state.set(MenuStates::Settings),
@@ -169,7 +168,7 @@ fn menu_action(
     }
 }
 
-fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+pub fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
     for entity in &to_despawn {
         commands.entity(entity).despawn_recursive();
     }
