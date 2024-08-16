@@ -19,7 +19,7 @@ version = "0.15"
 features = ["oboe-shared-stdcxx"]
 
 [package.metadata.android]
-package = "com.me.minesweeper"
+package = "me.game.minesweeper"
 apk_name = "Minesweeper"
 assets = "../assets"
 strip = "strip"

@@ -7,15 +7,14 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version - in the form of v1.2.3'
+        description: 'v0.1.0'
         required: true
         type: string
 
-# ToDo: adapt names
 env:
   # This variable is used to name release output files.
-  GAME_EXECUTABLE_NAME: bevy_game
-  GAME_OSX_APP_NAME: BevyGame
+  GAME_EXECUTABLE_NAME: minesweeper
+  GAME_OSX_APP_NAME: Minesweeper
 
 permissions:
   contents: write

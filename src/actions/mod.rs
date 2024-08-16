@@ -2,8 +2,9 @@ use bevy::math::Vec3Swizzles;
 use bevy::prelude::*;
 
 use crate::actions::game_control::{get_movement, GameControl};
-use crate::player::Player;
+use crate::components::player::Player;
 use crate::GameState;
+use bevy::app::AppExit;
 
 mod game_control;
 
@@ -18,6 +19,10 @@ impl Plugin for ActionsPlugin {
         app.init_resource::<Actions>().add_systems(
             Update,
             set_movement_actions.run_if(in_state(GameState::Playing)),
+        )
+        .add_systems(
+            Update,
+            exit_system.run_if(in_state(GameState::Close)),
         );
     }
 }
@@ -57,4 +62,8 @@ pub fn set_movement_actions(
     } else {
         actions.player_movement = None;
     }
+}
+
+fn exit_system(mut exit: EventWriter<AppExit>) {
+    exit.send(AppExit::Success);
 }

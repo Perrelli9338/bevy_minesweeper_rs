@@ -39,42 +39,34 @@ dev = [
 # All of Bevy's default features exept for the audio related ones (bevy_audio, vorbis), since they clash with bevy_kira_audio
 #   and android_shared_stdcxx, since that is covered in `mobile`
 [dependencies]
-bevy = { version = "0.14", default-features = false, features = [
-    "animation",
-    "bevy_asset",
-    "bevy_state",
-    "bevy_color",
-    "bevy_gilrs",
-    "bevy_scene",
+bevy = { version = "0.14.1", default-features = false, features = [
     "bevy_winit",
-    "bevy_core_pipeline",
-    "bevy_pbr",
-    "bevy_gltf",
+    "bevy_asset",
+    "bevy_text",
+    "default_font",
+    "bevy_ui",
     "bevy_render",
     "bevy_sprite",
-    "bevy_text",
-    "bevy_ui",
-    "multi_threaded",
-    "png",
-    "hdr",
+    "bevy_state",
+    "wayland",
     "x11",
-    "bevy_gizmos",
-    "tonemapping_luts",
-    "smaa_luts",
-    "default_font",
+    "multi_threaded",
     "webgl2",
-    "sysinfo_plugin",
+    "png"
 ] }
 bevy_kira_audio = { version = "0.20" }
 bevy_asset_loader = { version = "0.21" }
-rand = { version = "0.8.3" }
-webbrowser = { version = "1", features = ["hardened"] }
+rand = { version = "0.8.5" }
+webbrowser = { version = "1.0.1", features = ["hardened"] }
+bevy-inspector-egui = { version = "0.25.1", optional = true }
 
 # keep the following in sync with Bevy's dependencies
-winit = { version = "0.30", default-features = false }
-image = { version = "0.25", default-features = false }
+winit = { version = "0.30.4", default-features = false }
+image = { version = "0.25.2", default-features = false }
 ## This greatly improves WGPU's performance due to its heavy use of trace! calls
-log = { version = "0.4", features = ["max_level_debug", "release_max_level_warn"] }
+log = { version = "0.4.22", features = ["max_level_debug", "release_max_level_warn"] }
+hashbrown = "0.14.3"
+colored = "2.1.0"
 
 [build-dependencies]
-embed-resource = "1"
+embed-resource = "2.4.3"
