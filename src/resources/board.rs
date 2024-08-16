@@ -41,7 +41,7 @@ impl Board {
         }
 
         let coordinates = position_cursor - self.bounds.position;
-        return Some(Coordinates {
+        Some(Coordinates {
             x: (coordinates.x / self.tile_size) as u16,
             y: self.tile_map.get_height() - 1 - (coordinates.y / self.tile_size) as u16,
         })
@@ -52,7 +52,7 @@ impl Board {
     }
 
     pub fn try_uncover_tile(&mut self, coordinates: &Coordinates) -> Option<Entity> {
-        return if self.flagged_tiles.contains(coordinates) {
+        if self.flagged_tiles.contains(coordinates) {
             None
         } else {
             self.covered_tiles.remove(coordinates)
@@ -75,7 +75,8 @@ impl Board {
     }
     
     pub fn is_win(&self) -> bool {
-        return self.tile_map.get_bomb_count() as usize == self.flagged_tiles.len() && self.tile_map.get_bomb_count() as usize == self.covered_tiles.len()
+       self.tile_map.get_bomb_count() as usize == self.flagged_tiles.len() &&
+       self.tile_map.get_bomb_count() as usize == self.covered_tiles.len()
     }
 
     pub fn uncover_tile_neighbour(&self, coordinate: Coordinates) -> Vec<Entity> {
@@ -87,7 +88,7 @@ impl Board {
             .collect();
     }
 
-    pub fn uncover_bomb(&self, coordinate: Coordinates) -> Vec<Entity> {
+    pub fn uncover_bomb(&self) -> Vec<Entity> {
         return self
             .tile_map
             .get_bomb_tiles()

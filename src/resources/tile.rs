@@ -4,7 +4,6 @@ use bevy::ecs::component::Component;
 pub enum Tile {
     Bomb,
     BombNeighbour(u8),
-    Flag,
     Empty,
 }
 

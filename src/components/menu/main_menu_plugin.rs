@@ -4,16 +4,16 @@ use crate::resources::assets::TextureAssets;
 
 #[derive(Component)]
 struct Menu;
-pub struct main_menu;
+pub struct MainMenu;
 
-impl Plugin for main_menu {
+impl Plugin for MainMenu {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(MenuStates::Main), Self::create)
             .add_systems(OnExit(MenuStates::Main), cleanup::<Menu>);
     }
 }
 
-impl main_menu {
+impl MainMenu {
     fn create(mut commands: Commands, textures: Res<TextureAssets>) {
         let settings = UISettings::default();
         commands
@@ -54,7 +54,7 @@ impl main_menu {
                             }
                         ));
                         children.spawn(ImageBundle {
-                            image: textures.bevy.clone().into(),
+                            image: textures.icon.clone().into(),
                             style: Style {
                                 width: Val::Px(64.),
                                 ..default()

@@ -1,6 +1,5 @@
 use bevy::app::{App, Update};
 use bevy::input::ButtonInput;
-use bevy::input::touch::ForceTouch;
 use bevy::prelude::{EventReader, EventWriter, in_state, IntoSystemConfigs, MouseButton, NextState, Plugin, Query, Res, ResMut, Touches, Window, With};
 use bevy::tasks::futures_lite::StreamExt;
 use bevy::window::PrimaryWindow;
@@ -41,13 +40,13 @@ pub fn game_input_handling(
     mut flag_trigger_ewr: EventWriter<TileFlaggedEvent>
 ) {
     let Ok(window) = window_primary_query.get_single() else { return };
+    let mut fingers = Vec::new();
     for finger in touch_input.iter(){
-        let mut fingers = Vec::new();
         if touch_input.just_pressed(finger.id()) {
             fingers.push(finger);
         }
         if fingers.len() >= 2 {
-            if let touch_position = fingers.get(2).unwrap().position() {
+            if let touch_position = fingers.get(1).unwrap().position() {
                 if let Some(tile_coordinates) = board.press_position(window, touch_position) {
                     flag_trigger_ewr.send(TileFlaggedEvent{
                         coordinates: tile_coordinates
@@ -102,10 +101,10 @@ pub fn game_state_handler(
     mut win_evr: EventReader<GameWinEvent>,
     mut game_state: ResMut<NextState<GameState>>,
 ) {
-    for e in lose_evr.read() {
+    for _e in lose_evr.read() {
         game_state.set(GameState::Lose);
     }
-    for e in win_evr.read() {
+    for _e in win_evr.read() {
         game_state.set(GameState::Win);
     }
 }

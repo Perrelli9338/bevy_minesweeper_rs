@@ -8,7 +8,6 @@ pub(crate) mod menu;
 pub use bomb::Bomb;
 pub use bomb_neighbor::BombNeighbor;
 use crate::{AppState, system};
-use crate::components::menu::UISettings;
 use crate::components::timer::GameTimer;
 use crate::resources::board::Board;
 use crate::resources::events::{EndgameEvent};
@@ -37,7 +36,7 @@ impl Plugin for TimingPlugin {
 }
 
 fn exit(mut trigger_event: EventReader<EndgameEvent>, mut app_state: ResMut<NextState<AppState>>, mut game_state: ResMut<NextState<GameState>>){
-    for event in trigger_event.read() {
+    for _event in trigger_event.read() {
         app_state.set(AppState::Menu);
         game_state.set(GameState::Disabled);
     }
@@ -60,13 +59,12 @@ fn cleanup_board(mut commands: Commands, board: Res<Board>,  time: Res<Time>,
 struct Scene;
 
 fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>>) {
-    let settings = UISettings::default();
     let mut msg = "You've ".to_owned();
-    msg.push_str(&match game_state.get() {
+    msg.push_str(match game_state.get() {
         GameState::Lose => "lose",
         GameState::Win => "win",
-        _ => ""
-    }.to_owned());
+        _ => "[This text shouldn't be displayed, if you see it, let's say you've discovered an easter egg ;)]"
+    });
     commands
         .spawn((
             NodeBundle {

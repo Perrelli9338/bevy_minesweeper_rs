@@ -19,9 +19,9 @@ enum SettingsMenuButtonAction {
 #[derive(Component)]
 pub struct MenuSettings;
 
-pub struct settings_menu;
+pub struct SettingsMenu;
 
-impl Plugin for settings_menu {
+impl Plugin for SettingsMenu {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(MenuStates::Settings), Self::create)
             .add_systems(Update, Self::button_functions.run_if(in_state(MenuStates::Settings)))
@@ -29,7 +29,7 @@ impl Plugin for settings_menu {
     }
 }
 
-impl settings_menu {
+impl SettingsMenu {
 
     fn create(mut commands: Commands, options: Option<Res<GameSettings>>) {
         let config = match options {
@@ -175,8 +175,7 @@ impl settings_menu {
     ) {
         let config = &mut options;
         for (interaction, menu_button_action) in &mut interaction_query {
-            match *interaction {
-                Interaction::Pressed => {
+            if *interaction == Interaction::Pressed {
                     match menu_button_action {
                         SettingsMenuButtonAction::DecrementBombCount => {
                             if config.bomb_count > 1 {
@@ -240,8 +239,6 @@ impl settings_menu {
                         easy_mode: config.easy_mode,
                     })
                 }
-                _ => {}
-            }
         }
     }
 

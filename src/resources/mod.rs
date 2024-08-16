@@ -4,7 +4,6 @@ use bevy::{app::{App, Plugin},
            color::palettes::*,
            math::Vec3Swizzles
 };
-use bevy_asset_loader::asset_collection::AssetCollection;
 use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
 use bevy_asset_loader::prelude::ConfigureLoadingState;
 use crate::{components, components::{*, uncover::Uncover}, AppState,
@@ -15,7 +14,6 @@ use bounds::Bounds2;
 use crate::resources::assets::{FontAssets, TextureAssets};
 
 pub(crate) mod tile;
-pub(crate) mod audio;
 pub(crate) mod loading;
 pub(crate) mod tile_map;
 pub(crate) mod settings;
@@ -37,7 +35,7 @@ impl Plugin for ResourcePlugin {
                 .load_collection::<TextureAssets>(),
         )
         .init_state::<GameState>()
-        .add_systems(OnEnter(AppState::Playing), Self::new)
+        .add_systems(OnEnter(AppState::Playing), new_game)
         .add_systems(OnEnter(GameState::Playing), Self::create);
     }
 }
@@ -53,11 +51,11 @@ pub enum GameState {
     Disabled,
 }
 
+fn new_game(mut game_state: ResMut<NextState<GameState>>){
+    game_state.set(GameState::Playing)
+}
+
 impl ResourcePlugin {
-    
-    pub fn new(mut game_state: ResMut<NextState<GameState>>){
-        game_state.set(GameState::Playing)
-    }
 
     pub fn create(mut commands: Commands, options: Res<GameSettings>, assets: (Res<TextureAssets>, Res<FontAssets>)) {
         let mut safe_start: Option<Entity> = None;
@@ -134,6 +132,8 @@ impl ResourcePlugin {
             entity: e,
         });
     }
+    
+    #[allow(clippy::too_many_arguments)]
     fn generate(
         parent: &mut ChildBuilder,
         tile_map: &TileMap,

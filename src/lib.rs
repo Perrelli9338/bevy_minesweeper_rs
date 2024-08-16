@@ -12,23 +12,18 @@ use bevy::app::App;
 use bevy::prelude::*;
 use crate::components::TimingPlugin;
 use crate::resources::ResourcePlugin;
-
-// This example game uses States to separate logic
-// See https://bevy-cheatbook.github.io/programming/states.html
-// Or https://github.com/bevyengine/bevy/blob/main/examples/ecs/state.rs
 #[derive(Default, Clone, Eq, PartialEq, Debug, Hash)]
 #[derive(States)]
 enum AppState {
-    // During the loading State the LoadingPlugin will load our assets
+    // Loading assets logic
     #[default]
     Loading,
-    // During this State the actual game logic is executed
+    // Game logic
     Playing,
+    // End of the game logic
     Endgame,
-    // Here the menu is drawn and waiting for player interaction
+    // Menu logic
     Menu,
-    // Close the game
-    Close,
 }
 
 pub struct GamePlugin;

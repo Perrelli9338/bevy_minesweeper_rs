@@ -6,8 +6,8 @@ use bevy::prelude::*;
 use crate::AppState;
 use crate::resources::settings::{GameSettings, TileSize::Fixed};
 
-#[derive(Component, Clone)]
-struct ButtonColors {
+#[derive(Component, Clone, Copy)]
+pub struct ButtonColors {
     normal: Color,
     hovered: Color,
 }
@@ -16,14 +16,11 @@ struct ButtonColors {
 struct ChangeState(AppState);
 
 #[derive(Component)]
-struct OpenLink(&'static str);
-
-#[derive(Component)]
 pub struct UISettings {
-    pub button_colors: ButtonColors,
-    pub button_style: Style,
-    pub button_border_style: BorderRadius,
-    pub button_settings_style: Style,
+    button_colors: ButtonColors,
+    button_style: Style,
+    button_border_style: BorderRadius,
+    button_settings_style: Style,
 }
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
@@ -76,8 +73,8 @@ impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<MenuStates>()
             .add_plugins((
-                main_menu_plugin::main_menu,
-                settings_menu_plugin::settings_menu
+                main_menu_plugin::MainMenu,
+                settings_menu_plugin::SettingsMenu
             ))
             .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
@@ -119,12 +116,11 @@ fn button_states(
             &mut BackgroundColor,
             &ButtonColors,
             Option<&ChangeState>,
-            Option<&OpenLink>,
         ),
         (Changed<Interaction>, With<Button>),
     >,
 ) {
-    for (interaction, mut color, button_colors, change_state, open_link) in &mut interaction_query {
+    for (interaction, mut color, button_colors, change_state) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 if let Some(state) = change_state {

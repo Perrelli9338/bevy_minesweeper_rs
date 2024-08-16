@@ -12,6 +12,6 @@ impl Bounds2 {
         let top_right = self.position + self.size;
         let x = coordinates.x;
         let y = coordinates.y;
-        return (x >= bottom_left.x && x <= top_right.x) && (y >= bottom_left.y && y <= top_right.y);
+        (x >= bottom_left.x && x <= top_right.x) && (y >= bottom_left.y && y <= top_right.y)
     }
 }

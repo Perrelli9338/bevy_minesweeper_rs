@@ -37,7 +37,7 @@ pub fn flag_tiles(
             FlagToggle::FlagIsUnset(e) => {
                 let child = match query.get(e) {
                     Ok(value) => value,
-                    Err(e) => continue,
+                    Err(_e) => continue,
                 };
                 for c in child {
                     commands.entity(*c).despawn_recursive();

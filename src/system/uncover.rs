@@ -30,14 +30,13 @@ pub fn uncover_tiles(
         commands.entity(entity).despawn_recursive();
         let (coordinates, bomb, bomb_counter) = match parents.get(parent.get()) {
             Ok(v) => v,
-            Err(e) => {
+            Err(_e) => {
                 continue;
             }
         };
-        match board.try_uncover_tile(coordinates) {
-            Some(_) => {
+        if let Some(_) = board.try_uncover_tile(coordinates) {
                 if bomb.is_some() {
-                    for entity in board.uncover_bomb(*coordinates) {
+                    for entity in board.uncover_bomb() {
                         commands.entity(entity).insert(Uncover);
                     }
                     trigger_evr.send(GameLoseEvent);
@@ -47,8 +46,6 @@ pub fn uncover_tiles(
                         commands.entity(entity).insert(Uncover);
                     }
                 }
-            }
-            _ => {}
         }
         
         

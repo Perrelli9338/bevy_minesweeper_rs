@@ -23,7 +23,6 @@ const RANGE: [(i8, i8); 8] = [ // todo!()
 pub struct TileMap {
     bomb_coordinates: HashSet<Coordinates>,
     bomb_count: u16,
-    flag_count: u16,
     height: u16,
     width: u16,
     map: Vec<Vec<Tile>>
@@ -31,14 +30,10 @@ pub struct TileMap {
 
 impl TileMap {
     pub fn new (width: u16, height: u16) -> Self {
-        let map = (0..height).into_iter()
-            .map(|_|
-            (0..width).into_iter().map(|_|
-            Tile::Empty).collect()).collect();
+        let map = vec![vec![Tile::Empty; width as usize]; height as usize];
         Self {
             bomb_coordinates: HashSet::new(),
             bomb_count: 9,
-            flag_count: 0,
             height,
             width,
             map,
