@@ -1,7 +1,6 @@
 use bevy::app::{App, Update};
 use bevy::input::ButtonInput;
-use bevy::prelude::{EventReader, EventWriter, in_state, IntoSystemConfigs, MouseButton, NextState, Plugin, Query, Res, ResMut, Touches, Window, With};
-use bevy::tasks::futures_lite::StreamExt;
+use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use crate::{AppState, resources::GameState};
 use crate::resources::board::Board;
@@ -46,12 +45,11 @@ pub fn game_input_handling(
             fingers.push(finger);
         }
         if fingers.len() >= 2 {
-            if let touch_position = fingers.get(1).unwrap().position() {
-                if let Some(tile_coordinates) = board.press_position(window, touch_position) {
-                    flag_trigger_ewr.send(TileFlaggedEvent{
-                        coordinates: tile_coordinates
-                    });
-                }
+            let touch_position = fingers.get(1).unwrap().position();
+            if let Some(tile_coordinates) = board.press_position(window, touch_position) {
+                flag_trigger_ewr.send(TileFlaggedEvent{
+                    coordinates: tile_coordinates
+                });
             }
         } else {
             if let Some(touch_position) = touch_input.first_pressed_position() {

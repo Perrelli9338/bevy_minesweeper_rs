@@ -1,7 +1,6 @@
 use bevy::asset::Handle;
 use bevy::prelude::{Font, Image, Resource};
 use bevy_asset_loader::asset_collection::AssetCollection;
-use bevy_kira_audio::AudioSource;
 
 #[derive(AssetCollection, Resource)]
 pub struct AudioAssets {
