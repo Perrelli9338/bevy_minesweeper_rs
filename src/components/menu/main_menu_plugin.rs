@@ -37,7 +37,6 @@ impl MainMenu {
                     NodeBundle {
                         style: Style {
                             flex_direction: FlexDirection::Row,
-                            column_gap: Val::Px(15.),
                             padding: UiRect::all(Val::Px(15.)),
                             ..default()
                         },

@@ -1,8 +1,8 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
     <!-- ToDo use your own keys for Name and Manufacturer, as well as a new UUID for UpgradeCode -->
     <Package
-        Name="BevyGame"
-        Manufacturer="My Name"
+        Name="Minesweeper"
+        Manufacturer="PRRMRC"
         UpgradeCode="12345678-de4f-4893-a535-93dfd0597731"
         Version="0.1.0"
 
@@ -29,7 +29,6 @@
             <ComponentGroupRef Id="MainComponent" />
             <ComponentRef Id="StartMenuShortcut" />
             <ComponentGroupRef Id="AssetsDirectory" />
-            <ComponentGroupRef Id="CreditsDirectory" />
         </Feature>
 
         <!-- Installs the actual files -->

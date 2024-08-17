@@ -42,20 +42,11 @@ jobs:
       - name: Remove build script
         run: |
           rm build.rs
-      - name: Install rust toolchain for Apple Silicon
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: nightly
-          components: rustfmt, clippy, rust-src
-          targets: aarch64-apple-darwin
-      - name: Build release for Apple Silicon
-        run: |
-          SDKROOT=$(xcrun -sdk macosx --show-sdk-path) cargo build --profile dist --target=aarch64-apple-darwin
       - name: Install rust toolchain for Apple x86
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
-          components: rustfmt, clippy, rust-src
+          components: clippy
           targets: x86_64-apple-darwin
       - name: Build release for x86 Apple
         run: |
@@ -93,7 +84,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
-          components: rustfmt, clippy, rust-src
+          components: clippy
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt install -y pkg-config libx11-dev mold upx libwayland-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Build release
@@ -129,7 +120,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
-          components: rustfmt, clippy, rust-src
+          components: clippy
       - name: Install dotnet
         if: ${{ env.BUILD_INSTALLER }}
         uses: actions/setup-dotnet@v3
@@ -180,7 +171,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
-          components: rustfmt, clippy, rust-src
+          components: clippy
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt install -y pkg-config libx11-dev mold upx libwayland-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
       - name: Install trunk

@@ -4,7 +4,7 @@ version = "0.1.2"
 publish = false
 authors = ["Me"]
 edition = "2021"
-exclude = ["dist", "build", "assets", "credits"]
+exclude = ["dist", "build", "assets"]
 
 [workspace]
 members = ["mobile"]
