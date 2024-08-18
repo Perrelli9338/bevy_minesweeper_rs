@@ -1,5 +1,6 @@
 use bevy::{prelude::Vec3, ecs::system::Resource};
 use serde::{Deserialize, Serialize};
+use crate::resources::settings::TileSize::Fixed;
 
 /// Tile size options
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -24,6 +25,7 @@ pub struct GameSettings {
     pub tile_size: TileSize,
     pub tile_padding: f32,
     pub easy_mode: bool,
+    pub timer_start: f32,
 }
 
 impl Default for TileSize {
@@ -46,12 +48,13 @@ impl Default for Position {
 impl Default for GameSettings {
     fn default() -> Self {
         Self {
-            map_size: (20, 20),
-            bomb_count: 30,
-            position: Default::default(),
-            tile_size: Default::default(),
-            tile_padding: 0.0,
+            map_size: (8, 8),
+            bomb_count: 10,
+            tile_padding: 3.0,
+            tile_size: Fixed(50.0),
             easy_mode: true,
+            position: Default::default(),
+            timer_start: 0.8,
         }
     }
 }

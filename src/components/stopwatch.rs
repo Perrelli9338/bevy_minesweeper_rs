@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::time::Stopwatch;
+use crate::components::timer::GameTimer;
 
 #[derive(Resource)]
 pub struct GameStopwatch {

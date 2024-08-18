@@ -13,6 +13,8 @@ enum SettingsMenuButtonAction {
     DecrementHeightBoard,
     SafeStartOn,
     SafeStartOff,
+    IncreaseTimer,
+    DecreaseTimer,
 }
 
 
@@ -43,10 +45,10 @@ impl SettingsMenu {
                     style: Style {
                         width: Val::Percent(100.0),
                         height: Val::Percent(100.0),
+                        row_gap: Val::Px(15.),
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::Center,
                         justify_content: JustifyContent::Center,
-                        row_gap: Val::Px(10.0),
                         ..default()
                     },
                     ..default()
@@ -63,79 +65,105 @@ impl SettingsMenu {
                 ));
             })
             .with_children(|children| {
-                for (first_action, second_action, text, value) in [
-                    (SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width", config.map_size.0.to_string()),
-                    (SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height", config.map_size.1.to_string()),
-                    (SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs", config.bomb_count.to_string()),
-                    (SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start", match config.easy_mode { true => "On", false => "Off" }.to_string()),
-                ] {
-                    children.spawn((
-                        NodeBundle {
-                            style: Style {
-                                flex_direction: FlexDirection::Row,
-                                column_gap: Val::Px(15.),
-                                padding: UiRect::all(Val::Px(15.)),
-                                ..default()
-                            },
-                            ..default()
-                        },
-                        MenuSettings,
-                    ))
-                        .with_children(|children| {
-                            children.spawn(TextBundle::from_section(
-                                text,
-                                TextStyle {
-                                    font_size: 42.,
-                                    ..default()
-                                }
-                            ));
-                            children
-                                .spawn((
-                                    ButtonBundle {
-                                        style: settings.button_settings_style.clone(),
-                                        background_color: settings.button_colors.clone().normal.into(),
-                                        border_radius: settings.button_border_style.clone(),
-                                        ..Default::default()
+                children.spawn((NodeBundle {
+                    style: Style {
+                        width: Val::Percent(30.0),
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::FlexEnd,
+                        justify_content: JustifyContent::Center,
+                        row_gap: Val::Px(3.0),
+                        ..default()
+                    },
+                    ..default()
+                }))
+                    .with_children(|children| {
+                        for (first_action, second_action, text, value) in [
+                            (SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width", config.map_size.0.to_string()),
+                            (SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height", config.map_size.1.to_string()),
+                            (SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs", config.bomb_count.to_string()),
+                            (SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start", match config.easy_mode { true => "On", false => "Off" }.to_string()),
+                            (SettingsMenuButtonAction::DecreaseTimer, SettingsMenuButtonAction::IncreaseTimer, "Start delay", format!("{:.01}s", config.timer_start))
+                        ] {
+                            children.spawn((
+                                NodeBundle {
+                                    style: Style {
+                                        display: Display::Flex,
+                                        justify_content: JustifyContent::SpaceBetween,
+                                        width: Val::Percent(100.0),
+                                        align_items: AlignItems::Center,
+                                        ..default()
                                     },
-                                    first_action,
-                                    settings.button_colors.clone(),
-                                ))
-                                .with_children(|parent| {
-                                    parent.spawn(TextBundle::from_section(
-                                        "<",
+                                    ..default()
+                                },
+                                MenuSettings,
+                            ))
+                            .with_children(|children| {
+                                    children.spawn(TextBundle::from_section(
+                                        text,
                                         TextStyle {
+                                            font_size: 42.,
                                             ..default()
                                         }
                                     ));
-                                });
-                            children.spawn(TextBundle::from_section(
-                                value,
-                                TextStyle {
-                                    font_size: 42.,
-                                    ..default()
-                                }
-                            ));
-                            children
-                                .spawn((
-                                    ButtonBundle {
-                                        style: settings.button_settings_style.clone(),
-                                        background_color: settings.button_colors.normal.clone().into(),
-                                        border_radius: settings.button_border_style.clone(),
-                                        ..Default::default()
-                                    },
-                                    second_action,
-                                    settings.button_colors.clone(),
-                                ))
-                                .with_children(|parent| {
-                                    parent.spawn(TextBundle::from_section(
-                                        ">",
+                                    children.spawn((NodeBundle {
+                                        style: Style {
+                                            width: Val::Percent(50.0),
+                                            column_gap: Val::Px(5.),
+                                            display: Display::Flex,
+                                            justify_content: JustifyContent::SpaceBetween,
+                                            ..default()
+                                        },
+                                        ..default()
+                                    }))
+                                        .with_children(|children| {
+                                        children.spawn((
+                                            ButtonBundle {
+                                                style: settings.button_settings_style.clone(),
+                                                background_color: settings.button_colors.clone().normal.into(),
+                                                border_radius: settings.button_border_style.clone(),
+                                                ..Default::default()
+                                            },
+                                            first_action,
+                                            settings.button_colors.clone(),
+                                        ))
+                                        .with_children(|parent| {
+                                            parent.spawn(TextBundle::from_section(
+                                                "<",
+                                                TextStyle {
+                                                    ..default()
+                                                }
+                                            ));
+                                        });
+                                    children.spawn(TextBundle::from_section(
+                                        value,
                                         TextStyle {
+                                            font_size: 42.,
                                             ..default()
                                         }
                                     ));
+                                    children
+                                        .spawn((
+                                            ButtonBundle {
+                                                style: settings.button_settings_style.clone(),
+                                                background_color: settings.button_colors.normal.clone().into(),
+                                                border_radius: settings.button_border_style.clone(),
+                                                ..Default::default()
+                                            },
+                                            second_action,
+                                            settings.button_colors.clone(),
+                                        ))
+                                        .with_children(|parent| {
+                                            parent.spawn(TextBundle::from_section(
+                                                ">",
+                                                TextStyle {
+                                                    ..default()
+                                                }
+                                            ));
+                                        });
                                 });
-                        });
-                }
+                                });
+                        }
+                    });
             })
             .with_children(|children| {
                 children
@@ -213,8 +241,19 @@ impl SettingsMenu {
                         SettingsMenuButtonAction::SafeStartOff => {
                             config.easy_mode = false;
                         }
+                        SettingsMenuButtonAction::DecreaseTimer => {
+                            if config.timer_start > 0.1 {
+                                config.timer_start -= 0.1;
+                            }
+                        }
+                        SettingsMenuButtonAction::IncreaseTimer => {
+                            if config.timer_start < 2.9 {
+                                config.timer_start += 0.1;
+                            }
+                        }
                     }
                     let mut settings_values = vec![
+                        format!("{:.01}s", config.timer_start),
                         match config.easy_mode {
                             true => "On",
                             false => "Off"
@@ -223,7 +262,7 @@ impl SettingsMenu {
                         config.map_size.1.to_string(),
                         config.map_size.0.to_string(),
                     ];
-                    for mut b in query.iter_mut().skip(4).step_by(4) {
+                    for mut b in query.iter_mut().skip(3).step_by(4) {
                         b.sections[0].value = settings_values.pop().unwrap();
                     }
                 commands.insert_resource(GameSettings {
@@ -233,6 +272,7 @@ impl SettingsMenu {
                     tile_size: config.clone().tile_size,
                     tile_padding: config.tile_padding,
                     easy_mode: config.easy_mode,
+                    timer_start: config.timer_start,
                 })
                 }
         }

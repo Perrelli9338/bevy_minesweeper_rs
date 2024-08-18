@@ -10,6 +10,7 @@ use crate::resources::settings::{GameSettings, TileSize::Fixed};
 pub struct ButtonColors {
     normal: Color,
     hovered: Color,
+    pressed: Color,
 }
 
 #[derive(Component)]
@@ -79,14 +80,7 @@ impl Plugin for MenuPlugin {
             .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
             .add_systems(Update, (menu_action, button_states).run_if(in_state(AppState::Menu)))
-            .insert_resource(GameSettings {
-                map_size: (8, 8),
-                bomb_count: 10,
-                tile_padding: 3.0,
-                tile_size: Fixed(50.0),
-                easy_mode: true,
-                position: Default::default(),
-            });
+            .insert_resource(GameSettings::default());
     }
 
 }
@@ -96,6 +90,7 @@ impl Default for ButtonColors {
         ButtonColors {
             normal: Color::linear_rgb(0.15, 0.15, 0.15),
             hovered: Color::linear_rgb(0.25, 0.25, 0.25),
+            pressed: Color::linear_rgb(0.5, 0.5, 0.5),
         }
     }
 }
@@ -123,6 +118,7 @@ fn button_states(
     for (interaction, mut color, button_colors, change_state) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
+                *color = button_colors.pressed.into();
                 if let Some(state) = change_state {
                     next_state.set(state.0.clone());
                 }

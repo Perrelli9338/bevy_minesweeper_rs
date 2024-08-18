@@ -26,7 +26,7 @@ pub struct TimingPlugin;
 impl Plugin for TimingPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(OnExit(GameState::Playing), set_timer)
+            .add_systems(OnExit(GameState::Playing), timer_endgame)
             .add_systems(Update, cleanup_board.run_if(in_state(AppState::Playing)).run_if(in_state(GameState::Win)))
             .add_systems(Update, cleanup_board.run_if(in_state(AppState::Playing)).run_if(in_state(GameState::Lose)))
             .add_systems(OnEnter(AppState::Endgame), create_scene_endgame)
@@ -43,7 +43,7 @@ fn exit(mut trigger_event: EventReader<EndgameEvent>, mut app_state: ResMut<Next
     }
 }
 
-fn set_timer(mut commands: Commands){
+fn timer_endgame(mut commands: Commands){
     commands.insert_resource(GameTimer(Timer::from_seconds(2.0, TimerMode::Once)));
 }
 

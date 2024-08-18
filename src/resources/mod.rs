@@ -1,3 +1,4 @@
+use crate::components::timer::GameTimer;
 use std::collections::{HashMap, HashSet};
 use bevy::{app::{App, Plugin},
            prelude::*,
@@ -35,8 +36,18 @@ impl Plugin for ResourcePlugin {
                 .load_collection::<TextureAssets>(),
         )
         .init_state::<GameState>()
-        .add_systems(OnEnter(AppState::Playing), new_game)
-        .add_systems(OnEnter(GameState::Playing), Self::create);
+        .add_systems(OnEnter(AppState::Playing), Self::create)
+        .add_systems(Update, new_game.run_if(in_state(GameState::Disabled)).run_if(in_state(AppState::Playing)));
+    }
+}
+
+fn delay_start(
+    time: Res<Time>,
+    mut timer: ResMut<GameTimer>,
+    mut game_state: ResMut<NextState<GameState>>
+){
+    if timer.tick(time.delta()).finished() {
+        game_state.set(GameState::Playing);
     }
 }
 
@@ -45,14 +56,21 @@ impl Plugin for ResourcePlugin {
 pub enum GameState {
     Win,
     Lose,
+    Loading,
     Pause,
     Playing,
     #[default]
     Disabled,
 }
 
-fn new_game(mut game_state: ResMut<NextState<GameState>>){
-    game_state.set(GameState::Playing)
+fn new_game(
+    time: Res<Time>,
+    mut timer: ResMut<GameTimer>,
+    mut game_state: ResMut<NextState<GameState>>
+){
+    if timer.tick(time.delta()).finished() {
+        game_state.set(GameState::Playing);
+    }
 }
 
 impl ResourcePlugin {

@@ -4,8 +4,10 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use crate::{AppState, resources::GameState};
 use crate::components::{stopwatch, stopwatch::GameStopwatch};
+use crate::components::timer::GameTimer;
 use crate::resources::board::Board;
 use crate::resources::events::*;
+use crate::resources::settings::GameSettings;
 
 mod uncover;
 mod flagged;
@@ -16,6 +18,7 @@ pub struct SystemPlugins;
 impl Plugin for SystemPlugins {
     fn build(&self, app: &mut App) {
         app
+            .add_systems(OnExit(AppState::Menu), set_timer)
             .add_systems(OnEnter(AppState::Playing), GameStopwatch::new)
             .add_systems(OnExit(AppState::Playing), GameStopwatch::pause)
             .add_systems(Update, (
@@ -34,58 +37,65 @@ impl Plugin for SystemPlugins {
     }
 }
 
+fn set_timer(mut commands: Commands, settings: Res<GameSettings>){
+    commands.insert_resource(GameTimer(Timer::from_seconds(settings.timer_start, TimerMode::Once)));
+}
+
 pub fn game_input_handling(
     window_primary_query: Query<&Window, With<PrimaryWindow>>,
     board: Res<Board>,
     mouse_input: Res<ButtonInput<MouseButton>>,
     touch_input: Res<Touches>,
     mut tile_trigger_ewr: EventWriter<TileTriggerEvent>,
-    mut flag_trigger_ewr: EventWriter<TileFlaggedEvent>
+    mut flag_trigger_ewr: EventWriter<TileFlaggedEvent>,
 ) {
-    let Ok(window) = window_primary_query.get_single() else { return };
-    let mut fingers = Vec::new();
-    for finger in touch_input.iter(){
-        if touch_input.just_pressed(finger.id()) {
-            fingers.push(finger);
+        let Ok(window) = window_primary_query.get_single() else { return };
+        let mut fingers = Vec::new();
+        for finger in touch_input.iter() {
+            if touch_input.just_pressed(finger.id()) {
+                fingers.push(finger);
+            }
         }
-    }
-    if fingers.len() >= 2 {
-        let touch_position = fingers.get(1).unwrap().position();
-        if let Some(tile_coordinates) = board.press_position(window, touch_position) {
-            flag_trigger_ewr.send(TileFlaggedEvent{
-                coordinates: tile_coordinates
-            });
-        }
-    } else {
-        if let Some(touch_position) = touch_input.first_pressed_position() {
+        if fingers.len() >= 2 {
+            let touch_position = fingers.get(0).unwrap().position();
+            let touch_second_position = fingers.get(1).unwrap().position();
             if let Some(tile_coordinates) = board.press_position(window, touch_position) {
-
-                tile_trigger_ewr.send(TileTriggerEvent{
+                flag_trigger_ewr.send(TileFlaggedEvent {
+                    coordinates: tile_coordinates
+                });
+            } else if let Some(tile_coordinates) = board.press_position(window, touch_second_position) {
+                flag_trigger_ewr.send(TileFlaggedEvent {
                     coordinates: tile_coordinates
                 });
             }
+        } else {
+            if let Some(touch_position) = touch_input.first_pressed_position() {
+                if let Some(tile_coordinates) = board.press_position(window, touch_position) {
+                    tile_trigger_ewr.send(TileTriggerEvent {
+                        coordinates: tile_coordinates
+                    });
+                }
+            }
         }
-    }
-    if mouse_input.just_pressed(MouseButton::Left) {
-        if let Some(mouse_position) = window.cursor_position() {
-            if let Some(tile_coordinates) = board.press_position(window, mouse_position) {
-                tile_trigger_ewr.send(TileTriggerEvent{
-                    coordinates: tile_coordinates
-                });
+        if mouse_input.just_pressed(MouseButton::Left) {
+            if let Some(mouse_position) = window.cursor_position() {
+                if let Some(tile_coordinates) = board.press_position(window, mouse_position) {
+                    tile_trigger_ewr.send(TileTriggerEvent {
+                        coordinates: tile_coordinates
+                    });
+                }
+            }
+        }
+        if mouse_input.just_pressed(MouseButton::Right) {
+            if let Some(mouse_position) = window.cursor_position() {
+                if let Some(tile_coordinates) = board.press_position(window, mouse_position) {
+                    flag_trigger_ewr.send(TileFlaggedEvent{
+                        coordinates: tile_coordinates
+                    });
+                }
             }
         }
     }
-    if mouse_input.just_pressed(MouseButton::Right) {
-        if let Some(mouse_position) = window.cursor_position() {
-            if let Some(tile_coordinates) = board.press_position(window, mouse_position) {
-                flag_trigger_ewr.send(TileFlaggedEvent{
-                    coordinates: tile_coordinates
-                });
-            }
-        }
-    }
-
-}
 
 pub fn endgame_input_handling(
     mouse_input: Res<ButtonInput<MouseButton>>,
