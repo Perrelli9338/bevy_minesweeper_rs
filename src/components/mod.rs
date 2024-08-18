@@ -8,6 +8,7 @@ pub(crate) mod menu;
 pub use bomb::Bomb;
 pub use bomb_neighbor::BombNeighbor;
 use crate::{AppState, system};
+use crate::components::stopwatch::GameStopwatch;
 use crate::components::timer::GameTimer;
 use crate::resources::board::Board;
 use crate::resources::events::{EndgameEvent};
@@ -17,8 +18,8 @@ mod bomb;
 mod bomb_neighbor;
 pub(crate) mod uncover;
 pub(crate) mod flag;
-mod stopwatch;
 pub(crate) mod timer;
+pub(crate) mod stopwatch;
 
 pub struct TimingPlugin;
 
@@ -58,13 +59,14 @@ fn cleanup_board(mut commands: Commands, board: Res<Board>,  time: Res<Time>,
 #[derive(Component)]
 struct Scene;
 
-fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>>) {
+fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>>, mut stopwatch: ResMut<GameStopwatch>) {
     let mut msg = "You've ".to_owned();
     msg.push_str(match game_state.get() {
-        GameState::Lose => "lose",
-        GameState::Win => "win",
+        GameState::Lose => "lose!",
+        GameState::Win => "win!",
         _ => "[This text shouldn't be displayed, if you see it, let's say you've discovered an easter egg ;)]"
     });
+    let time_msg = format!("You've played for {}:{:02}", stopwatch.time.elapsed_secs() as i32 / 60, stopwatch.time.elapsed_secs() as i32 % 60);
     commands
         .spawn((
             NodeBundle {
@@ -86,6 +88,15 @@ fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>
                 msg,
                 TextStyle {
                     font_size: 64.,
+                    ..default()
+                }
+            ));
+        })
+        .with_children(|children| {
+            children.spawn(TextBundle::from_section(
+                time_msg,
+                TextStyle {
+                    font_size: 32.,
                     ..default()
                 }
             ));

@@ -214,30 +214,26 @@ impl SettingsMenu {
                             config.easy_mode = false;
                         }
                     }
-                    if let Some(mut safe_start) = query.iter_mut().nth(16){
-                        safe_start.sections[0].value =
-                            match config.easy_mode {
-                                true => "On",
-                                false => "Off"
-                            }.to_string();
+                    let mut settings_values = vec![
+                        match config.easy_mode {
+                            true => "On",
+                            false => "Off"
+                        }.to_string(),
+                        config.bomb_count.to_string(),
+                        config.map_size.1.to_string(),
+                        config.map_size.0.to_string(),
+                    ];
+                    for mut b in query.iter_mut().skip(4).step_by(4) {
+                        b.sections[0].value = settings_values.pop().unwrap();
                     }
-                    if let Some(mut width) = query.iter_mut().nth(4){
-                        width.sections[0].value = config.map_size.0.to_string();
-                    }
-                    if let Some(mut height) = query.iter_mut().nth(8){
-                        height.sections[0].value = config.map_size.1.to_string();
-                    }
-                    if let Some(mut bombs_count) = query.iter_mut().nth(12){
-                        bombs_count.sections[0].value = config.bomb_count.to_string();
-                    }
-                    commands.insert_resource(GameSettings {
-                        map_size: config.map_size,
-                        bomb_count: config.bomb_count,
-                        position: config.clone().position,
-                        tile_size: config.clone().tile_size,
-                        tile_padding: config.tile_padding,
-                        easy_mode: config.easy_mode,
-                    })
+                commands.insert_resource(GameSettings {
+                    map_size: config.map_size,
+                    bomb_count: config.bomb_count,
+                    position: config.clone().position,
+                    tile_size: config.clone().tile_size,
+                    tile_padding: config.tile_padding,
+                    easy_mode: config.easy_mode,
+                })
                 }
         }
     }
