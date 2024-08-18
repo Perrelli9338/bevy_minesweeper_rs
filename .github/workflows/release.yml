@@ -46,7 +46,7 @@ jobs:
       - name: Install rust toolchain for Apple Silicon
         uses: dtolnay/rust-toolchain@master
         with:
-            toolchain: nightly
+            toolchain: stable
             targets: aarch64-apple-darwin
       - name: Build release for Apple Silicon
         run: |
@@ -54,7 +54,7 @@ jobs:
       - name: Install rust toolchain for Apple x86
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly
+          toolchain: stable
           components: rust-src
           targets: x86_64-apple-darwin
       - name: Build release for x86 Apple
