@@ -246,10 +246,7 @@ jobs:
     timeout-minutes: 30
     needs: get-version
     env:
-      GAME_EXECUTABLE_NAME: minesweeper
-      BUNDLE_PATH: "target/x/release/android/mobile.aab"
-      PACKAGE_NAME: "prrmrc.game.minesweeper"
-      TRACK: internal
+      VERSION: ${{needs.get-version.outputs.version}}
       MOBILE_DIRECTORY: mobile
     steps:
       - name: Install Dependencies
@@ -266,18 +263,13 @@ jobs:
         run: |
           cd ${{ env.MOBILE_DIRECTORY }}
           x doctor
-          x build --release --platform android --store play
-      - name: Sign app bundle
-        run: |
-          KEYSTORE_PATH=${{ runner.temp }}/upload-keystore.jks
-          echo -n "${{ secrets.PLAYSTORE_KEYSTORE }}" | base64 --decode > $KEYSTORE_PATH
-          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $KEYSTORE_PATH -storepass "${{ secrets.PLAYSTORE_KEYSTORE_PASSWORD }}" ${{ env.BUNDLE_PATH }} upload
-      - name: Upload self-signed bundle to GitHub
+          x build --release --platform android
+      - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.BUNDLE_PATH }}
-          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ inputs.version }}_android.aab
-          release_name: ${{ inputs.version }}
-          tag: ${{ inputs.version }}
+          file: target/debug/apk/${{ env.GAME_OSX_APP_NAME }}.apk
+          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android.apk
+          release_name: ${{ env.VERSION }}
+          tag: ${{ env.VERSION }}
           overwrite: true
