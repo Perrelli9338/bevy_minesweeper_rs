@@ -276,10 +276,10 @@ jobs:
         uses:  ethanneff/bundletool-action@v1.0.8
         with:
           aabFile: ${{ env.GAME_EXECUTABLE_NAME }}_${{ inputs.version }}_android.aab
-          base64Keystore: upload-keystore.jks
+          base64Keystore: ${{ secrets.PLAYSTORE_KEYSTORE }}
           keystorePassword: ${{ secrets.PLAYSTORE_KEYSTORE_PASSWORD }}
           keystoreAlias: upload
-          keyPassword: ${{ secrets.PASSWORD }}
+          keyPassword: ${{ secrets.PLAYSTORE_KEYSTORE_PASSWORD }}
       - name: Upload signed apk to GitHub
         uses: svenstaro/upload-release-action@v2
         with:
