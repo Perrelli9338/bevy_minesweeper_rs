@@ -6,6 +6,6 @@ android:
   icon: "ios-src/Assets.xcassets/AppIcon.appiconset/icon_1024x1024.png"
   manifest:
     package: "prrmrc.game.minesweeper"
-    version_code: 0.1.4
+    version_code: 1
     application:
       label: "Minesweeper"
