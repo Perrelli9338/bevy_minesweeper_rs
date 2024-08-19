@@ -272,12 +272,20 @@ jobs:
           KEYSTORE_PATH=${{ runner.temp }}/upload-keystore.jks
           echo -n "${{ secrets.PLAYSTORE_KEYSTORE }}" | base64 --decode > $KEYSTORE_PATH
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $KEYSTORE_PATH -storepass "${{ secrets.PLAYSTORE_KEYSTORE_PASSWORD }}" ${{ env.BUNDLE_PATH }} upload
-      - name: Upload self-signed bundle to GitHub
+      - name: Convert aab to apk
+        uses:  ethanneff/bundletool-action@v1.0.8
+        with:
+          aabFile: ${{ env.GAME_EXECUTABLE_NAME }}_${{ inputs.version }}_android.aab
+          base64Keystore: upload-keystore.jks
+          keystorePassword: ${{ secrets.PLAYSTORE_KEYSTORE_PASSWORD }}
+          keystoreAlias: upload
+          keyPassword: ${{ secrets.PASSWORD }}
+      - name: Upload signed apk to GitHub
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.BUNDLE_PATH }}
-          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ inputs.version }}_android.aab
+          asset_name: ${{ steps.convert_aab.outputs.apkPath }}
           release_name: ${{ inputs.version }}
           tag: ${{ inputs.version }}
           overwrite: true
