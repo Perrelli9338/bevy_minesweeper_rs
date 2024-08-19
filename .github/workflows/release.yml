@@ -309,8 +309,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.BUNDLE_PATH }}
-          asset_name: ${{ steps.convert_aab.outputs.apkPath }}
+          file: ${{ steps.convert_aab.outputs.apkPath }}
+          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android.apk
           release_name: ${{ inputs.version }}
           tag: ${{ inputs.version }}
           overwrite: true
