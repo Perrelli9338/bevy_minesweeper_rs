@@ -271,6 +271,7 @@ jobs:
     timeout-minutes: 30
     needs: get-version
     env:
+      VERSION: ${{needs.get-version.outputs.version}}
       GAME_EXECUTABLE_NAME: minesweeper
       BUNDLE_PATH: "target/x/release/android/mobile.aab"
       PACKAGE_NAME: "prrmrc.game.minesweeper"
@@ -312,6 +313,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ steps.convert_aab.outputs.apkPath }}
           asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android.apk
-          release_name: ${{ inputs.version }}
-          tag: ${{ inputs.version }}
+          release_name: ${{ env.VERSION }}
+          tag: ${{ env.VERSION }}
           overwrite: true
