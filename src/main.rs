@@ -4,6 +4,7 @@
 use bevy::asset::AssetMetaCheck;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use bevy::winit::{UpdateMode, WinitSettings};
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
 use minesweeper::GamePlugin;
@@ -12,6 +13,10 @@ use winit::window::Icon;
 
 fn main() {
     App::new()
+        .insert_resource(WinitSettings {
+            focused_mode: UpdateMode::Continuous,
+            unfocused_mode: UpdateMode::Continuous,
+        })
         .insert_resource(Msaa::Off)
         .insert_resource(ClearColor(Color::linear_rgb(0.4, 0.4, 0.4)))
         .add_plugins(
@@ -23,7 +28,7 @@ fn main() {
                         canvas: Some("#bevy".to_owned()),
                         fit_canvas_to_parent: true,
                         // Tells wasm not to override default event handling, like F5 and Ctrl+R
-                        prevent_default_event_handling: false,
+                        prevent_default_event_handling: true,
                         ..default()
                     }),
                     ..default()

@@ -26,6 +26,7 @@ pub struct GameSettings {
     pub tile_padding: f32,
     pub easy_mode: bool,
     pub timer_start: f32,
+    pub flag_mode: bool,
 }
 
 impl Default for TileSize {
@@ -55,6 +56,7 @@ impl Default for GameSettings {
             easy_mode: true,
             position: Default::default(),
             timer_start: 0.8,
+            flag_mode: true,
         }
     }
 }

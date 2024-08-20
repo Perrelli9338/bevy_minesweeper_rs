@@ -298,7 +298,8 @@ jobs:
           echo -n "${{ secrets.PLAYSTORE_KEYSTORE }}" | base64 --decode > $KEYSTORE_PATH
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $KEYSTORE_PATH -storepass "${{ secrets.PLAYSTORE_KEYSTORE_PASSWORD }}" ${{ env.BUNDLE_PATH }} upload
       - name: Convert aab to apk
-        uses:  ethanneff/bundletool-action@v1.0.8
+        id: convert_aab
+        uses: ethanneff/bundletool-action@v1.0.8
         with:
           aabFile: ${{ env.BUNDLE_PATH }}
           base64Keystore: ${{ secrets.PLAYSTORE_KEYSTORE }}

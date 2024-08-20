@@ -20,11 +20,10 @@ impl MainMenu {
             .spawn((
                 NodeBundle {
                     style: Style {
-                        width: Val::Percent(100.0),
-                        height: Val::Percent(100.0),
+                        display: Display::Flex,
                         flex_direction: FlexDirection::Column,
+                        margin: UiRect::all(Val::Auto),
                         align_items: AlignItems::Center,
-                        justify_content: JustifyContent::Center,
                         row_gap: Val::Px(10.0),
                         ..default()
                     },
@@ -36,8 +35,8 @@ impl MainMenu {
                 children.spawn((
                     NodeBundle {
                         style: Style {
+                            display: Display::Flex,
                             flex_direction: FlexDirection::Row,
-                            padding: UiRect::all(Val::Px(15.)),
                             ..default()
                         },
                         ..default()

@@ -13,6 +13,8 @@ enum SettingsMenuButtonAction {
     DecrementHeightBoard,
     SafeStartOn,
     SafeStartOff,
+    TurnFlagOn,
+    TurnFlagOff,
     IncreaseTimer,
     DecreaseTimer,
 }
@@ -43,12 +45,11 @@ impl SettingsMenu {
             .spawn((
                 NodeBundle {
                     style: Style {
-                        width: Val::Percent(100.0),
-                        height: Val::Percent(100.0),
-                        row_gap: Val::Px(15.),
+                        display: Display::Flex,
                         flex_direction: FlexDirection::Column,
+                        margin: UiRect::all(Val::Auto),
                         align_items: AlignItems::Center,
-                        justify_content: JustifyContent::Center,
+                        row_gap: Val::Px(15.),
                         ..default()
                     },
                     ..default()
@@ -59,7 +60,7 @@ impl SettingsMenu {
                 children.spawn(TextBundle::from_section(
                     "Settings",
                     TextStyle {
-                        font_size: 64.,
+                        font_size: 54.,
                         ..default()
                     }
                 ));
@@ -67,11 +68,11 @@ impl SettingsMenu {
             .with_children(|children| {
                 children.spawn((NodeBundle {
                     style: Style {
-                        width: Val::Percent(30.0),
+                        display: Display::Flex,
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::FlexEnd,
-                        justify_content: JustifyContent::Center,
-                        row_gap: Val::Px(3.0),
+                        row_gap: Val::Px(5.),
+                        width: Val::Percent(50.0),
                         ..default()
                     },
                     ..default()
@@ -82,7 +83,8 @@ impl SettingsMenu {
                             (SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height", config.map_size.1.to_string()),
                             (SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs", config.bomb_count.to_string()),
                             (SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start", match config.easy_mode { true => "On", false => "Off" }.to_string()),
-                            (SettingsMenuButtonAction::DecreaseTimer, SettingsMenuButtonAction::IncreaseTimer, "Start delay", format!("{:.01}s", config.timer_start))
+                            (SettingsMenuButtonAction::TurnFlagOff, SettingsMenuButtonAction::TurnFlagOn, "Flag mode", match config.flag_mode { true => "On", false => "Off" }.to_string()),
+                            (SettingsMenuButtonAction::DecreaseTimer, SettingsMenuButtonAction::IncreaseTimer, "Start delay", format!("{:.01}s", config.timer_start)),
                         ] {
                             children.spawn((
                                 NodeBundle {
@@ -107,10 +109,11 @@ impl SettingsMenu {
                                     ));
                                     children.spawn((NodeBundle {
                                         style: Style {
-                                            width: Val::Percent(50.0),
-                                            column_gap: Val::Px(5.),
                                             display: Display::Flex,
                                             justify_content: JustifyContent::SpaceBetween,
+                                            width: Val::Percent(35.0),
+                                            column_gap: Val::Px(5.),
+                                            align_items: AlignItems::Center,
                                             ..default()
                                         },
                                         ..default()
@@ -137,7 +140,7 @@ impl SettingsMenu {
                                     children.spawn(TextBundle::from_section(
                                         value,
                                         TextStyle {
-                                            font_size: 42.,
+                                            font_size: 37.,
                                             ..default()
                                         }
                                     ));
@@ -242,18 +245,28 @@ impl SettingsMenu {
                             config.easy_mode = false;
                         }
                         SettingsMenuButtonAction::DecreaseTimer => {
-                            if config.timer_start > 0.1 {
+                            if config.timer_start > 0.0 {
                                 config.timer_start -= 0.1;
                             }
                         }
                         SettingsMenuButtonAction::IncreaseTimer => {
-                            if config.timer_start < 2.9 {
+                            if config.timer_start < 3.0 {
                                 config.timer_start += 0.1;
                             }
+                        }
+                        SettingsMenuButtonAction::TurnFlagOn => {
+                            config.flag_mode = true;
+                        }
+                        SettingsMenuButtonAction::TurnFlagOff => {
+                            config.flag_mode = false;
                         }
                     }
                     let mut settings_values = vec![
                         format!("{:.01}s", config.timer_start),
+                        match config.flag_mode {
+                            true => "On",
+                            false => "Off"
+                        }.to_string(),
                         match config.easy_mode {
                             true => "On",
                             false => "Off"
@@ -273,6 +286,7 @@ impl SettingsMenu {
                     tile_padding: config.tile_padding,
                     easy_mode: config.easy_mode,
                     timer_start: config.timer_start,
+                    flag_mode: config.flag_mode,
                 })
                 }
         }

@@ -5,6 +5,7 @@ use crate::components::timer::GameTimer;
 use crate::components::uncover::Uncover;
 use crate::resources::board::Board;
 use crate::resources::events::{GameLoseEvent, GameWinEvent, TileTriggerEvent};
+use crate::resources::settings::GameSettings;
 
 pub fn input_event(
     mut commands: Commands,
@@ -23,6 +24,7 @@ pub fn input_event(
 pub fn uncover_tiles(
     mut commands: Commands,
     mut board: ResMut<Board>,
+    config: Res<GameSettings>,
     children: Query<(Entity, &Parent), With<Uncover>>,
     parents: Query<(&Coordinates, Option<&Bomb>, Option<&BombNeighbor>)>,
     mut trigger_evr: EventWriter<GameLoseEvent>,
@@ -52,7 +54,7 @@ pub fn uncover_tiles(
         
         
     }
-    if board.is_win(){
+    if board.is_win(config.flag_mode){
         trigger_event.send(GameWinEvent);
     }
 }

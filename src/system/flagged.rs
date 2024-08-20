@@ -46,7 +46,7 @@ pub fn flag_tiles(
             _ => (),
             }
         }
-    if board.is_win(){
+    if board.is_win(config.flag_mode){
         trigger_event.send(GameWinEvent);
     }
 }
