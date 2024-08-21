@@ -92,7 +92,7 @@ impl Default for ButtonColors {
             normal: Color::linear_rgb(0.15, 0.15, 0.15),
             hovered: Color::linear_rgb(0.25, 0.25, 0.25),
             pressed: Color::linear_rgb(0.5, 0.5, 0.5),
-            disabled: Color::linear_rgb(0.05, 0.05, 0.05),
+            disabled: Color::linear_rgb(0.35, 0.35, 0.35),
         }
     }
 }

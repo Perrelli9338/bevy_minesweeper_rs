@@ -48,14 +48,14 @@ impl MainMenu {
                         children.spawn(TextBundle::from_section(
                             "Minesweeper",
                             TextStyle {
-                                font_size: 64.,
+                                font_size: 59.,
                                 ..default()
                             }
                         ));
                         children.spawn(ImageBundle {
                             image: textures.icon.clone().into(),
                             style: Style {
-                                width: Val::Px(64.),
+                                width: Val::Px(59.),
                                 ..default()
                             },
                             ..default()

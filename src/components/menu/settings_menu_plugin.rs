@@ -28,10 +28,104 @@ pub struct SettingsMenu;
 impl Plugin for SettingsMenu {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(MenuStates::Settings), Self::create)
-            .add_systems(Update, Self::button_functions.run_if(in_state(MenuStates::Settings)))
-            .add_systems(OnExit(MenuStates::Settings), cleanup::<MenuSettings>);
+            .add_systems(Update, Self::settings_button_functions.run_if(in_state(MenuStates::Settings)))
+            .add_systems(OnExit(MenuStates::Settings), cleanup::<MenuSettings>)
+            .add_systems(Update, settings_button_colors.run_if(in_state(MenuStates::Settings)));
     }
 }
+
+fn settings_button_colors (
+    mut interaction_query: Query<
+        (
+            &Interaction,
+            &mut BackgroundColor,
+            &ButtonColors,
+            &SettingsMenuButtonAction,
+        ),
+        (With<Button>),
+    >,
+    mut config: ResMut<GameSettings>,
+) {
+    for (interaction, mut color, button_colors, button_action) in &mut interaction_query {
+        if *interaction == Interaction::None {
+                *color = button_colors.normal.into();
+                match button_action {
+                    SettingsMenuButtonAction::DecrementBombCount => {
+                        if !(config.bomb_count > 1) {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::IncrementBombCount => {
+                        if config.bomb_count < (config.map_size.0 * config.map_size.1) - 1 {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::IncrementWidthBoard => {
+                        if config.map_size.0 <= 32 {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::DecrementWidthBoard => {
+                        if config.map_size.0 > 1 && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::DecrementHeightBoard => {
+                        if config.map_size.1 > 1 && (config.map_size.0 * (config.map_size.1 - 1)) > config.bomb_count {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::IncrementHeightBoard => {
+                        if config.map_size.1 <= 32 {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::SafeStartOn => {
+                        if !config.easy_mode {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::SafeStartOff => {
+                        if config.easy_mode {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::DecreaseTimer => {
+                        if config.timer_start > 0. {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::IncreaseTimer => {
+                        if config.timer_start < 3.0 {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::TurnFlagOn => {
+                        if !config.flag_mode {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+                    SettingsMenuButtonAction::TurnFlagOff => {
+                        if config.flag_mode {
+                        } else {
+                            *color = button_colors.disabled.into();
+                        }
+                    }
+            }
+        }
+    }
+}
+
 
 impl SettingsMenu {
 
@@ -193,7 +287,7 @@ impl SettingsMenu {
 
     }
 
-    fn button_functions(
+    fn settings_button_functions(
         mut commands: Commands,
         mut query: Query<&mut Text>,
         mut interaction_query: Query<
@@ -203,12 +297,11 @@ impl SettingsMenu {
             ),
             (Changed<Interaction>, With<Button>),
         >,
-        mut options: ResMut<GameSettings>,
+        mut config: ResMut<GameSettings>,
     ) {
-        let config = &mut options;
-        for (interaction, menu_button_action) in &mut interaction_query {
+        for (interaction, button_action) in &mut interaction_query {
             if *interaction == Interaction::Pressed {
-                    match menu_button_action {
+                    match button_action {
                         SettingsMenuButtonAction::DecrementBombCount => {
                             if config.bomb_count > 1 {
                                 config.bomb_count -= 1;
