@@ -1,10 +1,12 @@
-use bevy::prelude::*;
-use crate::{
-    AppState,
-    resources::settings::GameSettings
-};
 mod main_menu_plugin;
 mod settings_menu_plugin;
+
+mod selection_mode_plugin;
+
+use bevy::prelude::*;
+
+use crate::AppState;
+use crate::resources::settings::GameSettings;
 
 #[derive(Component, Clone, Copy)]
 pub struct ButtonColors {
@@ -30,6 +32,7 @@ pub struct UISettings {
 pub enum MenuStates {
     Main,
     Settings,
+    SelectionMode,
     #[default]
     Disabled,
 }
@@ -37,6 +40,8 @@ pub enum MenuStates {
 #[derive(Component)]
 enum MenuButtonAction {
     Play,
+    GameIn2D,
+    GameIn3D,
     Settings,
     BackToMainMenu,
     Quit,
@@ -76,12 +81,12 @@ impl Plugin for MenuPlugin {
         app.init_state::<MenuStates>()
             .add_plugins((
                 main_menu_plugin::MainMenu,
-                settings_menu_plugin::SettingsMenu
+                settings_menu_plugin::SettingsMenu,
+                selection_mode_plugin::SelectionMenu
             ))
             .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
-            .add_systems(Update, button_states.run_if(in_state(MenuStates::Main)))
-            .add_systems(Update, menu_action.run_if(in_state(AppState::Menu)))
+            .add_systems(Update, (menu_action, button_states).run_if(in_state(AppState::Menu)))
             .insert_resource(GameSettings::default());
     }
 
@@ -150,9 +155,14 @@ fn menu_action(
             match menu_button_action {
                 MenuButtonAction::Quit => {
                     app_exit_events.send(AppExit::Success);
+                },
+                MenuButtonAction::Play => menu_state.set(MenuStates::SelectionMode),
+                MenuButtonAction::GameIn2D => {
+                    game_state.set(AppState::Playing2D);
+                    menu_state.set(MenuStates::Disabled);
                 }
-                MenuButtonAction::Play => {
-                    game_state.set(AppState::Playing);
+                MenuButtonAction::GameIn3D => {
+                    game_state.set(AppState::Playing3D);
                     menu_state.set(MenuStates::Disabled);
                 }
                 MenuButtonAction::Settings => menu_state.set(MenuStates::Settings),

@@ -36,8 +36,8 @@ impl Plugin for ResourcePlugin {
                 .load_collection::<TextureAssets>(),
         )
         .init_state::<GameState>()
-        .add_systems(OnEnter(AppState::Playing), Self::create)
-        .add_systems(Update, new_game.run_if(in_state(GameState::Disabled)).run_if(in_state(AppState::Playing)));
+        .add_systems(OnEnter(AppState::Playing2D), Self::create)
+        .add_systems(Update, new_game.run_if(in_state(GameState::Disabled)).run_if(in_state(AppState::Playing2D)));
     }
 }
 

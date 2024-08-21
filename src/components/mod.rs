@@ -33,8 +33,8 @@ impl Plugin for TimingPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(OnExit(GameState::Playing), timer_endgame)
-            .add_systems(Update, cleanup_board.run_if(in_state(AppState::Playing)).run_if(in_state(GameState::Win)))
-            .add_systems(Update, cleanup_board.run_if(in_state(AppState::Playing)).run_if(in_state(GameState::Lose)))
+            .add_systems(Update, cleanup_board.run_if(in_state(AppState::Playing2D)).run_if(in_state(GameState::Win)))
+            .add_systems(Update, cleanup_board.run_if(in_state(AppState::Playing2D)).run_if(in_state(GameState::Lose)))
             .add_systems(OnEnter(AppState::Endgame), create_scene_endgame)
             .add_systems(Update, (system::endgame_input_handling, exit).run_if(in_state(AppState::Endgame)))
             .add_systems(OnExit(AppState::Endgame), menu::cleanup::<Scene>)
