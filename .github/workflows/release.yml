@@ -241,7 +241,7 @@ jobs:
           tag: ${{ env.VERSION }}
           overwrite: true
 
-  build-for-Android-apk:
+  build-for-Android-debug:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: get-version
@@ -266,7 +266,7 @@ jobs:
           tag: ${{ env.VERSION }}
           overwrite: true
 
-  build-for-Android-apks:
+  build-for-Android-release:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: get-version

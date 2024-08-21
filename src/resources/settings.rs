@@ -49,7 +49,7 @@ impl Default for Position {
 impl Default for GameSettings {
     fn default() -> Self {
         Self {
-            map_size: (8, 8),
+            map_size: (7, 7),
             bomb_count: 10,
             tile_padding: 3.0,
             tile_size: Fixed(50.0),

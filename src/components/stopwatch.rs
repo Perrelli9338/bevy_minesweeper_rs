@@ -1,35 +1,24 @@
+use std::time::{Duration, Instant};
 use bevy::prelude::*;
-use bevy::time::Stopwatch;
-use crate::components::timer::GameTimer;
 
 #[derive(Resource)]
 pub struct GameStopwatch {
-    pub(crate) time: Stopwatch
+    pub(crate) time: Instant,
+    pub(crate) total_time: Duration,
 }
 
 impl GameStopwatch {
 
     pub(crate) fn new(mut commands: Commands) {
         commands.insert_resource(GameStopwatch {
-            time: Stopwatch::new(),
+            time: Instant::now(),
+            total_time: Instant::now().elapsed(),
         });
-    }
-    pub(crate) fn tick(
-        time: Res<Time>,
-        mut stopwatch: ResMut<GameStopwatch>
-    ){
-        stopwatch.time.tick(time.delta());
-    }
-
-    pub(crate) fn unpause(
-        mut stopwatch: ResMut<GameStopwatch>
-    ){
-        stopwatch.time.unpause();
     }
 
     pub(crate) fn pause(
         mut stopwatch: ResMut<GameStopwatch>
     ){
-        stopwatch.time.paused();
+        stopwatch.total_time = Instant::now() - stopwatch.time;
     }
 }

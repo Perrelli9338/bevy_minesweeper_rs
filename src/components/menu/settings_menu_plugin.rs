@@ -1,6 +1,6 @@
 use bevy::app::{App, Plugin, Update};
 use bevy::prelude::*;
-use crate::components::menu::{UISettings, MenuStates, cleanup, MenuButtonAction};
+use crate::components::menu::{UISettings, MenuStates, cleanup, MenuButtonAction, ButtonColors};
 use crate::resources::settings::GameSettings;
 
 #[derive(Component)]
@@ -47,6 +47,7 @@ impl SettingsMenu {
                     style: Style {
                         display: Display::Flex,
                         flex_direction: FlexDirection::Column,
+                        width: Val::Percent(100.0),
                         margin: UiRect::all(Val::Auto),
                         align_items: AlignItems::Center,
                         row_gap: Val::Px(15.),
@@ -72,7 +73,7 @@ impl SettingsMenu {
                         flex_direction: FlexDirection::Column,
                         align_items: AlignItems::FlexEnd,
                         row_gap: Val::Px(5.),
-                        width: Val::Percent(50.0),
+                        width: Val::Percent(80.0),
                         ..default()
                     },
                     ..default()
@@ -111,7 +112,7 @@ impl SettingsMenu {
                                         style: Style {
                                             display: Display::Flex,
                                             justify_content: JustifyContent::SpaceBetween,
-                                            width: Val::Percent(35.0),
+                                            width: Val::Percent(30.0),
                                             column_gap: Val::Px(5.),
                                             align_items: AlignItems::Center,
                                             ..default()
@@ -198,7 +199,7 @@ impl SettingsMenu {
         mut interaction_query: Query<
             (
                 &Interaction,
-                &SettingsMenuButtonAction
+                &SettingsMenuButtonAction,
             ),
             (Changed<Interaction>, With<Button>),
         >,
@@ -224,12 +225,12 @@ impl SettingsMenu {
                             }
                         }
                         SettingsMenuButtonAction::DecrementWidthBoard => {
-                            if config.map_size.0 > 1 && config.bomb_count <= (config.map_size.0 * config.map_size.1) - config.bomb_count {
+                            if config.map_size.0 > 1 && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count {
                                 config.map_size.0 -= 1;
                             }
                         }
                         SettingsMenuButtonAction::DecrementHeightBoard => {
-                            if config.map_size.1 > 1 && config.bomb_count <= (config.map_size.0 * config.map_size.1) - config.bomb_count {
+                            if config.map_size.1 > 1 && (config.map_size.0 * (config.map_size.1 - 1)) > config.bomb_count {
                                 config.map_size.1 -= 1;
                             }
                         }
@@ -245,8 +246,8 @@ impl SettingsMenu {
                             config.easy_mode = false;
                         }
                         SettingsMenuButtonAction::DecreaseTimer => {
-                            if config.timer_start > 0.0 {
-                                config.timer_start -= 0.1;
+                            if config.timer_start > 0. {
+                                config.timer_start = format!("{:.01}", config.timer_start - 0.1).parse::<f32>().unwrap();
                             }
                         }
                         SettingsMenuButtonAction::IncreaseTimer => {
@@ -261,7 +262,9 @@ impl SettingsMenu {
                             config.flag_mode = false;
                         }
                     }
-                    let mut settings_values = vec![
+                }
+        }
+        let mut settings_values = vec![
                         format!("{:.01}s", config.timer_start),
                         match config.flag_mode {
                             true => "On",
@@ -290,6 +293,3 @@ impl SettingsMenu {
                 })
                 }
         }
-    }
-
-}

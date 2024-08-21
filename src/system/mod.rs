@@ -19,11 +19,10 @@ impl Plugin for SystemPlugins {
     fn build(&self, app: &mut App) {
         app
             .add_systems(OnExit(AppState::Menu), set_timer)
-            .add_systems(OnEnter(AppState::Playing), GameStopwatch::new)
+            .add_systems(OnEnter(GameState::Playing), GameStopwatch::new)
             .add_systems(OnExit(AppState::Playing), GameStopwatch::pause)
             .add_systems(Update, (
                 game_state_handler, (
-                    GameStopwatch::tick,
                     game_input_handling,
                     flagged::flag_tiles,
                     uncover::input_event,

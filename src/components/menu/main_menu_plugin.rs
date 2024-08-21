@@ -22,6 +22,7 @@ impl MainMenu {
                     style: Style {
                         display: Display::Flex,
                         flex_direction: FlexDirection::Column,
+                        width: Val::Percent(100.0),
                         margin: UiRect::all(Val::Auto),
                         align_items: AlignItems::Center,
                         row_gap: Val::Px(10.0),

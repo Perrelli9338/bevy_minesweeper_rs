@@ -1,3 +1,4 @@
+use std::ops::Sub;
 use bevy::app::{App, Plugin};
 use bevy::prelude::*;
 pub use coordinates::Coordinates;
@@ -66,7 +67,7 @@ fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>
         GameState::Win => "win!",
         _ => "[This text shouldn't be displayed, if you see it, let's say you've discovered an easter egg ;)]"
     });
-    let time_msg = format!("You've played for {}:{:02}", stopwatch.time.elapsed_secs() as i32 / 60, stopwatch.time.elapsed_secs() as i32 % 60);
+    let time_msg = format!("You've played for {}:{:02},{:03}", stopwatch.total_time.as_secs() / 60, stopwatch.total_time.as_secs(), stopwatch.total_time.subsec_millis());
     commands
         .spawn((
             NodeBundle {
@@ -87,7 +88,7 @@ fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>
             children.spawn(TextBundle::from_section(
                 msg,
                 TextStyle {
-                    font_size: 64.,
+                    font_size: 54.,
                     ..default()
                 }
             ));

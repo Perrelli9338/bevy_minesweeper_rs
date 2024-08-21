@@ -92,7 +92,7 @@ impl ResourcePlugin {
 
         let board_size = Vec2::new(
             tile_map.get_width() as f32 * tile_size,
-            tile_map.get_width() as f32 * tile_size,
+            tile_map.get_height() as f32 * tile_size,
         );
 
         let position = match config.position {
