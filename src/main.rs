@@ -1,12 +1,13 @@
 // disable console on windows for release builds
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use bevy::asset::AssetMetaCheck;
-use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
-use bevy::winit::{UpdateMode, WinitSettings};
-use bevy::winit::WinitWindows;
-use bevy::DefaultPlugins;
+use bevy::{
+    asset::AssetMetaCheck,
+    prelude::*,
+    window::PrimaryWindow,
+    winit::{UpdateMode, WinitSettings, WinitWindows},
+    DefaultPlugins
+};
 use minesweeper::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;

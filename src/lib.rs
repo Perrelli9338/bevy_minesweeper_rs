@@ -1,17 +1,18 @@
 #![allow(clippy::type_complexity)]
 
+use system::SystemPlugins;
+use components::menu::MenuPlugin;
+use bevy::prelude::*;
+use crate::{
+    components::TimingPlugin,
+    resources::ResourcePlugin
+};
 pub mod resources;
 
 mod system;
 
 mod components;
-use system::SystemPlugins;
-use components::menu::MenuPlugin;
 
-use bevy::app::App;
-use bevy::prelude::*;
-use crate::components::TimingPlugin;
-use crate::resources::ResourcePlugin;
 #[derive(Default, Clone, Eq, PartialEq, Debug, Hash)]
 #[derive(States)]
 enum AppState {

@@ -3,7 +3,7 @@
         Name="Minesweeper"
         Manufacturer="PRRMRC"
         UpgradeCode="12345678-de4f-4893-a535-93dfd0597731"
-        Version="0.1.5"
+        Version="0.1.6"
 
         Scope="perUserOrMachine">
         <MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeError)" />
