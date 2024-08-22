@@ -4,7 +4,7 @@ mod settings_menu_plugin;
 use bevy::prelude::*;
 
 use crate::AppState;
-use crate::resources::settings::{GameSettings, TileSize::Fixed};
+use crate::resources::settings::GameSettings;
 
 #[derive(Component, Clone, Copy)]
 pub struct ButtonColors {

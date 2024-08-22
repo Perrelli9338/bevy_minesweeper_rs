@@ -1,19 +1,24 @@
-use std::ops::Sub;
-use bevy::app::{App, Plugin};
 use bevy::prelude::*;
 pub use coordinates::Coordinates;
+pub use bomb::Bomb;
+pub use bomb_neighbor::BombNeighbor;
+use crate::{
+    AppState,
+    system,
+    components::{
+        stopwatch::GameStopwatch,
+        timer::GameTimer
+    },
+    resources::{
+        board::Board,
+        events::EndgameEvent,
+        GameState,
+    },
+};
 
 pub mod coordinates;
 
 pub(crate) mod menu;
-pub use bomb::Bomb;
-pub use bomb_neighbor::BombNeighbor;
-use crate::{AppState, system};
-use crate::components::stopwatch::GameStopwatch;
-use crate::components::timer::GameTimer;
-use crate::resources::board::Board;
-use crate::resources::events::{EndgameEvent};
-use crate::resources::GameState;
 
 mod bomb;
 mod bomb_neighbor;

@@ -1,7 +1,8 @@
-use bevy::app::{App, Plugin, Update};
 use bevy::prelude::*;
-use crate::components::menu::{UISettings, MenuStates, cleanup, MenuButtonAction, ButtonColors};
-use crate::resources::settings::GameSettings;
+use crate::{
+    components::menu::{UISettings, MenuStates, cleanup, MenuButtonAction, ButtonColors},
+    resources::settings::GameSettings
+};
 
 #[derive(Component)]
 enum SettingsMenuButtonAction {
@@ -42,7 +43,7 @@ fn settings_button_colors (
             &ButtonColors,
             &SettingsMenuButtonAction,
         ),
-        (With<Button>),
+        With<Button>,
     >,
     mut config: ResMut<GameSettings>,
 ) {
@@ -161,7 +162,7 @@ impl SettingsMenu {
                 ));
             })
             .with_children(|children| {
-                children.spawn((NodeBundle {
+                children.spawn(NodeBundle {
                     style: Style {
                         display: Display::Flex,
                         flex_direction: FlexDirection::Column,
@@ -171,7 +172,7 @@ impl SettingsMenu {
                         ..default()
                     },
                     ..default()
-                }))
+                })
                     .with_children(|children| {
                         for (first_action, second_action, text, value) in [
                             (SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width", config.map_size.0.to_string()),
@@ -202,7 +203,7 @@ impl SettingsMenu {
                                             ..default()
                                         }
                                     ));
-                                    children.spawn((NodeBundle {
+                                    children.spawn(NodeBundle {
                                         style: Style {
                                             display: Display::Flex,
                                             justify_content: JustifyContent::SpaceBetween,
@@ -212,7 +213,7 @@ impl SettingsMenu {
                                             ..default()
                                         },
                                         ..default()
-                                    }))
+                                    })
                                         .with_children(|children| {
                                         children.spawn((
                                             ButtonBundle {

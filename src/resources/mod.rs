@@ -41,16 +41,6 @@ impl Plugin for ResourcePlugin {
     }
 }
 
-fn delay_start(
-    time: Res<Time>,
-    mut timer: ResMut<GameTimer>,
-    mut game_state: ResMut<NextState<GameState>>
-){
-    if timer.tick(time.delta()).finished() {
-        game_state.set(GameState::Playing);
-    }
-}
-
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
 #[derive(States, Component)]
 pub enum GameState {

@@ -1,13 +1,22 @@
-use bevy::app::{App, Update};
-use bevy::input::ButtonInput;
-use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
-use crate::{AppState, resources::GameState};
-use crate::components::{stopwatch, stopwatch::GameStopwatch};
-use crate::components::timer::GameTimer;
-use crate::resources::board::Board;
-use crate::resources::events::*;
-use crate::resources::settings::GameSettings;
+use bevy::{
+    app::{App, Update},
+    input::ButtonInput,
+    prelude::*,
+    window::PrimaryWindow
+};
+use crate::{
+    AppState, 
+    resources::{
+        GameState,
+        events::*,
+        board::Board,
+        settings::GameSettings
+    },
+    components::{
+        timer::GameTimer,
+        stopwatch::GameStopwatch
+    }
+};
 
 mod uncover;
 mod flagged;
@@ -56,7 +65,7 @@ pub fn game_input_handling(
             }
         }
         if fingers.len() >= 2 {
-            let touch_position = fingers.get(0).unwrap().position();
+            let touch_position = fingers.first().unwrap().position();
             let touch_second_position = fingers.get(1).unwrap().position();
             if let Some(tile_coordinates) = board.press_position(window, touch_position) {
                 flag_trigger_ewr.send(TileFlaggedEvent {
@@ -67,15 +76,13 @@ pub fn game_input_handling(
                     coordinates: tile_coordinates
                 });
             }
-        } else {
-            if let Some(touch_position) = touch_input.first_pressed_position() {
+        } else if let Some(touch_position) = touch_input.first_pressed_position() {
                 if let Some(tile_coordinates) = board.press_position(window, touch_position) {
                     tile_trigger_ewr.send(TileTriggerEvent {
                         coordinates: tile_coordinates
                     });
                 }
             }
-        }
         if mouse_input.just_pressed(MouseButton::Left) {
             if let Some(mouse_position) = window.cursor_position() {
                 if let Some(tile_coordinates) = board.press_position(window, mouse_position) {

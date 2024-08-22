@@ -1,11 +1,19 @@
-use bevy::log::tracing_subscriber::fmt::time;
 use bevy::prelude::*;
-use crate::components::*;
-use crate::components::timer::GameTimer;
-use crate::components::uncover::Uncover;
-use crate::resources::board::Board;
-use crate::resources::events::{GameLoseEvent, GameWinEvent, TileTriggerEvent};
-use crate::resources::settings::GameSettings;
+use crate::{
+    components::{
+        *,
+        uncover::Uncover
+    },
+    resources::{
+        board::Board,
+        events::{
+            GameLoseEvent, 
+            GameWinEvent, 
+            TileTriggerEvent
+        },
+        settings::GameSettings,
+    },
+};
 
 pub fn input_event(
     mut commands: Commands,
@@ -38,7 +46,7 @@ pub fn uncover_tiles(
                 continue;
             }
         };
-        if let Some(_) = board.try_uncover_tile(coordinates) {
+        if let _ = board.try_uncover_tile(coordinates) {
                 if bomb.is_some() {
                     for entity in board.uncover_bomb() {
                         commands.entity(entity).insert(Uncover);
