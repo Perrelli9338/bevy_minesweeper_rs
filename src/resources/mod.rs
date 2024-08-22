@@ -1,21 +1,21 @@
-use crate::components::timer::GameTimer;
 use std::collections::{HashMap, HashSet};
 use bevy::{app::{App, Plugin},
            prelude::*,
            color::palettes::*,
            math::Vec3Swizzles
 };
-use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
-use bevy_asset_loader::prelude::ConfigureLoadingState;
-use crate::{components, components::{*, uncover::Uncover}, AppState,
+use bevy_asset_loader::{
+    loading_state::{LoadingState, LoadingStateAppExt},
+    prelude::ConfigureLoadingState
+};
+use crate::{components, components::{*, uncover::Uncover, timer::GameTimer}, AppState,
             resources::{board::Board, tile_map::TileMap,
                         settings::{Position, GameSettings, TileSize},
-                        tile::Tile}};
+                        tile::Tile,
+                        assets::{FontAssets, TextureAssets}}};
 use bounds::Bounds2;
-use crate::resources::assets::{FontAssets, TextureAssets};
 
 pub(crate) mod tile;
-pub(crate) mod loading;
 pub(crate) mod tile_map;
 pub(crate) mod settings;
 

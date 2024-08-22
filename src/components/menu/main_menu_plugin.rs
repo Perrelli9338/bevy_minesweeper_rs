@@ -1,6 +1,8 @@
 use bevy::prelude::*;
-use crate::components::menu::{UISettings, MenuStates, cleanup, MenuButtonAction};
-use crate::resources::assets::TextureAssets;
+use crate::{
+    components::menu::{UISettings, MenuStates, cleanup, MenuButtonAction},
+    resources::assets::TextureAssets
+};
 
 #[derive(Component)]
 struct Menu;

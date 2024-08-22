@@ -1,11 +1,9 @@
 use crate::{
             components::Coordinates, 
-            resources::tile::Tile};
-
+            resources::tile::Tile
+};
 use std::ops::{Deref, DerefMut};
 use bevy::utils::HashSet;
-
-
 use rand::{thread_rng, Rng};
 
 const RANGE: [(i8, i8); 8] = [ // todo!()

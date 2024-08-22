@@ -1,5 +1,4 @@
 use bevy::ecs::event::Event;
-
 use crate::components::Coordinates;
 
 #[derive(Debug, Clone, Copy, Event)]

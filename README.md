@@ -1,11 +1,18 @@
 # Minesweeper made with Bevy
-Yet another project of the classic Minesweeper game, but! It's made with [Rust](https://www.rust-lang.org/it), using [Bevy](https://bevyengine.org/) game engine. 
+<details>
+<summary>Play it now!</summary>
+<iframe loading=lazy src=https://perrelli9338.github.io/bevy_minesweeper_rs title=Game width="100%" height="500" style="border:none;" allowfullscreen></iframe>
+</details>
+
+Yet another project of the classic Minesweeper game, but! It's made with [Rust](https://www.rust-lang.org/it), using [Bevy](https://bevyengine.org/) game engine.
 # Features
-- Customizable width, height and bombs size
-- Safe start mode: Select an empty tile when the game start
+- Customizable width, height and numbers of bombs
+- Safe Start mode: Select an empty tile when starting the game
+- Track your time with the stopwatch
 - Simple user interface
 # Platforms
-It should work well on all platforms, but the UI is not yet adapted, so it may be difficult to use on a small screen.
+[Click here](https://github.com/Perrelli9338/bevy_minesweeper_rs/releases/latest) for the latest version of the supported platform. \
+It should work fine, but the user interface has not yet been adapted, so it may be difficult to use on a small screen.
 # How to play on mobile
 Gestures:
 - Tap to uncover a tile

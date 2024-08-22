@@ -1,5 +1,7 @@
-use bevy::asset::Handle;
-use bevy::prelude::{Font, Image, Resource};
+use bevy::{
+    asset::Handle,
+    prelude::{Font, Image, Resource}
+};
 use bevy_asset_loader::asset_collection::AssetCollection;
 
 #[derive(AssetCollection, Resource)]

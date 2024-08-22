@@ -1,10 +1,10 @@
+use bevy::prelude::*;
+use crate::{
+    AppState,
+    resources::settings::GameSettings
+};
 mod main_menu_plugin;
 mod settings_menu_plugin;
-
-use bevy::prelude::*;
-
-use crate::AppState;
-use crate::resources::settings::GameSettings;
 
 #[derive(Component, Clone, Copy)]
 pub struct ButtonColors {

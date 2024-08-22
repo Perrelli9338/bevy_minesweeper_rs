@@ -1,10 +1,8 @@
 use std::collections::{HashMap, HashSet};
-
 use crate::{
     resources::bounds::Bounds2,
     components::Coordinates, resources::TileMap,
 };
-
 use bevy::{
     ecs::system::Resource,
     math::Vec2, prelude::*,

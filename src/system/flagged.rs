@@ -1,9 +1,13 @@
-use bevy::color::palettes::basic;
-use bevy::prelude::*;
-use crate::resources::board::{Board, FlagToggle};
-use crate::resources::events::{GameWinEvent, TileFlaggedEvent};
-use crate::resources::assets::TextureAssets;
-use crate::resources::settings::{GameSettings, TileSize};
+use bevy::{
+    color::palettes::basic,
+    prelude::*
+};
+use crate::resources::{
+    board::{Board, FlagToggle},
+    events::{GameWinEvent, TileFlaggedEvent},
+    assets::TextureAssets,
+    settings::{GameSettings, TileSize},
+};
 
 pub fn flag_tiles(
     mut commands: Commands,

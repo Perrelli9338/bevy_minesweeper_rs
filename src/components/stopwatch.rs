@@ -12,7 +12,7 @@ impl GameStopwatch {
     pub(crate) fn new(mut commands: Commands) {
         commands.insert_resource(GameStopwatch {
             time: Instant::now(),
-            total_time: Instant::now().elapsed(),
+            total_time: Duration::ZERO,
         });
     }
 

@@ -1,5 +1,7 @@
-use std::fmt::{self, Display, Formatter};
-use std::ops::{Add, Sub};
+use std::{
+    fmt::{self, Display, Formatter},
+    ops::{Add, Sub}
+};
 use bevy::prelude::Component;
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
