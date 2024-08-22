@@ -19,6 +19,8 @@ opt-level = 1
 # xbuild also uses this profile for building android AABs because I couldn't find a configuration for it
 [profile.release]
 opt-level = "z"
+debug = false
+incremental = false
 lto = true
 strip = true
 codegen-units = 1
@@ -27,6 +29,8 @@ codegen-units = 1
 [profile.dist]
 inherits = "release"
 opt-level = 3
+debug = false
+incremental = false
 lto = true
 strip = true
 codegen-units = 1
@@ -43,6 +47,8 @@ bevy = { version = "0.14.1", default-features = false, features = [
     "bevy_winit",
     "bevy_asset",
     "bevy_text",
+    "bevy_pbr",
+    "tonemapping_luts",
     "default_font",
     "bevy_ui",
     "bevy_render",
