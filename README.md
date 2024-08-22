@@ -1,8 +1,5 @@
 # Minesweeper made with Bevy
-<details>
-<summary>Play it now!</summary>
-<iframe loading=lazy src=https://perrelli9338.github.io/bevy_minesweeper_rs title=Game width="100%" height="500" style="border:none;" allowfullscreen></iframe>
-</details>
+[▸ Play it now!](https://perrelli9338.github.io/bevy_minesweeper_rs)
 
 Yet another project of the classic Minesweeper game, but! It's made with [Rust](https://www.rust-lang.org/it), using [Bevy](https://bevyengine.org/) game engine.
 # Features
