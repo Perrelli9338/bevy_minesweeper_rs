@@ -80,7 +80,8 @@ impl Plugin for MenuPlugin {
             ))
             .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
-            .add_systems(Update, (menu_action, button_states).run_if(in_state(AppState::Menu)))
+            .add_systems(Update, button_states.run_if(in_state(MenuStates::Main)))
+            .add_systems(Update, menu_action.run_if(in_state(AppState::Menu)))
             .insert_resource(GameSettings::default());
     }
 

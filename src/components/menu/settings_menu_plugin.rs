@@ -1,8 +1,6 @@
 use bevy::prelude::*;
-use crate::{
-    components::menu::{UISettings, MenuStates, cleanup, MenuButtonAction, ButtonColors},
-    resources::settings::GameSettings
-};
+use crate::{components::menu::{UISettings, MenuStates, cleanup, MenuButtonAction, ButtonColors}, resources::settings::GameSettings, AppState};
+use crate::components::menu::ChangeState;
 
 #[derive(Component)]
 enum SettingsMenuButtonAction {
@@ -18,6 +16,7 @@ enum SettingsMenuButtonAction {
     TurnFlagOff,
     IncreaseTimer,
     DecreaseTimer,
+    BackToMainMenu,
 }
 
 
@@ -36,29 +35,42 @@ impl Plugin for SettingsMenu {
 }
 
 fn settings_button_colors (
+    mut next_state: ResMut<NextState<AppState>>,
     mut interaction_query: Query<
         (
             &Interaction,
             &mut BackgroundColor,
             &ButtonColors,
             &SettingsMenuButtonAction,
+            Option<&ChangeState>,
         ),
         With<Button>,
     >,
     mut config: ResMut<GameSettings>,
 ) {
-    for (interaction, mut color, button_colors, button_action) in &mut interaction_query {
-        if *interaction == Interaction::None {
+    for (interaction, mut color, button_colors, button_action, change_state) in &mut interaction_query {
+        match *interaction {
+            Interaction::None => {
                 *color = button_colors.normal.into();
-                match button_action {
+            }
+            Interaction::Pressed => {
+                *color = button_colors.pressed.into();
+                if let Some(state) = change_state {
+                    next_state.set(state.0.clone());
+                }
+            }
+            Interaction::Hovered => {
+                *color = button_colors.hovered.into();
+            }
+        }
+        match button_action {
                     SettingsMenuButtonAction::DecrementBombCount => {
                         if !(config.bomb_count > 1) {
                             *color = button_colors.disabled.into();
                         }
                     }
                     SettingsMenuButtonAction::IncrementBombCount => {
-                        if config.bomb_count < (config.map_size.0 * config.map_size.1) - 1 {
-                        } else {
+                        if !(config.bomb_count < (config.map_size.0 * config.map_size.1) - 1) {
                             *color = button_colors.disabled.into();
                         }
                     }
@@ -69,20 +81,17 @@ fn settings_button_colors (
                         }
                     }
                     SettingsMenuButtonAction::DecrementWidthBoard => {
-                        if config.map_size.0 > 1 && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count {
-                        } else {
+                        if !(config.map_size.0 > 1 && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count) {
                             *color = button_colors.disabled.into();
                         }
                     }
                     SettingsMenuButtonAction::DecrementHeightBoard => {
-                        if config.map_size.1 > 1 && (config.map_size.0 * (config.map_size.1 - 1)) > config.bomb_count {
-                        } else {
+                        if !(config.map_size.1 > 1 && (config.map_size.0 * (config.map_size.1 - 1)) > config.bomb_count) {
                             *color = button_colors.disabled.into();
                         }
                     }
                     SettingsMenuButtonAction::IncrementHeightBoard => {
-                        if config.map_size.1 <= 32 {
-                        } else {
+                        if !(config.map_size.1 <= 32) {
                             *color = button_colors.disabled.into();
                         }
                     }
@@ -93,14 +102,12 @@ fn settings_button_colors (
                         }
                     }
                     SettingsMenuButtonAction::SafeStartOff => {
-                        if config.easy_mode {
-                        } else {
+                        if !config.easy_mode {
                             *color = button_colors.disabled.into();
                         }
                     }
                     SettingsMenuButtonAction::DecreaseTimer => {
-                        if config.timer_start > 0. {
-                        } else {
+                        if !(config.timer_start > 0.) {
                             *color = button_colors.disabled.into();
                         }
                     }
@@ -111,18 +118,16 @@ fn settings_button_colors (
                         }
                     }
                     SettingsMenuButtonAction::TurnFlagOn => {
-                        if !config.flag_mode {
-                        } else {
+                        if config.flag_mode {
                             *color = button_colors.disabled.into();
                         }
                     }
                     SettingsMenuButtonAction::TurnFlagOff => {
-                        if config.flag_mode {
-                        } else {
+                        if !config.flag_mode {
                             *color = button_colors.disabled.into();
                         }
                     }
-            }
+            _ => {}
         }
     }
 }
@@ -274,7 +279,7 @@ impl SettingsMenu {
                             ..Default::default()
                         },
                         settings.button_colors.clone(),
-                        MenuButtonAction::BackToMainMenu,
+                        SettingsMenuButtonAction::BackToMainMenu,
                     ))
                     .with_children(|parent| {
                         parent.spawn(TextBundle::from_section(
@@ -299,6 +304,7 @@ impl SettingsMenu {
             (Changed<Interaction>, With<Button>),
         >,
         mut config: ResMut<GameSettings>,
+        mut menu_state: ResMut<NextState<MenuStates>>,
     ) {
         for (interaction, button_action) in &mut interaction_query {
             if *interaction == Interaction::Pressed {
@@ -354,6 +360,9 @@ impl SettingsMenu {
                         }
                         SettingsMenuButtonAction::TurnFlagOff => {
                             config.flag_mode = false;
+                        }
+                        SettingsMenuButtonAction::BackToMainMenu => {
+                            menu_state.set(MenuStates::Main)
                         }
                     }
                 }

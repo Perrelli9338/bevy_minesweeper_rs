@@ -72,7 +72,7 @@ fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>
         GameState::Win => "win!",
         _ => "[This text shouldn't be displayed, if you see it, let's say you've discovered an easter egg ;)]"
     });
-    let time_msg = format!("You've played for {}:{:02},{:03}", stopwatch.total_time.as_secs() / 60, stopwatch.total_time.as_secs(), stopwatch.total_time.subsec_millis());
+    let time_msg = format!("Played for {}:{:02},{}", stopwatch.total_time.as_secs() / 60, stopwatch.total_time.as_secs(), stopwatch.total_time.subsec_millis());
     commands
         .spawn((
             NodeBundle {

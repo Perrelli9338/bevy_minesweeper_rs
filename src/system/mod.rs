@@ -21,6 +21,7 @@ use crate::{
 mod uncover;
 mod flagged;
 mod achievements;
+pub(crate) mod cross_flag;
 
 pub struct SystemPlugins;
 
@@ -35,7 +36,8 @@ impl Plugin for SystemPlugins {
                     game_input_handling,
                     flagged::flag_tiles,
                     uncover::input_event,
-                    uncover::uncover_tiles
+                    uncover::uncover_tiles,
+                    cross_flag::uncover_wrong_flags
             ).run_if(in_state(GameState::Playing)),
              ).run_if(in_state(AppState::Playing)))
         .add_event::<TileTriggerEvent>()

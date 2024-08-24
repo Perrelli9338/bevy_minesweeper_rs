@@ -2,6 +2,8 @@ use bevy::{
     color::palettes::basic,
     prelude::*
 };
+use crate::components::flag::Flagged;
+use crate::components::uncover::Uncover;
 use crate::resources::{
     board::{Board, FlagToggle},
     events::{GameWinEvent, TileFlaggedEvent},
@@ -36,7 +38,7 @@ pub fn flag_tiles(
                         texture: assets.flag.clone(),
                         ..Default::default()
                     });
-                });
+                }).try_insert(Flagged);
             }
             FlagToggle::FlagIsUnset(e) => {
                 let child = match query.get(e) {
@@ -45,6 +47,8 @@ pub fn flag_tiles(
                 };
                 for c in child {
                     commands.entity(*c).despawn_recursive();
+                    commands.entity(e).remove::<Flagged>();
+                    commands.entity(e).remove::<Uncover>();
                 }
                 },
             _ => (),
