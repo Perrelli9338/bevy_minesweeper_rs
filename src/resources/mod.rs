@@ -195,14 +195,16 @@ impl ResourcePlugin {
                         ..Default::default()
                     }).id();
                     covered_tiles.insert(coordinates, e);
-                    if safe_start.is_none() && *tile == Tile::Empty{
+                    if safe_start.is_none() && *tile == Tile::Empty {
+                        *safe_start = Some(e);
+                    } else if !(*tile == Tile::Bomb ){
                         *safe_start = Some(e);
                     }
                 });
 
                 match tile {
                     Tile::Bomb => {
-                        commands.insert(components::Bomb);
+                        commands.insert(Bomb);
                         commands.with_children(|parent| {
                             parent.spawn(SpriteBundle {
                                 sprite: Sprite {

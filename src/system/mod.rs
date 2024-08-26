@@ -30,7 +30,7 @@ impl Plugin for SystemPlugins {
         app
             .add_systems(OnExit(AppState::Menu), set_timer)
             .add_systems(OnEnter(GameState::Playing), GameStopwatch::new)
-            .add_systems(OnExit(AppState::Playing), GameStopwatch::pause)
+            .add_systems(OnExit(GameState::Playing), GameStopwatch::pause)
             .add_systems(Update, (
                 game_state_handler, (
                     game_input_handling,

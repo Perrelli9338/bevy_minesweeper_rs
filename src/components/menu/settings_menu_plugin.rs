@@ -19,6 +19,8 @@ enum SettingsMenuButtonAction {
     BackToMainMenu,
 }
 
+#[derive(Component)]
+pub struct SettingsValues;
 
 #[derive(Component)]
 pub struct MenuSettings;
@@ -123,7 +125,7 @@ fn settings_button_colors (
                         }
                     }
                     SettingsMenuButtonAction::TurnFlagOff => {
-                        if !config.flag_mode {
+                        if !config.flag_mode || config.bomb_count == (config.map_size.0 * config.map_size.1) - 1 && config.easy_mode {
                             *color = button_colors.disabled.into();
                         }
                     }
@@ -238,13 +240,13 @@ impl SettingsMenu {
                                                 }
                                             ));
                                         });
-                                    children.spawn(TextBundle::from_section(
+                                    children.spawn((TextBundle::from_section(
                                         value,
                                         TextStyle {
                                             font_size: 37.,
                                             ..default()
-                                        }
-                                    ));
+                                        },
+                                    ), SettingsValues));
                                     children
                                         .spawn((
                                             ButtonBundle {
@@ -295,7 +297,7 @@ impl SettingsMenu {
 
     fn settings_button_functions(
         mut commands: Commands,
-        mut query: Query<&mut Text>,
+        mut query: Query<&mut Text, With<SettingsValues>>,
         mut interaction_query: Query<
             (
                 &Interaction,
@@ -367,6 +369,9 @@ impl SettingsMenu {
                     }
                 }
         }
+        if config.bomb_count == (config.map_size.0 * config.map_size.1) - 1 && config.easy_mode {
+            config.flag_mode = true
+        }
         let mut settings_values = vec![
                         format!("{:.01}s", config.timer_start),
                         match config.flag_mode {
@@ -381,7 +386,7 @@ impl SettingsMenu {
                         config.map_size.1.to_string(),
                         config.map_size.0.to_string(),
                     ];
-                    for mut b in query.iter_mut().skip(3).step_by(4) {
+                    for mut b in query.iter_mut() {
                         b.sections[0].value = settings_values.pop().unwrap();
                     }
                 commands.insert_resource(GameSettings {
