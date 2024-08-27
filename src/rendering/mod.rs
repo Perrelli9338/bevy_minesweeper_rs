@@ -1,3 +1,5 @@
+pub(crate) mod tile_cube;
+
 use bevy::{
     prelude::*,
     render::{
@@ -10,7 +12,7 @@ use crate::{
     AppState,
     resources::assets::TextureAssets
 };
-use std::f32::consts::I;
+use std::f32::consts::PI;
 use bevy::color::palettes::basic;
 
 pub struct RenderingPlugins;
@@ -63,30 +65,19 @@ impl RenderingPlugins {
             base_color: Color::from(basic::AQUA),
             unlit: false,
             ..default()
-        };
-
-        let image_handle = assets.covered_tile.clone();
-
-        commands.spawn((
-            PointLightBundle {
-                transform: Transform::from_translation(Vec3::new(0.0, 0.0, 10.0)),
-                ..default()
-            },
-            RenderLayers::layer(0).with(1),
-        ));
-
-        let cube_size = 1.0;
-        let cube_handle = meshes.add(Cuboid::new(cube_size, 0.1, cube_size));
+        });
 
         let material_tile = materials.add(StandardMaterial {
-            base_color_texture: Some(assets.covered_tile.clone()),
+            base_color_texture: Some(assets.tile.clone()),
             reflectance: 0.02,
+            base_color: Color::from(basic::WHITE),
             unlit: false,
             ..default()
         });
 
         let material_bomb = materials.add(StandardMaterial {
             base_color_texture: Some(assets.bomb.clone()),
+            base_color: Color::from(basic::RED),
             reflectance: 0.02,
             unlit: false,
             ..default()
@@ -94,6 +85,7 @@ impl RenderingPlugins {
 
         let material_flag = materials.add(StandardMaterial {
             base_color_texture: Some(assets.flag.clone()),
+            base_color: Color::from(basic::RED),
             reflectance: 0.02,
             unlit: false,
             ..default()

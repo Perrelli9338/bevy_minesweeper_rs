@@ -11,6 +11,13 @@ pub struct Coordinates {
     pub y: u16,
 }
 
+#[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
+#[derive(Component)]
+pub struct FaceIndex {
+    pub i: u16,
+}
+
+
 impl Add for Coordinates {
     type Output = Self;
 

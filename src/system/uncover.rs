@@ -8,8 +8,8 @@ use crate::{
     resources::{
         board::Board,
         events::{
-            GameLoseEvent, 
-            GameWinEvent, 
+            GameLoseEvent,
+            GameWinEvent,
             TileTriggerEvent
         },
         settings::GameSettings,
