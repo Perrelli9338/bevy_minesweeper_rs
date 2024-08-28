@@ -1,15 +1,14 @@
-use crate::{resources::tile::Tile};
+use crate::{resources::tile::Tile,
+            components::coordinates::FaceSideIndex};
 
 use std::ops::{Add, Deref, DerefMut};
+use bevy::prelude::Component;
 use bevy::utils::HashSet;
-
-
 use rand::{thread_rng, Rng};
-use crate::components::coordinates::Coordinates3D;
 
 #[derive(Debug, Clone)]
 pub struct TileCube {
-    bomb_coordinates: HashSet<Coordinates3D>,
+    bomb_coordinates: HashSet<FaceSideIndex>,
     bomb_count: u16,
     faces: u16,
     map: Vec<Tile>
@@ -52,7 +51,7 @@ impl TileCube {
                 r_bombs -= 1;
             }
             for row in 0..self.faces {
-                    let index = FaceIndex { i: index };
+                    let index = FaceSideIndex { i: index };
                     if self.is_bomb_at(index.i) {
                         self.bomb_coordinates.insert(index.i);
                         continue;

@@ -1,7 +1,5 @@
-use std::{
-    fmt::{self, Display, Formatter},
-    ops::{Add, Sub}
-};
+use std::fmt::{self, Display, Formatter};
+use std::ops::Add;
 use bevy::prelude::Component;
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
@@ -13,7 +11,7 @@ pub struct Coordinates {
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 #[derive(Component)]
-pub struct FaceIndex {
+pub struct FaceSideIndex {
     pub i: u16,
 }
 
@@ -36,17 +34,6 @@ impl Add<(i8, i8)> for Coordinates {
         let x = ((self.x as i16) + rhs_x as i16) as u16;
         let y = ((self.y as i16) + rhs_y as i16) as u16;
         Self { x, y }
-    }
-}
-
-impl Sub for Coordinates {
-    type Output = Self;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x.saturating_sub(rhs.x),
-            y: self.y.saturating_sub(rhs.y)
-        }
     }
 }
 

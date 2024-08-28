@@ -107,6 +107,11 @@ impl RenderingPlugins {
             transform: Transform::from_xyz(0.0, 0.0, 15.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         },
-       PanOrbitCamera::default()));
+        PanOrbitCamera {
+            pan_sensitivity: 0.0,
+            zoom_upper_limit: Some(7.),
+            zoom_lower_limit: Some(2.),
+            ..default()
+        }));
     }
 }
