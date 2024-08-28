@@ -1,5 +1,5 @@
 pub(crate) mod tile_cube;
-
+use bevy_mod_picking::prelude::*;
 use bevy::{
     prelude::*,
     render::{
@@ -14,13 +14,14 @@ use crate::{
 };
 use std::f32::consts::PI;
 use bevy::color::palettes::basic;
+use crate::resources::tile::Tile;
 
 pub struct RenderingPlugins;
 
 impl Plugin for RenderingPlugins {
     fn build(&self, app: &mut App){
-        app.add_plugins(PanOrbitCameraPlugin)
-            .add_systems(OnEnter(AppState::Playing3D), (toggle2_dcamera, Self::create).chain());
+        app.add_plugins((PanOrbitCameraPlugin, DefaultPickingPlugins))
+            .add_systems(OnEnter(AppState::Playing3D), (toggle2_dcamera, Self::setup).chain());
     }
 }
 
@@ -44,11 +45,10 @@ fn toggle2_dcamera(
 }
 
 impl RenderingPlugins {
-
     fn setup(mut commands: Commands,
              mut meshes: ResMut<Assets<Mesh>>,
              mut materials: ResMut<Assets<StandardMaterial>>,
-             mut assets: Res<TextureAssets>){
+             mut assets: Res<TextureAssets>) {
         let mut tile_cube = tile_cube::TileCube::new(3);
         let tile_size = TileCubeSize {
             width: 0.8f32,
@@ -98,43 +98,27 @@ impl RenderingPlugins {
                             zoom_lower_limit: Some(2.),
                             ..default()
                         }));
-
-        commands.spawn((MaterialMeshBundle {
-            mesh: meshes.add(Sphere{radius: 0.01}),
-            material: materials.add(StandardMaterial::default()),
-            ..Default::default()
-        },Cubesweeper)).with_children(|child| {Self::generate(meshes, materials, assets, child, tile_handle, material_tile, covered_handle, material_covered)});
-
-    }
-    fn generate(
-                mut meshes: ResMut<Assets<Mesh>>,
-                mut materials: ResMut<Assets<StandardMaterial>>,
-                mut assets: Res<TextureAssets>,
-                mut child: &mut ChildBuilder,
-                tile_handle: Handle<Mesh>,
-                material_tile: Handle<StandardMaterial>,
-                covered_handle: Handle<Mesh>,
-                material_covered: Handle<StandardMaterial>
-    ) {
-
-
-        // Main pass cube, with material containing the rendered first pass texture.
-        for (mesh, material, transform) in [
-            (tile_handle.clone(), material_tile.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(0.0), Vec3::new(0.0, 0.4f32, 0.0),))),
-            (tile_handle.clone(), material_tile.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(PI), Vec3::new(0.0, -0.4f32, 0.0),))),
-            (tile_handle.clone(), material_tile.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_z(-PI / 2.0), Vec3::new(0.4f32, 0.0, 0.0)))),
-            (tile_handle.clone(), material_tile.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_z(PI / 2.0), Vec3::new(-0.4f32, 0.0, 0.0),))),
-            (tile_handle.clone(), material_tile.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(PI / 2.0), Vec3::new(0.0, 0.0, 0.4f32),))),
-            (tile_handle.clone(), material_bomb.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(-PI / 2.0), Vec3::new(0.0, 0.0, -0.4f32)))),
+        for transform in [
+            (Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(0.0), Vec3::new(0.0, 0.4f32, 0.0), ))),
+            (Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(PI), Vec3::new(0.0, -0.4f32, 0.0), ))),
+            (Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_z(-PI / 2.0), Vec3::new(0.4f32, 0.0, 0.0)))),
+            (Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_z(PI / 2.0), Vec3::new(-0.4f32, 0.0, 0.0), ))),
+            (Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(PI / 2.0), Vec3::new(0.0, 0.0, 0.4f32), ))),
+            (Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(-PI / 2.0), Vec3::new(0.0, 0.0, -0.4f32)))),
         ] {
-            commands.spawn(
+            let mesh = covered_handle.clone();
+            let material = material_covered.clone();
+            commands.spawn((
                 MaterialMeshBundle {
                     mesh: mesh,
                     material: material,
                     transform: transform,
                     ..Default::default()
-                }
-            );
+                },
+                On::<Pointer<Click>>::commands_mut(move |event, commands| {
+                    commands.entity(event.target).insert(face.clone());
+                })
+            ));
         }
     }
 }
