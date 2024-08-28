@@ -99,7 +99,6 @@ impl ResourcePlugin {
         tile_map.set_bombs(config.bomb_count);
 
         let e = commands.spawn((
-            Name::new("Board"),
             SpatialBundle {
                 transform: Transform::from_translation(position),
                 ..Default::default()

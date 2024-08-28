@@ -31,7 +31,7 @@ impl TileMap {
         let map = vec![vec![Tile::Empty; width as usize]; height as usize];
         Self {
             bomb_coordinates: HashSet::new(),
-            bomb_count: 9,
+            bomb_count: 10,
             height,
             width,
             map,

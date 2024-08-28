@@ -10,7 +10,6 @@ use rand::{thread_rng, Rng};
 pub struct TileCube {
     bomb_coordinates: HashSet<FaceSideIndex>,
     bomb_count: u16,
-    faces: u16,
     map: Vec<Tile>
 }
 
@@ -24,7 +23,7 @@ impl TileCube {
     
     pub fn get_bomb_tiles(&self) -> impl Iterator<Item=u16> + '_ {
         self.bomb_coordinates.iter().copied()
-    } 
+    }
 
     pub fn is_bomb_at(&self, index: u16) -> bool {
         self.map[index as usize].is_bomb()

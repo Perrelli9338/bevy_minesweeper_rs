@@ -44,20 +44,18 @@ fn toggle2_dcamera(
 }
 
 impl RenderingPlugins {
-    fn create(mut commands: Commands,
-              mut meshes: ResMut<Assets<Mesh>>,
-              mut materials: ResMut<Assets<StandardMaterial>>,
-              mut assets: Res<TextureAssets>,
 
-    ) {
+    fn setup(mut commands: Commands,
+             mut meshes: ResMut<Assets<Mesh>>,
+             mut materials: ResMut<Assets<StandardMaterial>>,
+             mut assets: Res<TextureAssets>){
+        let mut tile_cube = tile_cube::TileCube::new(3);
         let tile_size = TileCubeSize {
             width: 0.8f32,
             height: 0.8f32,
         };
         let tile_handle = meshes.add(Plane3d::default().mesh().size(tile_size.width, tile_size.height));
         let covered_handle = meshes.add(Plane3d::default().mesh().size(tile_size.width + 0.001, tile_size.height + 0.001));
-
-        // This material has the texture that has been rendered.
 
         let material_covered = materials.add(StandardMaterial {
             base_color_texture: Some(assets.covered_tile.clone()),
@@ -90,28 +88,53 @@ impl RenderingPlugins {
             unlit: false,
             ..default()
         });
-
-        // Main pass cube, with material containing the rendered first pass texture.
-        commands.spawn((
-            PbrBundle {
-                mesh: cube_handle,
-                material: material_handle,
-                transform: Transform::from_xyz(0.0, 0.0, 1.5),
-                ..default()
-            },
-            MainPassCube,
-        ));
-
-        // The main pass camera.
         commands.spawn((Camera3dBundle {
-            transform: Transform::from_xyz(0.0, 0.0, 15.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         },
-        PanOrbitCamera {
-            pan_sensitivity: 0.0,
-            zoom_upper_limit: Some(7.),
-            zoom_lower_limit: Some(2.),
-            ..default()
-        }));
+                        PanOrbitCamera {
+                            pan_sensitivity: 0.0,
+                            zoom_upper_limit: Some(7.),
+                            zoom_lower_limit: Some(2.),
+                            ..default()
+                        }));
+
+        commands.spawn((MaterialMeshBundle {
+            mesh: meshes.add(Sphere{radius: 0.01}),
+            material: materials.add(StandardMaterial::default()),
+            ..Default::default()
+        },Cubesweeper)).with_children(|child| {Self::generate(meshes, materials, assets, child, tile_handle, material_tile, covered_handle, material_covered)});
+
+    }
+    fn generate(
+                mut meshes: ResMut<Assets<Mesh>>,
+                mut materials: ResMut<Assets<StandardMaterial>>,
+                mut assets: Res<TextureAssets>,
+                mut child: &mut ChildBuilder,
+                tile_handle: Handle<Mesh>,
+                material_tile: Handle<StandardMaterial>,
+                covered_handle: Handle<Mesh>,
+                material_covered: Handle<StandardMaterial>
+    ) {
+
+
+        // Main pass cube, with material containing the rendered first pass texture.
+        for (mesh, material, transform) in [
+            (tile_handle.clone(), material_tile.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(0.0), Vec3::new(0.0, 0.4f32, 0.0),))),
+            (tile_handle.clone(), material_tile.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(PI), Vec3::new(0.0, -0.4f32, 0.0),))),
+            (tile_handle.clone(), material_tile.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_z(-PI / 2.0), Vec3::new(0.4f32, 0.0, 0.0)))),
+            (tile_handle.clone(), material_tile.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_z(PI / 2.0), Vec3::new(-0.4f32, 0.0, 0.0),))),
+            (tile_handle.clone(), material_tile.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(PI / 2.0), Vec3::new(0.0, 0.0, 0.4f32),))),
+            (tile_handle.clone(), material_bomb.clone(), Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(-PI / 2.0), Vec3::new(0.0, 0.0, -0.4f32)))),
+        ] {
+            commands.spawn(
+                MaterialMeshBundle {
+                    mesh: mesh,
+                    material: material,
+                    transform: transform,
+                    ..Default::default()
+                }
+            );
+        }
     }
 }
