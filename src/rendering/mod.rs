@@ -14,6 +14,7 @@ use crate::{
 };
 use std::f32::consts::PI;
 use bevy::color::palettes::basic;
+use crate::rendering::tile_cube::TileCube;
 use crate::resources::tile::Tile;
 
 pub struct RenderingPlugins;

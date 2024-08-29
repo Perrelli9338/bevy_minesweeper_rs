@@ -8,7 +8,6 @@ use rand::{thread_rng, Rng};
 
 #[derive(Debug, Clone)]
 pub struct TileCube {
-    bomb_coordinates: HashSet<FaceSideIndex>,
     bomb_count: u16,
     map: Vec<Tile>
 }
@@ -20,22 +19,13 @@ impl TileCube {
             _ => [0, 0, 0, 0]
         }.iter().map(|n| n as u16).collect()
     }
-    
-    pub fn get_bomb_tiles(&self) -> impl Iterator<Item=u16> + '_ {
-        self.bomb_coordinates.iter().copied()
-    }
 
-    pub fn is_bomb_at(&self, index: u16) -> bool {
-        self.map[index as usize].is_bomb()
-    }
-
-    pub fn bomb_count_at(&self, index: usize) -> u8 {
-        if self.is_bomb_at(coordinates) {
-            return 0;
+    pub fn new() -> Self {
+        let map = vec![Tile::Empty; 6];
+        Self {
+            bomb_count: 5,
+            map,
         }
-
-        let res = self.safe_square_at(index).filter(|c| self.is_bomb_at(*c)).count();
-        res as u8
     }
 
     pub fn set_bombs(&mut self, bomb_count: u16) {
@@ -44,31 +34,39 @@ impl TileCube {
         let mut rng = thread_rng();
 
         while r_bombs > 0 {
-            let faces = rng.gen_range(0..self.faces) as usize;
-            if let Tile::Empty | Tile::BombNeighbour(0..=8) = self[faces] {
-                self[faces] = Tile::Bomb;
+            let i = rng.gen_range(0..=6) as usize;
+            if let Tile::Empty | Tile::BombNeighbour(0..=8) = self[i] {
+                self[i] = Tile::Bomb;
                 r_bombs -= 1;
             }
-            for row in 0..self.faces {
-                    let index = FaceSideIndex { i: index };
-                    if self.is_bomb_at(index.i) {
-                        self.bomb_coordinates.insert(index.i);
+                for index in 0..=6{
+                    if self.is_bomb_at(index) {
                         continue;
                     };
 
-                    let bomb_count = self.bomb_count_at(index.i);
+                    let bomb_count = self.bomb_count_at(index);
                     if bomb_count == 0 {
                         continue;
                     }
-                    let tile = &mut self[row as usize];
+                    let tile = &mut self[index];
                     *tile = Tile::BombNeighbour(bomb_count);
             }
         }
     }
 
-    pub fn get_faces(&self) -> u16 {
-        self.faces
+    pub fn bomb_count_at(&self, index: usize) -> u8 {
+        if self.is_bomb_at(index) {
+            return 0;
+        }
+
+        let res = self.safe_square_at(index).filter(|c| self.is_bomb_at(*c)).count();
+        res as u8
     }
+
+    pub fn is_bomb_at(&self, index: usize) -> bool {
+        self.map[index].is_bomb()
+    }
+
 
     pub fn get_bomb_count(&self) -> u16 {
         self.bomb_count
