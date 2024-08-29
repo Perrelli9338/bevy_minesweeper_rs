@@ -27,6 +27,15 @@ impl TileCube {
             map,
         }
     }
+    
+    pub fn safe_square_at(&self, index: usize) -> impl Iterator<Item=usize> {
+        match index {
+            0 | 1 => [3, 4, 2, 5],
+            2 | 3 => [4, 0, 1, 5],
+            4 | 5 => [2, 0, 3, 1],
+            _ => [0, 0, 0, 0]
+        }.iter().map(|&i| i as usize).collect::<Vec<_>>().into_iter()
+    }
 
     pub fn set_bombs(&mut self, bomb_count: u16) {
         self.bomb_count = bomb_count;
@@ -34,12 +43,12 @@ impl TileCube {
         let mut rng = thread_rng();
 
         while r_bombs > 0 {
-            let i = rng.gen_range(0..=6) as usize;
+            let i = rng.gen_range(0..6) as usize;
             if let Tile::Empty | Tile::BombNeighbour(0..=8) = self[i] {
                 self[i] = Tile::Bomb;
                 r_bombs -= 1;
             }
-                for index in 0..=6{
+                for index in 0..6 {
                     if self.is_bomb_at(index) {
                         continue;
                     };
@@ -58,7 +67,6 @@ impl TileCube {
         if self.is_bomb_at(index) {
             return 0;
         }
-
         let res = self.safe_square_at(index).filter(|c| self.is_bomb_at(*c)).count();
         res as u8
     }

@@ -220,10 +220,11 @@ impl ResourcePlugin {
                     Tile::BombNeighbour(bombs_count) => {
                         commands.insert(BombNeighbor{count: *bombs_count});
                         commands.with_children(|parent| {
-                            parent.spawn(Self::bomb_count_text_bundle(
+                            parent.spawn(bomb_count_text_bundle(
                                 *bombs_count,
                                 font.clone(),
-                                size
+                                size,
+                                Transform::from_xyz(0.0, 0.0, 1.0),
                             ));
                         });
                     }
@@ -232,32 +233,31 @@ impl ResourcePlugin {
                 }
             }
     }
+    }
+pub(crate) fn bomb_count_text_bundle(count: u8, font: Handle<Font>, font_size: f32, transform: Transform) -> Text2dBundle {
+    let color = match count {
+        1 => Color::from(basic::BLUE),
+        2 => Color::from(basic::GREEN),
+        3 => Color::from(basic::RED),
+        4 => Color::from(basic::NAVY),
+        5 => Color::from(basic::MAROON),
+        6 => Color::from(basic::AQUA),
+        7 => Color::from(basic::PURPLE),
+        _ => Color::from(basic::SILVER),
+    };
 
-    fn bomb_count_text_bundle(count: u8, font: Handle<Font>, font_size: f32) -> Text2dBundle {
-        let color = match count {
-            1 => Color::from(basic::BLUE),
-            2 => Color::from(basic::GREEN),
-            3 => Color::from(basic::RED),
-            4 => Color::from(basic::NAVY),
-            5 => Color::from(basic::MAROON),
-            6 => Color::from(basic::AQUA),
-            7 => Color::from(basic::PURPLE),
-            _ => Color::from(basic::SILVER),
-        };
-
-        let style = TextStyle {
-            font,
-            font_size,
-            color,
-        };
-        // adopted 0.9 to 0.10 and simplified API
-        let text = Text::from_section(count.to_string(), style).with_no_wrap();
-
-        Text2dBundle {
-            text,
-            // z-order, print text on top of the tile
-            transform: Transform::from_xyz(0.0, 0.0, 1.0),
-            ..Default::default()
-        }
+    let style = TextStyle {
+        font,
+        font_size,
+        color,
+    };
+    // adopted 0.9 to 0.10 and simplified API
+    let text = Text::from_section(count.to_string(), style).with_no_wrap();
+    
+    Text2dBundle {
+        text,
+        // z-order, print text on top of the tile
+        transform: transform,
+        ..Default::default()
     }
 }
