@@ -1,5 +1,9 @@
 pub(crate) mod tile_cube;
+pub(crate) mod FaceIndex;
+
+use crate::rendering::FaceIndex::FaceIndex as faceindex;
 use bevy_mod_picking::prelude::*;
+use std::collections::{HashMap, HashSet};
 use bevy::{
     prelude::*,
     rendering::tile_cube::TileCube,
@@ -25,23 +29,35 @@ use crate::{
     resources::assets::TextureAssets
 };
 use std::f32::consts::PI;
+use bevy::color::palettes::basic;
+use bevy::input::touch::TouchPhase;
+use bevy::window::PrimaryWindow;
+use crate::components::{Bomb, BombNeighbor, Coordinates};
+use crate::components::uncover::Uncover;
+use crate::rendering::tile_cube::TileCube;
+use crate::resources::assets::FontAssets;
+use crate::resources::board::{Board, Board3D, FlagToggle};
+use crate::resources::events::{FaceTriggerEvent, GameLoseEvent, GameWinEvent};
+use crate::resources::settings::GameSettings;
+use crate::resources::tile::Tile;
+use crate::resources::tile_map::TileMap;
 
 pub struct RenderingPlugins;
 
-impl Plugin for RenderingPlugins {
-    fn build(&self, app: &mut App){
-        app.add_plugins((PanOrbitCameraPlugin, DefaultPickingPlugins))
-            .add_systems(OnEnter(AppState::Playing3D), (toggle2_dcamera, Self::setup).chain())
-            .add_systems(Update, (check_input_cube, uncover_face).run_if(in_state(AppState::Playing3D)));
-    }
-}
-
 #[derive(Component)]
-struct CubeBoard;
+pub struct CubeBoard;
 
 struct TileCubeSize {
     width: f32,
     height: f32,
+}
+
+impl Plugin for RenderingPlugins {
+    fn build(&self, app: &mut App){
+        app.add_plugins(PanOrbitCameraPlugin).add_plugins(DefaultPickingPlugins)
+            .add_systems(OnEnter(AppState::Playing3D), (toggle2_dcamera, Self::setup))
+            .add_systems(Update, (check_input_cube, uncover_face).run_if(in_state(AppState::Playing3D)));
+    }
 }
 
 fn toggle2_dcamera(
@@ -59,15 +75,16 @@ impl RenderingPlugins {
     fn setup(mut commands: Commands,
              mut meshes: ResMut<Assets<Mesh>>,
              mut materials: ResMut<Assets<StandardMaterial>>,
-             mut assets: Res<TextureAssets>) {
+             mut assets: Res<TextureAssets>,
+             config: Res<GameSettings>) {
+        let mut safe_start: Option<Entity> = None;
         let mut tile_cube = tile_cube::TileCube::new(3);
         let tile_size = TileCubeSize {
             width: 0.8f32,
             height: 0.8f32,
         };
-
         let tile_handle = meshes.add(Plane3d::default().mesh().size(tile_size.width, tile_size.height));
-        let covered_handle = meshes.add(Plane3d::default().mesh().size(tile_size.width + 0.001, tile_size.height + 0.001));
+        let covered_handle = meshes.add(Plane3d::default().mesh().size(tile_size.width + 0.0001, tile_size.height + 0.0001));
 
         let material_covered = materials.add(StandardMaterial {
             base_color_texture: Some(assets.covered_tile.clone()),
@@ -93,13 +110,7 @@ impl RenderingPlugins {
             ..default()
         });
 
-        let material_flag = materials.add(StandardMaterial {
-            base_color_texture: Some(assets.flag.clone()),
-            base_color: Color::from(basic::RED),
-            reflectance: 0.02,
-            unlit: false,
-            ..default()
-        });
+        let mut covered_tiles = HashMap::with_capacity(6);
         commands.spawn((Camera3dBundle {
             transform: Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
@@ -120,12 +131,24 @@ impl RenderingPlugins {
             Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_z(PI / 2.0), Vec3::new(-0.4f32, 0.0, 0.0), )),
             Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(PI / 2.0), Vec3::new(0.0, 0.0, 0.4f32), )),
             Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(-PI / 2.0), Vec3::new(0.0, 0.0, -0.4f32)))];
-        commands.spawn(SpatialBundle::default()).with_children(|child| {
-            Self::generate(&tile_cube, transforms, child, tile_handle, covered_handle, material_tile, material_covered, material_bomb, materials, assets);
+        let e = commands.spawn(SpatialBundle::default()).with_children(|child| {
+            Self::generate(&tile_cube, transforms, child, tile_handle, covered_handle, material_tile, material_covered, material_bomb, materials, assets,
+                           &mut covered_tiles,
+                               &mut safe_start);
+        }).id();
+        if config.easy_mode {
+            if let Some(entity) = safe_start {
+                commands.entity(entity).insert(Uncover);
+            }
         }
-        );
+        commands.insert_resource(Board3D {
+            tile_cube: tile_cube.clone(),
+            covered_tiles,
+            flagged_tiles: HashSet::new(),
+            entity: e,
+        });
     }
-    
+    #[allow(clippy::too_many_arguments)]
     fn generate(
         tile_cube: &TileCube,
         transform: Vec<Transform>,
@@ -137,9 +160,14 @@ impl RenderingPlugins {
         material_bomb: Handle<StandardMaterial>,
         mut materials: ResMut<Assets<StandardMaterial>>,
         mut assets: Res<TextureAssets>,
+        covered_tiles: &mut HashMap<u16, Entity>,
+        safe_start: &mut Option<Entity>,
     ){
         for (index, (face, transform)) in tile_cube.iter().copied().zip(transform.iter()).enumerate()
         {
+            let number = faceindex {
+                i: index as u16,
+            };
             let mut commands = child.spawn((
                 MaterialMeshBundle {
                     mesh: tile_handle.clone(),
@@ -149,8 +177,30 @@ impl RenderingPlugins {
                 },
             ));
 
+            commands.insert(number);
+
+            commands.with_children(|child| {
+                let e = child.spawn((
+                    MaterialMeshBundle {
+                        mesh: covered_handle.clone(),
+                        material: material_covered.clone(),
+                        transform: Transform::from_xyz(0.0, 0.0001, 0.0),
+                        ..Default::default()
+                    },
+                    On::<Pointer<Click>>::commands_mut(move |event, commands| {
+                        commands.entity(event.target).insert(CubeBoard);
+                    })
+                )).id();
+                covered_tiles.insert(number.i, e);
+                if safe_start.is_none() && face == Tile::Empty{
+                    *safe_start = Some(e);
+                }
+
+            });
+
             match face {
                 Tile::Bomb => {
+                    commands.insert(Bomb);
                     commands.with_children(|child| {
                         child.spawn((
                             MaterialMeshBundle {
@@ -163,6 +213,7 @@ impl RenderingPlugins {
                     });
                 }
                 Tile::BombNeighbour(bombs_counter) => {
+                    commands.insert(BombNeighbor{count: bombs_counter});
                     let (texture_bomb_neighbour, color_bomb) = match (bombs_counter) {
                         1 => (assets.bomb_neighbour_1.clone(), Color::from(basic::BLUE)),
                         2 => (assets.bomb_neighbour_2.clone(), Color::from(basic::GREEN)),
@@ -196,28 +247,35 @@ impl RenderingPlugins {
                 }
                 _ => {}
             }
-            commands.with_children(|child| {
-                child.spawn((
-                    MaterialMeshBundle {
-                        mesh: covered_handle.clone(),
-                        material: material_covered.clone(),
-                        transform: Transform::from_xyz(0.0, 0.0001, 0.0),
-                        ..Default::default()
-                    },
-                    On::<Pointer<Click>>::commands_mut(move |event, commands| {
-                        commands.entity(event.target).insert(CubeBoard);
-                    })
-                ));
-            });
             }
     }
 }
 fn uncover_face(
-    query: Query<Entity, With<Uncover>>,
+    mut commands: Commands,
+    query: Query<(Entity, &Parent), With<Uncover>>,
+    mut board: ResMut<Board3D>,
+    parents: Query<(&faceindex, Option<&Bomb>, Option<&BombNeighbor>)>,
 ) {
-    if query.is_empty() {
-    for e in query.iter(){
+    for (e, parent) in query.iter() {
         commands.entity(e).despawn_recursive();
+        let (coordinates, bomb, bomb_counter) = match parents.get(parent.get()) {
+            Ok(v) => v,
+            Err(_e) => {
+                continue;
+            }
+        };
+        if let Some(_) = board.try_uncover_tile(*coordinates) {
+            if bomb.is_some() {
+                for entity in board.uncover_bomb() {
+                    commands.entity(entity).insert((Uncover, Bomb));
+                }
+                trigger_evr.send(GameLoseEvent);
+            } else if bomb_counter.is_none() {
+                for entity in board.uncover_tile_neighbour(*coordinates) {
+                    commands.entity(entity).insert(Uncover);
+                }
+            }
+        }
     }
 }
 
@@ -226,7 +284,12 @@ fn check_input_cube(
     window_primary_query: Query<&Window, With<PrimaryWindow>>,
     mouse_input: Res<ButtonInput<MouseButton>>,
     touch_input: Res<Touches>,
-    query: Query<Entity, With<CubeBoard>>,
+    query: Query<(Entity, &Parent), With<CubeBoard>>,
+    mut board: ResMut<Board3D>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut assets: Res<TextureAssets>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    parents: Query<&faceindex>,
 ) {
     if query.is_empty() {
         return;
@@ -245,9 +308,54 @@ fn check_input_cube(
         }
     }
     if mouse_input.just_pressed(MouseButton::Right) || fingers.len() >= 2 {
-        for e in query.iter() {
+        for (e, parent) in query.iter() {
+            let (coordinates) = match parents.get(parent.get()) {
+                Ok(v) => v,
+                Err(_e) => {
+                    continue;
+                }
+            };
+            match board.try_toggle_flag(*coordinates) {
+                FlagToggle::FlagIsSet(e) => {
+                    let material_flag = materials.add(StandardMaterial {
+                        base_color_texture: Some(assets.flag.clone()),
+                        base_color: Color::from(basic::RED),
+                        reflectance: 0.02,
+                        unlit: false,
+                        alpha_mode: AlphaMode::Mask(1.),
+                        flip_normal_map_y: true,
+                        ..default()
+                    });
+
+                    let tile_size = TileCubeSize {
+                        width: 0.8f32,
+                        height: 0.8f32,
+                    };
+                    let tile_handle = meshes.add(Plane3d::default().mesh().size(tile_size.width, tile_size.height));
+                    commands.entity(e).with_children(|parent| {
+                            parent.spawn((
+                                MaterialMeshBundle {
+                                    mesh: tile_handle.clone(),
+                                    material: material_flag.clone(),
+                                    transform: Transform::from_xyz(0.0, 0.00001, 0.0),
+                                    ..Default::default()
+                                },
+                                On::<Pointer<Click>>::commands_mut(move |event, commands| {
+                                    commands.entity(event.target).insert(CubeBoard);
+                                })
+                            ));
+                    });
+                }
+                FlagToggle::FlagIsUnset(e) => {
+                    let (child, _) = match query.get(e) {
+                        Ok(value) => value,
+                        Err(_e) => continue,
+                    };
+                    commands.entity(child).despawn_recursive();
+                },
+                _ => (),
+            }
             commands.entity(e).remove::<CubeBoard>();
         }
     }
-}
 }

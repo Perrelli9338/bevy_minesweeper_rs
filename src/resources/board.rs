@@ -8,6 +8,8 @@ use bevy::{
     math::Vec2, prelude::*,
     window::Window
 };
+use crate::rendering::tile_cube::TileCube;
+use crate::rendering::FaceIndex::FaceIndex;
 
 pub(crate) enum FlagToggle {
     FlagIsSet(Entity),
@@ -24,6 +26,62 @@ pub struct Board {
     pub covered_tiles: HashMap<Coordinates, Entity>,
     pub flagged_tiles: HashSet<Coordinates>,
     pub entity: Entity,
+}
+
+#[derive(Debug, Clone)]
+#[derive(Resource)]
+pub struct Board3D {
+    pub tile_cube: TileCube,
+    pub covered_tiles: HashMap<u16, Entity>,
+    pub flagged_tiles: HashSet<u16>,
+    pub entity: Entity,
+}
+
+impl Board3D {
+    pub fn tile_selected(&self, index: FaceIndex) -> Option<&Entity> {
+        self.covered_tiles.get(&index.i)
+    }
+
+    pub fn try_uncover_tile(&mut self, index: FaceIndex) -> Option<Entity> {
+        if self.flagged_tiles.contains(&index.i) {
+            None
+        } else {
+            self.covered_tiles.remove(&index.i)
+        }
+    }
+
+    pub fn try_toggle_flag(&mut self, index: FaceIndex) -> FlagToggle {
+        match self.covered_tiles.get(&index.i) {
+            Some(e) => {
+                if self.flagged_tiles.contains(&index.i) {
+                    self.flagged_tiles.remove(&index.i);
+                    FlagToggle::FlagIsUnset(e.clone())
+                } else {
+                    self.flagged_tiles.insert(index.i);
+                    FlagToggle::FlagIsSet(e.clone())
+                }
+            }
+            _ => FlagToggle::Nothing,
+        }
+    }
+
+    pub fn is_win(&self, flag_mode: bool) -> bool {
+        if flag_mode {
+            self.tile_cube.get_bomb_count() as usize == self.flagged_tiles.len() &&
+                self.tile_cube.get_bomb_count() as usize == self.covered_tiles.len()
+        } else {
+            self.tile_cube.get_bomb_count() as usize == self.covered_tiles.len()
+        }
+    }
+
+    pub fn uncover_tile_neighbour(&self, index: FaceIndex) -> Vec<Entity> {
+        self
+            .tile_cube
+            .safe_square_at(index)
+            .filter_map(|c| self.covered_tiles.get(&c))
+            .copied()
+            .collect()
+    }
 }
 
 impl Board {

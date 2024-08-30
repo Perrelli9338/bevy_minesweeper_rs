@@ -65,11 +65,10 @@ fn new_game(
 
 impl ResourcePlugin {
 
-    pub fn create(mut commands: Commands, options: Res<GameSettings>, assets: (Res<TextureAssets>, Res<FontAssets>)) {
+    pub fn create(mut commands: Commands, config: Res<GameSettings>, assets: (Res<TextureAssets>, Res<FontAssets>, )) {
         let mut safe_start: Option<Entity> = None;
         
         let (textures, fonts) = assets;
-        let config = options.clone();
 
         let tile_size = match config.tile_size {
             TileSize::Fixed(size) => size,

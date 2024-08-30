@@ -1,10 +1,10 @@
-use crate::{resources::tile::Tile,
-            components::coordinates::FaceSideIndex};
+use crate::{resources::tile::Tile};
 
 use std::ops::{Add, Deref, DerefMut};
 use bevy::prelude::Component;
 use bevy::utils::HashSet;
 use rand::{thread_rng, Rng};
+use crate::rendering::FaceIndex::FaceIndex;
 
 #[derive(Debug, Clone)]
 pub struct TileCube {
@@ -28,13 +28,13 @@ impl TileCube {
         }
     }
     
-    pub fn safe_square_at(&self, index: usize) -> impl Iterator<Item=usize> {
-        match index {
+    pub fn safe_square_at(&self, index: FaceIndex) -> impl Iterator<Item=u16> {
+        match index.i {
             0 | 1 => [3, 4, 2, 5],
             2 | 3 => [4, 0, 1, 5],
             4 | 5 => [2, 0, 3, 1],
             _ => [0, 0, 0, 0]
-        }.iter().map(|&i| i as usize).collect::<Vec<_>>().into_iter()
+        }.iter().map(|&i| i as u16).collect::<Vec<_>>().into_iter()
     }
 
     pub fn set_bombs(&mut self, bomb_count: u16) {
@@ -49,30 +49,31 @@ impl TileCube {
                 r_bombs -= 1;
             }
                 for index in 0..6 {
-                    if self.is_bomb_at(index) {
+                    let face = FaceIndex { i: index as u16};
+                    if self.is_bomb_at(face.i) {
                         continue;
                     };
 
-                    let bomb_count = self.bomb_count_at(index);
+                    let bomb_count = self.bomb_count_at(face);
                     if bomb_count == 0 {
                         continue;
                     }
-                    let tile = &mut self[index];
+                    let tile = &mut self[face.i as usize];
                     *tile = Tile::BombNeighbour(bomb_count);
             }
         }
     }
 
-    pub fn bomb_count_at(&self, index: usize) -> u8 {
-        if self.is_bomb_at(index) {
+    pub fn bomb_count_at(&self, index: FaceIndex) -> u8 {
+        if self.is_bomb_at(index.i) {
             return 0;
         }
         let res = self.safe_square_at(index).filter(|c| self.is_bomb_at(*c)).count();
         res as u8
     }
 
-    pub fn is_bomb_at(&self, index: usize) -> bool {
-        self.map[index].is_bomb()
+    pub fn is_bomb_at(&self, index: u16) -> bool {
+        self.map[index as usize].is_bomb()
     }
 
 
