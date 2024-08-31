@@ -15,17 +15,11 @@ pub struct TileCube {
 
 
 impl TileCube {
-    pub fn safe_square_at(&self, index: u16) -> impl Iterator<Item=u16> {
-        match index {
-            _ => [0, 0, 0, 0]
-        }.iter().map(|n| n as u16).collect()
-    }
-
     pub fn new() -> Self {
         let map = vec![Tile::Empty; 6];
         Self {
-            bomb_coordinates: HashSet::new(),
             bomb_count: 5,
+            bomb_coordinates: HashSet::new(),
             map,
         }
     }
@@ -54,19 +48,19 @@ impl TileCube {
                 self[i] = Tile::Bomb;
                 r_bombs -= 1;
             }
-                for index in 0..6 {
-                    let face = FaceIndex { i: index as u16};
-                    if self.is_bomb_at(face.i) {
-                        self.bomb_coordinates.insert(face.i);
-                        continue;
-                    };
+            for index in 0..6 {
+                let face = FaceIndex { i: index as u16};
+                if self.is_bomb_at(face.i) {
+                    self.bomb_coordinates.insert(face.i);
+                    continue;
+                };
 
-                    let bomb_count = self.bomb_count_at(face);
-                    if bomb_count == 0 {
-                        continue;
-                    }
-                    let tile = &mut self[face.i as usize];
-                    *tile = Tile::BombNeighbour(bomb_count);
+                let bomb_count = self.bomb_count_at(face);
+                if bomb_count == 0 {
+                    continue;
+                }
+                let tile = &mut self[face.i as usize];
+                *tile = Tile::BombNeighbour(bomb_count);
             }
         }
     }

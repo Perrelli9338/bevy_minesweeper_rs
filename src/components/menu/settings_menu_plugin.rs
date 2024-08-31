@@ -184,8 +184,14 @@ impl SettingsMenu {
                             (SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width", config.map_size.0.to_string()),
                             (SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height", config.map_size.1.to_string()),
                             (SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs", config.bomb_count.to_string()),
-                            (SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start", match config.easy_mode { true => "On", false => "Off" }.to_string()),
-                            (SettingsMenuButtonAction::TurnFlagOff, SettingsMenuButtonAction::TurnFlagOn, "Flag mode", match config.flag_mode { true => "On", false => "Off" }.to_string()),
+                            (SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start", match config.easy_mode {
+                                true => "On",
+                                false => "Off"
+                            }.to_string()),
+                            (SettingsMenuButtonAction::TurnFlagOff, SettingsMenuButtonAction::TurnFlagOn, "Flag mode", match config.flag_mode {
+                                true => "On",
+                                false => "Off"
+                            }.to_string()),
                             (SettingsMenuButtonAction::DecreaseTimer, SettingsMenuButtonAction::IncreaseTimer, "Start delay", format!("{:.01}s", config.timer_start)),
                         ] {
                             children.spawn((
@@ -201,7 +207,7 @@ impl SettingsMenu {
                                 },
                                 MenuSettings,
                             ))
-                            .with_children(|children| {
+                                .with_children(|children| {
                                     children.spawn(TextBundle::from_section(
                                         text,
                                         TextStyle {
@@ -291,7 +297,6 @@ impl SettingsMenu {
                         ));
                     });
             });
-
     }
 
     fn settings_button_functions(
@@ -366,19 +371,19 @@ impl SettingsMenu {
                         menu_state.set(MenuStates::Main)
                     }
                 }
-                    if config.bomb_count == (config.map_size.0 * config.map_size.1) - 1 && config.easy_mode {
-                        config.flag_mode = true
-                    }
-                    commands.insert_resource(GameSettings {
-                        map_size: config.map_size,
-                        bomb_count: config.bomb_count,
-                        position: config.clone().position,
-                        tile_size: config.clone().tile_size,
-                        tile_padding: config.tile_padding,
-                        easy_mode: config.easy_mode,
-                        timer_start: config.timer_start,
-                        flag_mode: config.flag_mode,
-                    })
+                if config.bomb_count == (config.map_size.0 * config.map_size.1) - 1 && config.easy_mode {
+                    config.flag_mode = true
+                }
+                commands.insert_resource(GameSettings {
+                    map_size: config.map_size,
+                    bomb_count: config.bomb_count,
+                    position: config.clone().position,
+                    tile_size: config.clone().tile_size,
+                    tile_padding: config.tile_padding,
+                    easy_mode: config.easy_mode,
+                    timer_start: config.timer_start,
+                    flag_mode: config.flag_mode,
+                })
             }
         }
         let mut settings_values = vec![
@@ -398,3 +403,5 @@ impl SettingsMenu {
         for mut b in query.iter_mut() {
             b.sections[0].value = settings_values.pop().unwrap();
         }
+    }
+}

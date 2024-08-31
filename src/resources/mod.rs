@@ -57,7 +57,7 @@ pub(crate) fn new_game(
     time: Res<Time>,
     mut timer: ResMut<GameTimer>,
     mut game_state: ResMut<NextState<GameState>>,
-    ){
+){
     if timer.tick(time.delta()).finished() {
         game_state.set(GameState::Playing);
     }
@@ -65,10 +65,11 @@ pub(crate) fn new_game(
 
 impl ResourcePlugin {
 
-    pub fn create(mut commands: Commands, config: Res<GameSettings>, assets: (Res<TextureAssets>, Res<FontAssets>, )) {
+    pub fn create(mut commands: Commands, options: Res<GameSettings>, assets: (Res<TextureAssets>, Res<FontAssets>)) {
         let mut safe_start: Option<Entity> = None;
-        
+
         let (textures, fonts) = assets;
+        let config = options.clone();
 
         let tile_size = match config.tile_size {
             TileSize::Fixed(size) => size,
@@ -97,6 +98,7 @@ impl ResourcePlugin {
         };
 
         let e = commands.spawn((
+            Name::new("Board"),
             SpatialBundle {
                 transform: Transform::from_translation(position),
                 ..Default::default()
@@ -118,7 +120,7 @@ impl ResourcePlugin {
                     &mut safe_start,
                 );
             }).id();
-        
+
         if config.easy_mode {
             if let Some(entity) = safe_start {
                 commands.entity(entity).insert(Uncover);
@@ -137,7 +139,7 @@ impl ResourcePlugin {
             entity: e,
         });
     }
-    
+
     #[allow(clippy::too_many_arguments)]
     fn generate(
         parent: &mut ChildBuilder,
@@ -168,7 +170,7 @@ impl ResourcePlugin {
                             custom_size: sprites_size,
                             ..Default::default()
                         },
-                        
+
                         transform: Transform::from_xyz(
                             (x as f32 * tile_size) + (tile_size / 2.),
                             (y as f32 * tile_size) + (tile_size / 2.),
@@ -176,8 +178,8 @@ impl ResourcePlugin {
                         ),
                         texture: tile_image.clone(),
                         ..Default::default()
-                });
-                
+                    });
+
                 commands.insert(coordinates);
 
                 commands.with_children(|parent| {
@@ -228,11 +230,11 @@ impl ResourcePlugin {
                     }
                     _ => (),
                 }
-                }
             }
+        }
     }
     }
-pub(crate) fn bomb_count_text_bundle(count: u8, font: Handle<Font>, font_size: f32, transform: Transform) -> Text2dBundle {
+fn bomb_count_text_bundle(count: u8, font: Handle<Font>, font_size: f32, transform: Transform) -> Text2dBundle {
     let color = match count {
         1 => Color::from(basic::BLUE),
         2 => Color::from(basic::GREEN),
@@ -249,12 +251,10 @@ pub(crate) fn bomb_count_text_bundle(count: u8, font: Handle<Font>, font_size: f
         font_size,
         color,
     };
-    // adopted 0.9 to 0.10 and simplified API
     let text = Text::from_section(count.to_string(), style).with_no_wrap();
     
     Text2dBundle {
         text,
-        // z-order, print text on top of the tile
         transform: transform,
         ..Default::default()
     }
