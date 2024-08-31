@@ -369,32 +369,32 @@ impl SettingsMenu {
                     if config.bomb_count == (config.map_size.0 * config.map_size.1) - 1 && config.easy_mode {
                         config.flag_mode = true
                     }
-                    let mut settings_values = vec![
-                        format!("{:.01}s", config.timer_start),
-                        match config.flag_mode {
-                            true => "On",
-                            false => "Off"
-                        }.to_string(),
-                        match config.easy_mode {
-                            true => "On",
-                            false => "Off"
-                        }.to_string(),
-                        config.bomb_count.to_string(),
-                        config.map_size.1.to_string(),
-                        config.map_size.0.to_string(),
-                    ];
-                for mut b in query.iter_mut() {
-                        b.sections[0].value = settings_values.pop().unwrap();
-                    }
-                commands.insert_resource(GameSettings {
-                    map_size: config.map_size,
-                    bomb_count: config.bomb_count,
-                    position: config.clone().position,
-                    tile_size: config.clone().tile_size,
-                    tile_padding: config.tile_padding,
-                    easy_mode: config.easy_mode,
-                    timer_start: config.timer_start,
-                    flag_mode: config.flag_mode,
-                })
-                }
+                    commands.insert_resource(GameSettings {
+                        map_size: config.map_size,
+                        bomb_count: config.bomb_count,
+                        position: config.clone().position,
+                        tile_size: config.clone().tile_size,
+                        tile_padding: config.tile_padding,
+                        easy_mode: config.easy_mode,
+                        timer_start: config.timer_start,
+                        flag_mode: config.flag_mode,
+                    })
+            }
+        }
+        let mut settings_values = vec![
+            format!("{:.01}s", config.timer_start),
+            match config.flag_mode {
+                true => "On",
+                false => "Off"
+            }.to_string(),
+            match config.easy_mode {
+                true => "On",
+                false => "Off"
+            }.to_string(),
+            config.bomb_count.to_string(),
+            config.map_size.1.to_string(),
+            config.map_size.0.to_string(),
+        ];
+        for mut b in query.iter_mut() {
+            b.sections[0].value = settings_values.pop().unwrap();
         }

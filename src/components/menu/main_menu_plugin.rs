@@ -92,7 +92,7 @@ impl MainMenu {
             }
             }).with_children(|parent| {
             parent.spawn(TextBundle::from_section(
-                format!("v{}", env!("CARGO_PKG_VERSION")),
+                format!("v{}-rc", env!("CARGO_PKG_VERSION")),
                 TextStyle {
                     ..default()
                 }

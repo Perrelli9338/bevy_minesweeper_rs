@@ -8,6 +8,7 @@ use crate::rendering::FaceIndex::FaceIndex;
 
 #[derive(Debug, Clone)]
 pub struct TileCube {
+    bomb_coordinates: HashSet<u16>,
     bomb_count: u16,
     map: Vec<Tile>
 }
@@ -23,11 +24,16 @@ impl TileCube {
     pub fn new() -> Self {
         let map = vec![Tile::Empty; 6];
         Self {
+            bomb_coordinates: HashSet::new(),
             bomb_count: 5,
             map,
         }
     }
-    
+
+    pub fn get_bomb_tiles(&self) -> impl Iterator<Item=u16> + '_ {
+        self.bomb_coordinates.iter().copied()
+    }
+
     pub fn safe_square_at(&self, index: FaceIndex) -> impl Iterator<Item=u16> {
         match index.i {
             0 | 1 => [3, 4, 2, 5],
@@ -51,6 +57,7 @@ impl TileCube {
                 for index in 0..6 {
                     let face = FaceIndex { i: index as u16};
                     if self.is_bomb_at(face.i) {
+                        self.bomb_coordinates.insert(face.i);
                         continue;
                     };
 

@@ -82,6 +82,15 @@ impl Board3D {
             .copied()
             .collect()
     }
+
+    pub fn uncover_bomb(&self) -> Vec<Entity> {
+        return self
+            .tile_cube
+            .get_bomb_tiles()
+            .filter_map(|c| self.covered_tiles.get(&c))
+            .copied()
+            .collect();
+    }
 }
 
 impl Board {

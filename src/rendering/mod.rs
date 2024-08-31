@@ -43,7 +43,7 @@ use crate::resources::assets::FontAssets;
 use crate::resources::board::{Board, Board3D, FlagToggle};
 use crate::resources::events::{FaceTriggerEvent, GameLoseEvent, GameWinEvent};
 use crate::resources::{new_game, GameState};
-use crate::resources::settings::GameSettings;
+use crate::resources::settings::{GameSettings, TileSize};
 use crate::resources::tile::Tile;
 use crate::resources::tile_map::TileMap;
 
@@ -66,7 +66,7 @@ impl Plugin for RenderingPlugins {
             .add_plugins(DefaultPickingPlugins)
             .add_systems(OnEnter(AppState::Playing3D), (toggle_camera, Self::setup))
             .add_systems(OnExit(AppState::Playing3D), toggle_camera)
-            .add_systems(Update, (check_input_cube, uncover_face, system::game_state_handler).run_if(in_state(GameState::Playing)).run_if(in_state(AppState::Playing3D)))
+            .add_systems(Update, (check_input_cube, uncover_face, system::game_state_handler, uncover_wrong_flags).run_if(in_state(GameState::Playing)).run_if(in_state(AppState::Playing3D)))
             .add_systems(Update, cube_endgame.run_if(in_state(AppState::Playing3D)).run_if(in_state(GameState::Win)))
             .add_systems(Update, cube_endgame.run_if(in_state(AppState::Playing3D)).run_if(in_state(GameState::Lose)))
             .add_systems(Update, new_game.run_if(in_state(GameState::Disabled)).run_if(in_state(AppState::Playing3D)));
@@ -85,8 +85,8 @@ fn cube_endgame(
         return
     }
     for mut transform in &mut query {
-        transform.rotate_y(time.delta_seconds() / 2.);
-        transform.rotate_x(time.delta_seconds() / 2.);
+        transform.rotate_y(time.delta_seconds() / 5.);
+        transform.rotate_x(time.delta_seconds() / 5.);
     }
     if timer.tick(time.delta()).finished() {
         commands.entity(board.entity).despawn_recursive();
@@ -109,7 +109,14 @@ impl RenderingPlugins {
              mut assets: Res<TextureAssets>,
              config: Res<GameSettings>) {
         let mut safe_start: Option<Entity> = None;
-        let mut tile_cube = tile_cube::TileCube::new(3);
+        let mut bomb_count;
+        if config.bomb_count > 5 {
+            bomb_count = 5;
+        } else {
+            bomb_count = config.bomb_count;
+        }
+        let mut tile_cube = TileCube::new(bomb_count);
+        tile_cube.set_bombs(bomb_count);
         let tile_size = TileCubeSize {
             width: 0.8f32,
             height: 0.8f32,
@@ -142,9 +149,6 @@ impl RenderingPlugins {
         });
 
         let mut covered_tiles = HashMap::with_capacity(6);
-        let bomb_count = 4;
-        let mut tile_cube = TileCube::new(bomb_count);
-        tile_cube.set_bombs(bomb_count);
         let transforms = vec![
             Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(0.0), Vec3::new(0.0, 0.4f32, 0.0))),
             Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(PI), Vec3::new(0.0, -0.4f32, 0.0), )),
@@ -277,7 +281,8 @@ fn uncover_face(
     mut board: ResMut<Board3D>,
     parents: Query<(&faceindex, Option<&Bomb>, Option<&BombNeighbor>)>,
     mut trigger_evr: EventWriter<GameLoseEvent>,
-    mut trigger_event: EventWriter<GameWinEvent>
+    mut trigger_event: EventWriter<GameWinEvent>,
+    config: Res<GameSettings>
 ) {
     for (e, parent) in query.iter() {
         commands.entity(e).despawn_recursive();
@@ -299,6 +304,57 @@ fn uncover_face(
                 }
             }
         }
+        if board.is_win(config.flag_mode){
+            trigger_event.send(GameWinEvent);
+        }
+    }
+}
+
+pub fn uncover_wrong_flags(
+    mut commands: Commands,
+    children: Query<Entity, (With<Flagged>, Without<Bomb>)>,
+    query: Query<&Children>,
+    config: Res<GameSettings>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    assets: Res<TextureAssets>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut lose_evr: EventReader<GameLoseEvent>,
+) {
+    for _e in lose_evr.read() {
+        for entity in children.iter() {
+            let child = match query.get(entity) {
+                Ok(value) => value,
+                Err(_e) => continue,
+            };
+            for c in child {
+                commands.entity(*c).despawn_recursive();
+            }
+            let cross_flag = materials.add(StandardMaterial {
+                base_color_texture: Some(assets.wrong.clone()),
+                base_color: Color::from(basic::RED),
+                reflectance: 0.02,
+                unlit: false,
+                alpha_mode: AlphaMode::Mask(1.),
+                flip_normal_map_y: true,
+                ..default()
+            });
+
+            let tile_size = TileCubeSize {
+                width: 0.8f32,
+                height: 0.8f32,
+            };
+            let tile_handle = meshes.add(Plane3d::default().mesh().size(tile_size.width, tile_size.height));
+            commands.entity(entity).with_children(|parent| {
+                parent.spawn((
+                    MaterialMeshBundle {
+                        mesh: tile_handle.clone(),
+                        material: cross_flag.clone(),
+                        transform: Transform::from_xyz(0.0, 0.00001, 0.0),
+                        ..Default::default()
+                    },
+                ));
+            });
+        }
     }
 }
 
@@ -314,6 +370,8 @@ fn check_input_cube(
     mut assets: Res<TextureAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
     parents: Query<&faceindex>,
+    mut trigger_event: EventWriter<GameWinEvent>,
+    config: Res<GameSettings>
 ) {
     if query.is_empty() {
         return;
@@ -383,6 +441,9 @@ fn check_input_cube(
                     }
                 },
                 _ => (),
+            }
+            if board.is_win(config.flag_mode){
+                trigger_event.send(GameWinEvent);
             }
         }
     }
