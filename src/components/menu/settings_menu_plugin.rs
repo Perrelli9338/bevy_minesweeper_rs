@@ -20,7 +20,7 @@ enum SettingsMenuButtonAction {
 }
 
 #[derive(Component)]
-pub struct SettingsValues;
+pub struct SettingsValue;
 
 #[derive(Component)]
 pub struct MenuSettings;
@@ -66,69 +66,69 @@ fn settings_button_colors (
             }
         }
         match button_action {
-                    SettingsMenuButtonAction::DecrementBombCount => {
-                        if !(config.bomb_count > 1) {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::IncrementBombCount => {
-                        if !(config.bomb_count < (config.map_size.0 * config.map_size.1) - 1) {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::IncrementWidthBoard => {
-                        if config.map_size.0 <= 32 {
-                        } else {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::DecrementWidthBoard => {
-                        if !(config.map_size.0 > 1 && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count) {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::DecrementHeightBoard => {
-                        if !(config.map_size.1 > 1 && (config.map_size.0 * (config.map_size.1 - 1)) > config.bomb_count) {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::IncrementHeightBoard => {
-                        if !(config.map_size.1 <= 32) {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::SafeStartOn => {
-                        if !config.easy_mode {
-                        } else {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::SafeStartOff => {
-                        if !config.easy_mode {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::DecreaseTimer => {
-                        if !(config.timer_start > 0.) {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::IncreaseTimer => {
-                        if config.timer_start < 3.0 {
-                        } else {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::TurnFlagOn => {
-                        if config.flag_mode {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
-                    SettingsMenuButtonAction::TurnFlagOff => {
-                        if !config.flag_mode || config.bomb_count == (config.map_size.0 * config.map_size.1) - 1 && config.easy_mode {
-                            *color = button_colors.disabled.into();
-                        }
-                    }
+            SettingsMenuButtonAction::DecrementBombCount => {
+                if !(config.bomb_count > 1) {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::IncrementBombCount => {
+                if !(config.bomb_count < (config.map_size.0 * config.map_size.1) - 1) {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::IncrementWidthBoard => {
+                if config.map_size.0 <= 32 {
+                } else {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::DecrementWidthBoard => {
+                if !(config.map_size.0 > 1 && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count) {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::DecrementHeightBoard => {
+                if !(config.map_size.1 > 1 && (config.map_size.0 * (config.map_size.1 - 1)) > config.bomb_count) {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::IncrementHeightBoard => {
+                if !(config.map_size.1 <= 32) {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::SafeStartOn => {
+                if !config.easy_mode {
+                } else {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::SafeStartOff => {
+                if !config.easy_mode {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::DecreaseTimer => {
+                if !(config.timer_start > 0.) {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::IncreaseTimer => {
+                if config.timer_start < 3.0 {
+                } else {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::TurnFlagOn => {
+                if config.flag_mode {
+                    *color = button_colors.disabled.into();
+                }
+            }
+            SettingsMenuButtonAction::TurnFlagOff => {
+                if !config.flag_mode || config.bomb_count == (config.map_size.0 * config.map_size.1) - 1 && config.easy_mode {
+                    *color = button_colors.disabled.into();
+                }
+            }
             _ => {}
         }
     }
@@ -136,7 +136,6 @@ fn settings_button_colors (
 
 
 impl SettingsMenu {
-
     fn create(mut commands: Commands, options: Option<Res<GameSettings>>) {
         let config = match options {
             None => GameSettings::default(),
@@ -222,51 +221,51 @@ impl SettingsMenu {
                                         ..default()
                                     })
                                         .with_children(|children| {
-                                        children.spawn((
-                                            ButtonBundle {
-                                                style: settings.button_settings_style.clone(),
-                                                background_color: settings.button_colors.clone().normal.into(),
-                                                border_radius: settings.button_border_style.clone(),
-                                                ..Default::default()
-                                            },
-                                            first_action,
-                                            settings.button_colors.clone(),
-                                        ))
-                                        .with_children(|parent| {
-                                            parent.spawn(TextBundle::from_section(
-                                                "<",
+                                            children.spawn((
+                                                ButtonBundle {
+                                                    style: settings.button_settings_style.clone(),
+                                                    background_color: settings.button_colors.clone().normal.into(),
+                                                    border_radius: settings.button_border_style.clone(),
+                                                    ..Default::default()
+                                                },
+                                                first_action,
+                                                settings.button_colors.clone(),
+                                            ))
+                                                .with_children(|parent| {
+                                                    parent.spawn(TextBundle::from_section(
+                                                        "<",
+                                                        TextStyle {
+                                                            ..default()
+                                                        }
+                                                    ));
+                                                });
+                                            children.spawn((TextBundle::from_section(
+                                                value,
                                                 TextStyle {
+                                                    font_size: 37.,
                                                     ..default()
                                                 }
-                                            ));
+                                            ), SettingsValue));
+                                            children
+                                                .spawn((
+                                                    ButtonBundle {
+                                                        style: settings.button_settings_style.clone(),
+                                                        background_color: settings.button_colors.normal.clone().into(),
+                                                        border_radius: settings.button_border_style.clone(),
+                                                        ..Default::default()
+                                                    },
+                                                    second_action,
+                                                    settings.button_colors.clone(),
+                                                ))
+                                                .with_children(|parent| {
+                                                    parent.spawn(TextBundle::from_section(
+                                                        ">",
+                                                        TextStyle {
+                                                            ..default()
+                                                        }
+                                                    ));
+                                                });
                                         });
-                                    children.spawn((TextBundle::from_section(
-                                        value,
-                                        TextStyle {
-                                            font_size: 37.,
-                                            ..default()
-                                        },
-                                    ), SettingsValues));
-                                    children
-                                        .spawn((
-                                            ButtonBundle {
-                                                style: settings.button_settings_style.clone(),
-                                                background_color: settings.button_colors.normal.clone().into(),
-                                                border_radius: settings.button_border_style.clone(),
-                                                ..Default::default()
-                                            },
-                                            second_action,
-                                            settings.button_colors.clone(),
-                                        ))
-                                        .with_children(|parent| {
-                                            parent.spawn(TextBundle::from_section(
-                                                ">",
-                                                TextStyle {
-                                                    ..default()
-                                                }
-                                            ));
-                                        });
-                                });
                                 });
                         }
                     });
@@ -297,7 +296,7 @@ impl SettingsMenu {
 
     fn settings_button_functions(
         mut commands: Commands,
-        mut query: Query<&mut Text, With<SettingsValues>>,
+        mut query: Query<&mut Text, With<SettingsValue>>,
         mut interaction_query: Query<
             (
                 &Interaction,
@@ -310,69 +309,67 @@ impl SettingsMenu {
     ) {
         for (interaction, button_action) in &mut interaction_query {
             if *interaction == Interaction::Pressed {
-                    match button_action {
-                        SettingsMenuButtonAction::DecrementBombCount => {
-                            if config.bomb_count > 1 {
-                                config.bomb_count -= 1;
-                            }
-                        }
-                        SettingsMenuButtonAction::IncrementBombCount => {
-                            if config.bomb_count < (config.map_size.0 * config.map_size.1) - 1 {
-                                config.bomb_count += 1;
-                            }
-                        }
-                        SettingsMenuButtonAction::IncrementWidthBoard => {
-                            if config.map_size.0 <= 32 {
-                                config.map_size.0 += 1;
-                            }
-                        }
-                        SettingsMenuButtonAction::DecrementWidthBoard => {
-                            if config.map_size.0 > 1 && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count {
-                                config.map_size.0 -= 1;
-                            }
-                        }
-                        SettingsMenuButtonAction::DecrementHeightBoard => {
-                            if config.map_size.1 > 1 && (config.map_size.0 * (config.map_size.1 - 1)) > config.bomb_count {
-                                config.map_size.1 -= 1;
-                            }
-                        }
-                        SettingsMenuButtonAction::IncrementHeightBoard => {
-                            if config.map_size.1 <= 32 {
-                                config.map_size.1 += 1;
-                            }
-                        }
-                        SettingsMenuButtonAction::SafeStartOn => {
-                            config.easy_mode = true;
-                        }
-                        SettingsMenuButtonAction::SafeStartOff => {
-                            config.easy_mode = false;
-                        }
-                        SettingsMenuButtonAction::DecreaseTimer => {
-                            if config.timer_start > 0. {
-                                config.timer_start = format!("{:.01}", config.timer_start - 0.1).parse::<f32>().unwrap();
-                            }
-                        }
-                        SettingsMenuButtonAction::IncreaseTimer => {
-                            if config.timer_start < 3.0 {
-                                config.timer_start += 0.1;
-                            }
-                        }
-                        SettingsMenuButtonAction::TurnFlagOn => {
-                            config.flag_mode = true;
-                        }
-                        SettingsMenuButtonAction::TurnFlagOff => {
-                            config.flag_mode = false;
-                        }
-                        SettingsMenuButtonAction::BackToMainMenu => {
-                            menu_state.set(MenuStates::Main)
+                match button_action {
+                    SettingsMenuButtonAction::DecrementBombCount => {
+                        if config.bomb_count > 1 {
+                            config.bomb_count -= 1;
                         }
                     }
+                    SettingsMenuButtonAction::IncrementBombCount => {
+                        if config.bomb_count < (config.map_size.0 * config.map_size.1) - 1 {
+                            config.bomb_count += 1;
+                        }
+                    }
+                    SettingsMenuButtonAction::IncrementWidthBoard => {
+                        if config.map_size.0 <= 32 {
+                            config.map_size.0 += 1;
+                        }
+                    }
+                    SettingsMenuButtonAction::DecrementWidthBoard => {
+                        if config.map_size.0 > 1 && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count {
+                            config.map_size.0 -= 1;
+                        }
+                    }
+                    SettingsMenuButtonAction::DecrementHeightBoard => {
+                        if config.map_size.1 > 1 && (config.map_size.0 * (config.map_size.1 - 1)) > config.bomb_count {
+                            config.map_size.1 -= 1;
+                        }
+                    }
+                    SettingsMenuButtonAction::IncrementHeightBoard => {
+                        if config.map_size.1 <= 32 {
+                            config.map_size.1 += 1;
+                        }
+                    }
+                    SettingsMenuButtonAction::SafeStartOn => {
+                        config.easy_mode = true;
+                    }
+                    SettingsMenuButtonAction::SafeStartOff => {
+                        config.easy_mode = false;
+                    }
+                    SettingsMenuButtonAction::DecreaseTimer => {
+                        if config.timer_start > 0. {
+                            config.timer_start = format!("{:.01}", config.timer_start - 0.1).parse::<f32>().unwrap();
+                        }
+                    }
+                    SettingsMenuButtonAction::IncreaseTimer => {
+                        if config.timer_start < 3.0 {
+                            config.timer_start += 0.1;
+                        }
+                    }
+                    SettingsMenuButtonAction::TurnFlagOn => {
+                        config.flag_mode = true;
+                    }
+                    SettingsMenuButtonAction::TurnFlagOff => {
+                        config.flag_mode = false;
+                    }
+                    SettingsMenuButtonAction::BackToMainMenu => {
+                        menu_state.set(MenuStates::Main)
+                    }
                 }
-        }
-        if config.bomb_count == (config.map_size.0 * config.map_size.1) - 1 && config.easy_mode {
-            config.flag_mode = true
-        }
-        let mut settings_values = vec![
+                    if config.bomb_count == (config.map_size.0 * config.map_size.1) - 1 && config.easy_mode {
+                        config.flag_mode = true
+                    }
+                    let mut settings_values = vec![
                         format!("{:.01}s", config.timer_start),
                         match config.flag_mode {
                             true => "On",
@@ -386,7 +383,7 @@ impl SettingsMenu {
                         config.map_size.1.to_string(),
                         config.map_size.0.to_string(),
                     ];
-                    for mut b in query.iter_mut() {
+                for mut b in query.iter_mut() {
                         b.sections[0].value = settings_values.pop().unwrap();
                     }
                 commands.insert_resource(GameSettings {

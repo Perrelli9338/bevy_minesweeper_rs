@@ -44,7 +44,6 @@ enum MenuButtonAction {
     Selection,
     BackToMainMenu,
     GameIn3D,
-    GameIn2D,
     Quit,
 }
 
@@ -89,7 +88,9 @@ impl Plugin for MenuPlugin {
             ))
             .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
-            .add_systems(Update, (menu_action, button_states).run_if(in_state(AppState::Menu)))
+            .add_systems(Update, button_states.run_if(in_state(MenuStates::Main)))
+            .add_systems(Update, button_states.run_if(in_state(MenuStates::SelectionMode)))
+            .add_systems(Update, menu_action.run_if(in_state(AppState::Menu)))
             .insert_resource(GameSettings::default());
     }
 
@@ -111,6 +112,10 @@ pub(crate) struct MainCamera;
 
 fn setup(mut commands: Commands){
     commands.spawn((Camera3dBundle {
+        camera: Camera {
+            is_active: false,
+            ..default()
+        },
         transform: Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     },
@@ -122,13 +127,6 @@ fn setup(mut commands: Commands){
                     }, MainCamera)
     );
     commands.spawn((Camera2dBundle::default(), MainCamera));
-}
-
-fn toggle_camera(
-    mut q: Query<&mut Camera, With<PanOrbitCamera>>,
-){
-    let mut camera = q.single_mut();
-    camera.is_active = !camera.is_active;
 }
 
 fn menu_setup(mut menu_state: ResMut<NextState<MenuStates>>){
@@ -179,8 +177,7 @@ fn menu_action(
             match menu_button_action {
                 MenuButtonAction::Quit => {
                     app_exit_events.send(AppExit::Success);
-                },
-                MenuButtonAction::Play => menu_state.set(MenuStates::SelectionMode),
+                }
                 MenuButtonAction::GameIn2D => {
                     game_state.set(AppState::Playing2D);
                     menu_state.set(MenuStates::Disabled);
