@@ -53,11 +53,11 @@ pub enum GameState {
     Disabled,
 }
 
-fn new_game(
+pub(crate) fn new_game(
     time: Res<Time>,
     mut timer: ResMut<GameTimer>,
-    mut game_state: ResMut<NextState<GameState>>
-){
+    mut game_state: ResMut<NextState<GameState>>,
+    ){
     if timer.tick(time.delta()).finished() {
         game_state.set(GameState::Playing);
     }

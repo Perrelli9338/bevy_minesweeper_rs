@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 use crate::{
     AppState,
     resources::settings::GameSettings
@@ -38,7 +39,7 @@ pub enum MenuStates {
 
 #[derive(Component)]
 enum MenuButtonAction {
-    Play,
+    GameIn2D,
     Settings,
     Selection,
     BackToMainMenu,
@@ -78,8 +79,10 @@ pub struct MenuPlugin;
 // The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
-        app.init_state::<MenuStates>()
+        app
+            .init_state::<MenuStates>()
             .add_plugins((
+                PanOrbitCameraPlugin,
                 main_menu_plugin::MainMenu,
                 settings_menu_plugin::SettingsMenu,
                 selection_mode_plugin::SelectionMenu
@@ -103,8 +106,29 @@ impl Default for ButtonColors {
     }
 }
 
+#[derive(Component)]
+pub(crate) struct MainCamera;
+
 fn setup(mut commands: Commands){
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn((Camera3dBundle {
+        transform: Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    },
+                    PanOrbitCamera {
+                        pan_sensitivity: 0.0,
+                        zoom_upper_limit: Some(7.),
+                        zoom_lower_limit: Some(2.),
+                        ..default()
+                    }, MainCamera)
+    );
+    commands.spawn((Camera2dBundle::default(), MainCamera));
+}
+
+fn toggle_camera(
+    mut q: Query<&mut Camera, With<PanOrbitCamera>>,
+){
+    let mut camera = q.single_mut();
+    camera.is_active = !camera.is_active;
 }
 
 fn menu_setup(mut menu_state: ResMut<NextState<MenuStates>>){

@@ -39,7 +39,7 @@ impl Plugin for SystemPlugins {
                     uncover::uncover_tiles,
                     cross_flag::uncover_wrong_flags
             ).run_if(in_state(GameState::Playing)),
-             ).run_if(in_state(AppState::Playing)))
+             ).run_if(in_state(AppState::Playing2D)))
         .add_event::<TileTriggerEvent>()
         .add_event::<TileFlaggedEvent>()
         .add_event::<GameWinEvent>()

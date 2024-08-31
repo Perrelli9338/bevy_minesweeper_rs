@@ -34,11 +34,15 @@ use bevy::input::touch::TouchPhase;
 use bevy::window::PrimaryWindow;
 use crate::components::{Bomb, BombNeighbor, Coordinates};
 use crate::components::flag::Flagged;
+use crate::components::menu::MainCamera;
+use crate::components::stopwatch::GameStopwatch;
+use crate::components::timer::GameTimer;
 use crate::components::uncover::Uncover;
 use crate::rendering::tile_cube::TileCube;
 use crate::resources::assets::FontAssets;
 use crate::resources::board::{Board, Board3D, FlagToggle};
 use crate::resources::events::{FaceTriggerEvent, GameLoseEvent, GameWinEvent};
+use crate::resources::{new_game, GameState};
 use crate::resources::settings::GameSettings;
 use crate::resources::tile::Tile;
 use crate::resources::tile_map::TileMap;
@@ -48,6 +52,9 @@ pub struct RenderingPlugins;
 #[derive(Component)]
 pub struct CubeBoard;
 
+#[derive(Component)]
+pub struct InputCube;
+
 struct TileCubeSize {
     width: f32,
     height: f32,
@@ -55,20 +62,43 @@ struct TileCubeSize {
 
 impl Plugin for RenderingPlugins {
     fn build(&self, app: &mut App){
-        app.add_plugins(PanOrbitCameraPlugin).add_plugins(DefaultPickingPlugins)
-            .add_systems(OnEnter(AppState::Playing3D), (toggle2_dcamera, Self::setup))
-            .add_systems(Update, (check_input_cube, uncover_face).run_if(in_state(AppState::Playing3D)));
+        app
+            .add_plugins(DefaultPickingPlugins)
+            .add_systems(OnEnter(AppState::Playing3D), (toggle_camera, Self::setup))
+            .add_systems(OnExit(AppState::Playing3D), toggle_camera)
+            .add_systems(Update, (check_input_cube, uncover_face, system::game_state_handler).run_if(in_state(GameState::Playing)).run_if(in_state(AppState::Playing3D)))
+            .add_systems(Update, cube_endgame.run_if(in_state(AppState::Playing3D)).run_if(in_state(GameState::Win)))
+            .add_systems(Update, cube_endgame.run_if(in_state(AppState::Playing3D)).run_if(in_state(GameState::Lose)))
+            .add_systems(Update, new_game.run_if(in_state(GameState::Disabled)).run_if(in_state(AppState::Playing3D)));
     }
 }
 
-fn toggle2_dcamera(
-    mut q: Query<&mut Camera>,
+fn cube_endgame(
+    mut commands: Commands,
+    mut query: Query<&mut Transform, With<CubeBoard>>,
+    board: Res<Board3D>,
+    time: Res<Time>,
+    mut timer: ResMut<GameTimer>,
+    mut app_state: ResMut<NextState<AppState>>
 ) {
-    let mut camera = q.single_mut();
-    if camera.is_active {
-        camera.is_active = false;
-    } else {
-        camera.is_active = true;
+    if query.is_empty(){
+        return
+    }
+    for mut transform in &mut query {
+        transform.rotate_y(time.delta_seconds() / 2.);
+        transform.rotate_x(time.delta_seconds() / 2.);
+    }
+    if timer.tick(time.delta()).finished() {
+        commands.entity(board.entity).despawn_recursive();
+        app_state.set(AppState::Endgame);
+    }
+}
+
+fn toggle_camera(
+    mut q: Query<&mut Camera, With<MainCamera>>,
+) {
+    for mut camera in q.iter_mut(){
+        camera.is_active = !camera.is_active;
     }
 }
 
@@ -112,16 +142,6 @@ impl RenderingPlugins {
         });
 
         let mut covered_tiles = HashMap::with_capacity(6);
-        commands.spawn((Camera3dBundle {
-            transform: Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..default()
-        },
-                        PanOrbitCamera {
-                            pan_sensitivity: 0.0,
-                            zoom_upper_limit: Some(7.),
-                            zoom_lower_limit: Some(2.),
-                            ..default()
-                        }));
         let bomb_count = 4;
         let mut tile_cube = TileCube::new(bomb_count);
         tile_cube.set_bombs(bomb_count);
@@ -132,7 +152,7 @@ impl RenderingPlugins {
             Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_z(PI / 2.0), Vec3::new(-0.4f32, 0.0, 0.0), )),
             Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(PI / 2.0), Vec3::new(0.0, 0.0, 0.4f32), )),
             Transform::from_matrix(Mat4::from_rotation_translation(Quat::from_rotation_x(-PI / 2.0), Vec3::new(0.0, 0.0, -0.4f32)))];
-        let e = commands.spawn(SpatialBundle::default()).with_children(|child| {
+        let e = commands.spawn((SpatialBundle::default(), CubeBoard)).with_children(|child| {
             Self::generate(&tile_cube, transforms, child, tile_handle, covered_handle, material_tile, material_covered, material_bomb, materials, assets,
                            &mut covered_tiles,
                                &mut safe_start);
@@ -189,7 +209,7 @@ impl RenderingPlugins {
                         ..Default::default()
                     },
                     On::<Pointer<Click>>::commands_mut(move |event, commands| {
-                        commands.entity(event.target).insert(CubeBoard);
+                        commands.entity(event.target).insert(InputCube);
                     })
                 )).id();
                 covered_tiles.insert(number.i, e);
@@ -253,9 +273,11 @@ impl RenderingPlugins {
 }
 fn uncover_face(
     mut commands: Commands,
-    query: Query<(Entity, &Parent), (With<Uncover>, Without<Flagged>, Without<CubeBoard>)>,
+    query: Query<(Entity, &Parent), (With<Uncover>, Without<Flagged>, Without<InputCube>)>,
     mut board: ResMut<Board3D>,
     parents: Query<(&faceindex, Option<&Bomb>, Option<&BombNeighbor>)>,
+    mut trigger_evr: EventWriter<GameLoseEvent>,
+    mut trigger_event: EventWriter<GameWinEvent>
 ) {
     for (e, parent) in query.iter() {
         commands.entity(e).despawn_recursive();
@@ -285,7 +307,8 @@ fn check_input_cube(
     window_primary_query: Query<&Window, With<PrimaryWindow>>,
     mouse_input: Res<ButtonInput<MouseButton>>,
     touch_input: Res<Touches>,
-    query: Query<(Entity, &Parent), With<CubeBoard>>,
+    query: Query<(Entity, &Parent), With<InputCube>>,
+    flag: Query<&Children, With<InputCube>>,
     mut board: ResMut<Board3D>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut assets: Res<TextureAssets>,
@@ -327,7 +350,7 @@ fn check_input_cube(
                         flip_normal_map_y: true,
                         ..default()
                     });
-
+                    
                     let tile_size = TileCubeSize {
                         width: 0.8f32,
                         height: 0.8f32,
@@ -342,19 +365,19 @@ fn check_input_cube(
                                     ..Default::default()
                                 },
                                 On::<Pointer<Click>>::commands_mut(move |event, commands| {
-                                    commands.entity(event.target).try_insert(CubeBoard);
+                                    commands.entity(event.target).try_insert(InputCube);
                                 })
                             ));
                     }).try_insert(Flagged);
                 }
                 FlagToggle::FlagIsUnset(e) => {
-                    let children = match query.get(e) {
+                    let children = match flag.get(e) {
                         Ok(value) => value,
                         Err(_e) => continue,
                     };
                     commands.entity(e).remove::<Flagged>();
                     commands.entity(e).remove::<Uncover>();
-                    commands.entity(e).remove::<CubeBoard>();
+                    commands.entity(e).remove::<InputCube>();
                     for c in children {
                         commands.entity(*c).despawn_recursive();
                     }

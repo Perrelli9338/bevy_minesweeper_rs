@@ -22,10 +22,9 @@ enum AppState {
     // Loading assets logic
     #[default]
     Loading,
-    // Game 2D logic
-    Playing2D,
-    // Game 3D logic
+    // Game logic
     Playing3D,
+    Playing2D,
     // End of the game logic
     Endgame,
     // Menu logic

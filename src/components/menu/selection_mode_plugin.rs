@@ -58,7 +58,7 @@ impl SelectionMenu {
                 ))
                     .with_children(|children| {
                         for (action, text) in [
-                            (MenuButtonAction::Play, "2D Mode"),
+                            (MenuButtonAction::GameIn2D, "2D Mode"),
                             (MenuButtonAction::GameIn3D, "3D Mode"),
                         ] {
                             children
