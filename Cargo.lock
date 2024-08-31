@@ -2499,7 +2499,7 @@ dependencies = [
 
 [[package]]
 name = "minesweeper"
-version = "0.1.7"
+version = "0.1.5"
 dependencies = [
  "bevy",
  "bevy_asset_loader",

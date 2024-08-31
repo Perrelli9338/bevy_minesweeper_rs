@@ -76,6 +76,7 @@ impl ResourcePlugin {
         };
 
         let mut tile_map = TileMap::new(config.map_size.0, config.map_size.1);
+        tile_map.set_bombs(config.bomb_count);
 
         let mut covered_tiles = HashMap::with_capacity((tile_map.get_width() * tile_map.get_height()).into());
 
@@ -94,8 +95,6 @@ impl ResourcePlugin {
             }
             Position::Custom(p) => p,
         };
-
-        tile_map.set_bombs(config.bomb_count);
 
         let e = commands.spawn((
             SpatialBundle {

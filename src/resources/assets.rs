@@ -27,6 +27,8 @@ pub struct TextureAssets {
     pub tile: Handle<Image>,
     #[asset(path = "textures/tile_covered.png")]
     pub covered_tile: Handle<Image>,
+    #[asset(path = "textures/wrong.png")]
+    pub wrong: Handle<Image>,
     #[asset(path = "textures/bomb_tile/1.png")]
     pub bomb_neighbour_1: Handle<Image>,
     #[asset(path = "textures/bomb_tile/2.png")]

@@ -33,6 +33,7 @@ use bevy::color::palettes::basic;
 use bevy::input::touch::TouchPhase;
 use bevy::window::PrimaryWindow;
 use crate::components::{Bomb, BombNeighbor, Coordinates};
+use crate::components::flag::Flagged;
 use crate::components::uncover::Uncover;
 use crate::rendering::tile_cube::TileCube;
 use crate::resources::assets::FontAssets;
@@ -252,7 +253,7 @@ impl RenderingPlugins {
 }
 fn uncover_face(
     mut commands: Commands,
-    query: Query<(Entity, &Parent), With<Uncover>>,
+    query: Query<(Entity, &Parent), (With<Uncover>, Without<Flagged>, Without<CubeBoard>)>,
     mut board: ResMut<Board3D>,
     parents: Query<(&faceindex, Option<&Bomb>, Option<&BombNeighbor>)>,
 ) {
@@ -341,21 +342,25 @@ fn check_input_cube(
                                     ..Default::default()
                                 },
                                 On::<Pointer<Click>>::commands_mut(move |event, commands| {
-                                    commands.entity(event.target).insert(CubeBoard);
+                                    commands.entity(event.target).try_insert(CubeBoard);
                                 })
                             ));
-                    });
+                    }).try_insert(Flagged);
                 }
                 FlagToggle::FlagIsUnset(e) => {
-                    let (child, _) = match query.get(e) {
+                    let children = match query.get(e) {
                         Ok(value) => value,
                         Err(_e) => continue,
                     };
-                    commands.entity(child).despawn_recursive();
+                    commands.entity(e).remove::<Flagged>();
+                    commands.entity(e).remove::<Uncover>();
+                    commands.entity(e).remove::<CubeBoard>();
+                    for c in children {
+                        commands.entity(*c).despawn_recursive();
+                    }
                 },
                 _ => (),
             }
-            commands.entity(e).remove::<CubeBoard>();
         }
     }
 }

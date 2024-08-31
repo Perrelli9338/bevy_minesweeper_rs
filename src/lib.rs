@@ -7,11 +7,14 @@ use crate::{
     components::TimingPlugin,
     resources::ResourcePlugin
 };
+use crate::rendering::RenderingPlugins;
+
 pub mod resources;
 
 mod system;
 
 mod components;
+mod rendering;
 
 #[derive(Default, Clone, Eq, PartialEq, Debug, Hash)]
 #[derive(States)]
@@ -38,7 +41,8 @@ impl Plugin for GamePlugin {
             ResourcePlugin,
             SystemPlugins,
             MenuPlugin,
-            TimingPlugin
+            TimingPlugin,
+            RenderingPlugins
         ));
     }
 }

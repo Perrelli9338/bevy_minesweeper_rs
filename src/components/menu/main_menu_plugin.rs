@@ -66,7 +66,7 @@ impl MainMenu {
             })
             .with_children(|children| {
                 for (action, text) in [
-                    (MenuButtonAction::Play, "Play"),
+                    (MenuButtonAction::Selection, "Play"),
                     (MenuButtonAction::Settings, "Settings"),
                     (MenuButtonAction::Quit, "Exit"),
                 ] {

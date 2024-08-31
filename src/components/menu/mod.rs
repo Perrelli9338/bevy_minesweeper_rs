@@ -1,12 +1,11 @@
+use bevy::prelude::*;
+use crate::{
+    AppState,
+    resources::settings::GameSettings
+};
 mod main_menu_plugin;
 mod settings_menu_plugin;
-
 mod selection_mode_plugin;
-
-use bevy::prelude::*;
-
-use crate::AppState;
-use crate::resources::settings::GameSettings;
 
 #[derive(Component, Clone, Copy)]
 pub struct ButtonColors {
@@ -40,10 +39,11 @@ pub enum MenuStates {
 #[derive(Component)]
 enum MenuButtonAction {
     Play,
-    GameIn2D,
-    GameIn3D,
     Settings,
+    Selection,
     BackToMainMenu,
+    GameIn3D,
+    GameIn2D,
     Quit,
 }
 
@@ -166,7 +166,12 @@ fn menu_action(
                     menu_state.set(MenuStates::Disabled);
                 }
                 MenuButtonAction::Settings => menu_state.set(MenuStates::Settings),
+                MenuButtonAction::Selection => menu_state.set(MenuStates::SelectionMode),
                 MenuButtonAction::BackToMainMenu => menu_state.set(MenuStates::Main),
+                MenuButtonAction::GameIn3D => {
+                    game_state.set(AppState::Playing3D);
+                    menu_state.set(MenuStates::Disabled);
+                }
             }
         }
     }
