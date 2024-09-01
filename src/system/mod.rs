@@ -78,7 +78,7 @@ pub fn game_input_handling(
                     coordinates: tile_coordinates
                 });
             }
-        } else if let Some(touch_position) = touch_input.first_pressed_position() {
+        } else if let Some(touch_position) = fingers.first().unwrap().position() {
                 if let Some(tile_coordinates) = board.press_position(window, touch_position) {
                     tile_trigger_ewr.send(TileTriggerEvent {
                         coordinates: tile_coordinates
