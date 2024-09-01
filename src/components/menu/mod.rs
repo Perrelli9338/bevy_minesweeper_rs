@@ -1,10 +1,12 @@
 use bevy::prelude::*;
+use sickle_ui::SickleUiPlugin;
 use crate::{
     AppState,
     resources::settings::GameSettings
 };
 mod main_menu_plugin;
 mod settings_menu_plugin;
+mod widgets;
 
 #[derive(Component, Clone, Copy)]
 pub struct ButtonColors {
@@ -75,6 +77,7 @@ impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<MenuStates>()
             .add_plugins((
+                SickleUiPlugin,
                 main_menu_plugin::MainMenu,
                 settings_menu_plugin::SettingsMenu
             ))
