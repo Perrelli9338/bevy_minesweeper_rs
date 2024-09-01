@@ -2471,7 +2471,7 @@ dependencies = [
 
 [[package]]
 name = "minesweeper"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
@@ -2513,7 +2513,7 @@ checksum = "e53debba6bda7a793e5f99b8dacf19e626084f525f7829104ba9898f367d85ff"
 
 [[package]]
 name = "mobile"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "bevy",
  "cpal",
