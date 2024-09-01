@@ -25,6 +25,7 @@ impl SelectionMenu {
                         width: Val::Percent(100.0),
                         margin: UiRect::all(Val::Auto),
                         align_items: AlignItems::Center,
+                        row_gap: Val::Px(50.0),
                         ..default()
                     },
                     ..default()
@@ -46,10 +47,7 @@ impl SelectionMenu {
                         style: Style {
                             display: Display::Flex,
                             flex_direction: FlexDirection::Row,
-                            width: Val::Percent(50.0),
-                            padding: UiRect::all(Val::Px(50.)),
-                            align_items: AlignItems::Center,
-                            justify_content: JustifyContent::SpaceBetween,
+                            column_gap: Val::Px(20.0),
                             ..default()
                         },
                         ..default()

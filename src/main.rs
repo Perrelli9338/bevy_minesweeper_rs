@@ -5,7 +5,7 @@ use bevy::{
     asset::AssetMetaCheck,
     prelude::*,
     window::PrimaryWindow,
-    winit::{UpdateMode, WinitSettings, WinitWindows},
+    winit::WinitWindows,
     DefaultPlugins
 };
 use minesweeper::GamePlugin;

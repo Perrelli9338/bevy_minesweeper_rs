@@ -4,7 +4,7 @@ use std::ops::{Add, Deref, DerefMut};
 use bevy::prelude::Component;
 use bevy::utils::HashSet;
 use rand::{thread_rng, Rng};
-use crate::rendering::FaceIndex::FaceIndex;
+use crate::rendering::face_index::FaceIndex;
 
 #[derive(Debug, Clone)]
 pub struct TileCube {

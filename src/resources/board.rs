@@ -9,7 +9,7 @@ use bevy::{
     window::Window
 };
 use crate::rendering::tile_cube::TileCube;
-use crate::rendering::FaceIndex::FaceIndex;
+use crate::rendering::face_index::FaceIndex;
 
 pub(crate) enum FlagToggle {
     FlagIsSet(Entity),

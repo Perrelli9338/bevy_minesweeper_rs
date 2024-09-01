@@ -1,11 +1,11 @@
 pub(crate) mod tile_cube;
-pub(crate) mod FaceIndex;
+pub(crate) mod face_index;
 
 use bevy_mod_picking::prelude::*;
 use std::collections::{HashMap, HashSet};
 use crate::{rendering::{
     tile_cube::TileCube,
-    FaceIndex::FaceIndex as faceindex
+    face_index::FaceIndex as faceindex
 }, resources::{
     board::{Board, Board3D},
     tile::Tile,
