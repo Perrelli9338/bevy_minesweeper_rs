@@ -1,31 +1,21 @@
-use bevy::prelude::*;
+use std::time::Duration;
+use bevy::{
+    prelude::*,
+    text::TextSettings,
+};
 use sickle_ui::SickleUiPlugin;
 use crate::{
     AppState,
-    resources::settings::GameSettings
+    resources::settings::GameSettings,
+    components::button_colors::ButtonColors,
 };
+
 mod main_menu_plugin;
 mod settings_menu_plugin;
 mod widgets;
 
-#[derive(Component, Clone, Copy)]
-pub struct ButtonColors {
-    normal: Color,
-    hovered: Color,
-    pressed: Color,
-    disabled: Color,
-}
-
 #[derive(Component)]
 struct ChangeState(AppState);
-
-#[derive(Component)]
-pub struct UISettings {
-    button_colors: ButtonColors,
-    button_style: Style,
-    button_border_style: BorderRadius,
-    button_settings_style: Style,
-}
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
 #[derive(States)]
@@ -44,31 +34,6 @@ enum MenuButtonAction {
     Quit,
 }
 
-impl Default for UISettings {
-    fn default() -> Self {
-        Self {
-            button_colors: ButtonColors::default(),
-            button_style: Style {
-                width: Val::Px(140.0),
-                height: Val::Px(50.0),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
-            button_settings_style: Style {
-                width: Val::Px(25.0),
-                height: Val::Px(50.0),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
-            button_border_style: BorderRadius::all(
-                Val::Px(8.),
-            )
-        }
-    }
-}
-
 pub struct MenuPlugin;
 
 // This plugin is responsible for the game menu (containing only one button...)
@@ -85,28 +50,20 @@ impl Plugin for MenuPlugin {
             .add_systems(OnEnter(AppState::Menu), menu_setup)
             .add_systems(Update, button_states.run_if(in_state(MenuStates::Main)))
             .add_systems(Update, menu_action.run_if(in_state(AppState::Menu)))
-            .insert_resource(GameSettings::default());
-    }
-
-}
-
-impl Default for ButtonColors {
-    fn default() -> Self {
-        ButtonColors {
-            normal: Color::linear_rgb(0.15, 0.15, 0.15),
-            hovered: Color::linear_rgb(0.25, 0.25, 0.25),
-            pressed: Color::linear_rgb(0.5, 0.5, 0.5),
-            disabled: Color::linear_rgb(0.35, 0.35, 0.35),
-        }
+            .insert_resource(GameSettings::default())
+            .insert_resource(TextSettings {
+                allow_dynamic_font_size: true,
+                ..default()
+            });
     }
 }
 
-fn setup(mut commands: Commands){
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn menu_setup(mut menu_state: ResMut<NextState<MenuStates>>){
-  menu_state.set(MenuStates::Main);
+fn menu_setup(mut menu_state: ResMut<NextState<MenuStates>>) {
+    menu_state.set(MenuStates::Main);
 }
 
 fn button_states(

@@ -11,7 +11,7 @@ pub enum TileSize {
 
 /// Board position customization options
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Position{
+pub enum Position {
     Centered { offset: Vec3 },
     Custom(Vec3),
 }

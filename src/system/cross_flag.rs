@@ -5,13 +5,13 @@ use bevy::{
 use crate::{
     components::{
         Bomb,
-        flag::Flagged
+        flag::Flagged,
     },
     resources::{
         assets::TextureAssets,
         events::GameLoseEvent,
-        settings::{GameSettings, TileSize}
-    }
+        settings::{GameSettings, TileSize},
+    },
 };
 
 pub fn uncover_wrong_flags(

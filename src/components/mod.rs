@@ -2,23 +2,16 @@ use bevy::prelude::*;
 pub use coordinates::Coordinates;
 pub use bomb::Bomb;
 pub use bomb_neighbor::BombNeighbor;
-use crate::{
-    AppState,
-    system,
-    components::{
-        stopwatch::GameStopwatch,
-        timer::GameTimer
-    },
-    resources::{
-        board::Board,
-        events::EndgameEvent,
-        GameState,
-    },
-};
+use crate::{components::{
+    stopwatch::GameStopwatch,
+    timer::GameTimer,
+}, resources::{
+    board::Board,
+    events::EndgameEvent,
+    GameState,
+}, scenes, system, AppState};
 
 pub mod coordinates;
-
-pub(crate) mod menu;
 
 mod bomb;
 mod bomb_neighbor;
@@ -26,6 +19,8 @@ pub(crate) mod uncover;
 pub(crate) mod flag;
 pub(crate) mod timer;
 pub(crate) mod stopwatch;
+pub(crate) mod button_colors;
+pub(crate) mod uisettings;
 
 pub struct TimingPlugin;
 
@@ -37,25 +32,25 @@ impl Plugin for TimingPlugin {
             .add_systems(Update, cleanup_board.run_if(in_state(AppState::Playing)).run_if(in_state(GameState::Lose)))
             .add_systems(OnEnter(AppState::Endgame), create_scene_endgame)
             .add_systems(Update, (system::endgame_input_handling, exit).run_if(in_state(AppState::Endgame)))
-            .add_systems(OnExit(AppState::Endgame), menu::cleanup::<Scene>)
+            .add_systems(OnExit(AppState::Endgame), scenes::cleanup::<Scene>)
             .add_event::<EndgameEvent>();
     }
 }
 
-fn exit(mut trigger_event: EventReader<EndgameEvent>, mut app_state: ResMut<NextState<AppState>>, mut game_state: ResMut<NextState<GameState>>){
+fn exit(mut trigger_event: EventReader<EndgameEvent>, mut app_state: ResMut<NextState<AppState>>, mut game_state: ResMut<NextState<GameState>>) {
     for _event in trigger_event.read() {
         app_state.set(AppState::Menu);
         game_state.set(GameState::Disabled);
     }
 }
 
-fn timer_endgame(mut commands: Commands){
+fn timer_endgame(mut commands: Commands) {
     commands.insert_resource(GameTimer(Timer::from_seconds(2.0, TimerMode::Once)));
 }
 
-fn cleanup_board(mut commands: Commands, board: Res<Board>,  time: Res<Time>,
+fn cleanup_board(mut commands: Commands, board: Res<Board>, time: Res<Time>,
                  mut timer: ResMut<GameTimer>,
-                 mut app_state: ResMut<NextState<AppState>>,) {
+                 mut app_state: ResMut<NextState<AppState>>, ) {
     if timer.tick(time.delta()).finished() {
         commands.entity(board.entity).despawn_recursive();
         app_state.set(AppState::Endgame);
@@ -95,7 +90,7 @@ fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>
                 TextStyle {
                     font_size: 54.,
                     ..default()
-                }
+                },
             ));
         })
         .with_children(|children| {
@@ -104,7 +99,7 @@ fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>
                 TextStyle {
                     font_size: 32.,
                     ..default()
-                }
+                },
             ));
         })
         .with_children(|children| {
@@ -113,7 +108,7 @@ fn create_scene_endgame(mut commands: Commands, game_state: Res<State<GameState>
                 TextStyle {
                     font_size: 21.,
                     ..default()
-                }
+                },
             ));
         });
 }

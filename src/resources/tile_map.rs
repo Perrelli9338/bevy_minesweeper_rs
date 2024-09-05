@@ -1,6 +1,6 @@
 use crate::{
-            components::Coordinates, 
-            resources::tile::Tile
+    components::Coordinates,
+    resources::tile::Tile,
 };
 use std::ops::{Deref, DerefMut};
 use bevy::utils::HashSet;
@@ -23,11 +23,11 @@ pub struct TileMap {
     bomb_count: u16,
     height: u16,
     width: u16,
-    map: Vec<Vec<Tile>>
+    map: Vec<Vec<Tile>>,
 }
 
 impl TileMap {
-    pub fn new (width: u16, height: u16) -> Self {
+    pub fn new(width: u16, height: u16) -> Self {
         let map = vec![vec![Tile::Empty; width as usize]; height as usize];
         Self {
             bomb_coordinates: HashSet::new(),
@@ -41,10 +41,10 @@ impl TileMap {
     pub fn safe_square_at(&self, coordinates: Coordinates) -> impl Iterator<Item=Coordinates> {
         RANGE.iter().copied().map(move |tuple| coordinates + tuple)
     }
-    
+
     pub fn get_bomb_tiles(&self) -> impl Iterator<Item=Coordinates> + '_ {
         self.bomb_coordinates.iter().copied()
-    } 
+    }
 
     pub fn is_bomb_at(&self, coordinates: Coordinates) -> bool {
         if coordinates.x >= self.width || coordinates.y >= self.height {
@@ -105,7 +105,6 @@ impl TileMap {
     pub fn get_bomb_count(&self) -> u16 {
         self.bomb_count
     }
-
 }
 
 impl Deref for TileMap {

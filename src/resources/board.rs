@@ -6,7 +6,7 @@ use crate::{
 use bevy::{
     ecs::system::Resource,
     math::Vec2, prelude::*,
-    window::Window
+    window::Window,
 };
 
 pub(crate) enum FlagToggle {
@@ -69,13 +69,13 @@ impl Board {
                 }
             }
             _ => FlagToggle::Nothing,
-        }
+        };
     }
-    
+
     pub fn is_win(&self, flag_mode: bool) -> bool {
         if flag_mode {
-            self.tile_map.get_bomb_count() as usize == self.flagged_tiles.len() && 
-            self.tile_map.get_bomb_count() as usize == self.covered_tiles.len()
+            self.tile_map.get_bomb_count() as usize == self.flagged_tiles.len() &&
+                self.tile_map.get_bomb_count() as usize == self.covered_tiles.len()
         } else {
             self.tile_map.get_bomb_count() as usize == self.covered_tiles.len()
         }

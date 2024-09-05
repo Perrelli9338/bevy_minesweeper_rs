@@ -1,6 +1,6 @@
 use std::{
     fmt::{self, Display, Formatter},
-    ops::{Add, Sub}
+    ops::{Add, Sub},
 };
 use bevy::prelude::Component;
 
@@ -17,7 +17,7 @@ impl Add for Coordinates {
     fn add(self, rhs: Self) -> Self::Output {
         Self {
             x: self.x + rhs.x,
-            y: self.y + rhs.y
+            y: self.y + rhs.y,
         }
     }
 }
@@ -38,7 +38,7 @@ impl Sub for Coordinates {
     fn sub(self, rhs: Self) -> Self::Output {
         Self {
             x: self.x.saturating_sub(rhs.x),
-            y: self.y.saturating_sub(rhs.y)
+            y: self.y.saturating_sub(rhs.y),
         }
     }
 }

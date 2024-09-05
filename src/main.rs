@@ -5,8 +5,8 @@ use bevy::{
     asset::AssetMetaCheck,
     prelude::*,
     window::PrimaryWindow,
-    winit::{UpdateMode, WinitSettings, WinitWindows},
-    DefaultPlugins
+    winit::WinitWindows,
+    DefaultPlugins,
 };
 use minesweeper::GamePlugin;
 use std::io::Cursor;

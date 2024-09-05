@@ -2,13 +2,13 @@ use std::collections::{HashMap, HashSet};
 use bevy::{app::{App, Plugin},
            prelude::*,
            color::palettes::*,
-           math::Vec3Swizzles
+           math::Vec3Swizzles,
 };
 use bevy_asset_loader::{
     loading_state::{LoadingState, LoadingStateAppExt},
-    prelude::ConfigureLoadingState
+    prelude::ConfigureLoadingState,
 };
-use crate::{components, components::{*, uncover::Uncover, timer::GameTimer}, AppState,
+use crate::{components::{*, uncover::Uncover, timer::GameTimer}, AppState,
             resources::{board::Board, tile_map::TileMap,
                         settings::{Position, GameSettings, TileSize},
                         tile::Tile,
@@ -35,9 +35,9 @@ impl Plugin for ResourcePlugin {
                 .load_collection::<FontAssets>()
                 .load_collection::<TextureAssets>(),
         )
-        .init_state::<GameState>()
-        .add_systems(OnEnter(AppState::Playing), Self::create)
-        .add_systems(Update, new_game.run_if(in_state(GameState::Disabled)).run_if(in_state(AppState::Playing)));
+            .init_state::<GameState>()
+            .add_systems(OnEnter(AppState::Playing), Self::create)
+            .add_systems(Update, new_game.run_if(in_state(GameState::Disabled)).run_if(in_state(AppState::Playing)));
     }
 }
 
@@ -56,18 +56,17 @@ pub enum GameState {
 fn new_game(
     time: Res<Time>,
     mut timer: ResMut<GameTimer>,
-    mut game_state: ResMut<NextState<GameState>>
-){
+    mut game_state: ResMut<NextState<GameState>>,
+) {
     if timer.tick(time.delta()).finished() {
         game_state.set(GameState::Playing);
     }
 }
 
 impl ResourcePlugin {
-
     pub fn create(mut commands: Commands, options: Res<GameSettings>, assets: (Res<TextureAssets>, Res<FontAssets>)) {
         let mut safe_start: Option<Entity> = None;
-        
+
         let (textures, fonts) = assets;
         let config = options.clone();
 
@@ -121,7 +120,7 @@ impl ResourcePlugin {
                     &mut safe_start,
                 );
             }).id();
-        
+
         if config.easy_mode {
             if let Some(entity) = safe_start {
                 commands.entity(entity).insert(Uncover);
@@ -140,7 +139,7 @@ impl ResourcePlugin {
             entity: e,
         });
     }
-    
+
     #[allow(clippy::too_many_arguments)]
     fn generate(
         parent: &mut ChildBuilder,
@@ -155,10 +154,10 @@ impl ResourcePlugin {
         covered_background_color: Color,
         covered_tiles: &mut HashMap<Coordinates, Entity>,
         safe_start: &mut Option<Entity>,
-    ){
+    ) {
         let size = tile_size - tile_padding;
         let sprites_size = Some(Vec2::splat(size));
-        for (y , line) in tile_map.iter().enumerate() {
+        for (y, line) in tile_map.iter().enumerate() {
             for (x, tile) in line.iter().enumerate() {
                 let coordinates = Coordinates {
                     x: x as u16,
@@ -171,7 +170,7 @@ impl ResourcePlugin {
                             custom_size: sprites_size,
                             ..Default::default()
                         },
-                        
+
                         transform: Transform::from_xyz(
                             (x as f32 * tile_size) + (tile_size / 2.),
                             (y as f32 * tile_size) + (tile_size / 2.),
@@ -179,8 +178,8 @@ impl ResourcePlugin {
                         ),
                         texture: tile_image.clone(),
                         ..Default::default()
-                });
-                
+                    });
+
                 commands.insert(coordinates);
 
                 commands.with_children(|parent| {
@@ -197,7 +196,7 @@ impl ResourcePlugin {
                     covered_tiles.insert(coordinates, e);
                     if safe_start.is_none() && *tile == Tile::Empty {
                         *safe_start = Some(e);
-                    } else if !(*tile == Tile::Bomb ){
+                    } else if !(*tile == Tile::Bomb) {
                         *safe_start = Some(e);
                     }
                 });
@@ -219,19 +218,19 @@ impl ResourcePlugin {
                         });
                     }
                     Tile::BombNeighbour(bombs_count) => {
-                        commands.insert(BombNeighbor{count: *bombs_count});
+                        commands.insert(BombNeighbor { count: *bombs_count });
                         commands.with_children(|parent| {
                             parent.spawn(Self::bomb_count_text_bundle(
                                 *bombs_count,
                                 font.clone(),
-                                size
+                                size,
                             ));
                         });
                     }
                     _ => (),
                 }
-                }
             }
+        }
     }
 
     fn bomb_count_text_bundle(count: u8, font: Handle<Font>, font_size: f32) -> Text2dBundle {

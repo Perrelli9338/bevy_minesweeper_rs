@@ -1,18 +1,16 @@
 use bevy::{
     asset::Handle,
-    prelude::{Font, Image, Resource}
+    prelude::{Font, Image, Resource},
 };
 use bevy_asset_loader::asset_collection::AssetCollection;
 
 #[derive(AssetCollection, Resource)]
-pub struct AudioAssets {
-    
-}
+pub struct AudioAssets {}
 
 #[derive(AssetCollection, Resource)]
 pub struct FontAssets {
     #[asset(path = "pixeled.ttf")]
-    pub font: Handle<Font>
+    pub font: Handle<Font>,
 }
 
 #[derive(AssetCollection, Resource)]
@@ -28,5 +26,5 @@ pub struct TextureAssets {
     #[asset(path = "textures/tile_covered.png")]
     pub covered_tile: Handle<Image>,
     #[asset(path = "textures/wrong.png")]
-    pub wrong: Handle<Image>
+    pub wrong: Handle<Image>,
 }

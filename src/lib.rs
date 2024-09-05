@@ -1,17 +1,18 @@
 #![allow(clippy::type_complexity)]
 
 use system::SystemPlugins;
-use components::menu::MenuPlugin;
+use scenes::MenuPlugin;
 use bevy::prelude::*;
 use crate::{
     components::TimingPlugin,
-    resources::ResourcePlugin
+    resources::ResourcePlugin,
 };
 pub mod resources;
 
 mod system;
 
 mod components;
+pub(crate) mod scenes;
 
 #[derive(Default, Clone, Eq, PartialEq, Debug, Hash)]
 #[derive(States)]
@@ -33,10 +34,10 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<AppState>()
             .add_plugins((
-            ResourcePlugin,
-            SystemPlugins,
-            MenuPlugin,
-            TimingPlugin
-        ));
+                ResourcePlugin,
+                SystemPlugins,
+                MenuPlugin,
+                TimingPlugin
+            ));
     }
 }

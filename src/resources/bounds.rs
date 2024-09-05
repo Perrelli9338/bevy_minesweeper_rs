@@ -3,7 +3,7 @@ use bevy::prelude::Vec2;
 #[derive(Debug, Clone, Copy)]
 pub struct Bounds2 {
     pub position: Vec2,
-    pub size: Vec2
+    pub size: Vec2,
 }
 
 impl Bounds2 {

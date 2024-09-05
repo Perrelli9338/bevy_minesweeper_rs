@@ -8,7 +8,6 @@ pub struct GameStopwatch {
 }
 
 impl GameStopwatch {
-
     pub(crate) fn new(mut commands: Commands) {
         commands.insert_resource(GameStopwatch {
             time: Instant::now(),
@@ -18,7 +17,7 @@ impl GameStopwatch {
 
     pub(crate) fn pause(
         mut stopwatch: ResMut<GameStopwatch>
-    ){
+    ) {
         stopwatch.total_time = Instant::now() - stopwatch.time;
     }
 }

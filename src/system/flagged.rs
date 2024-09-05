@@ -1,6 +1,6 @@
 use bevy::{
     color::palettes::basic,
-    prelude::*
+    prelude::*,
 };
 use crate::components::flag::Flagged;
 use crate::components::uncover::Uncover;
@@ -18,7 +18,7 @@ pub fn flag_tiles(
     assets: Res<TextureAssets>,
     mut tile_flag_event_rdr: EventReader<TileFlaggedEvent>,
     mut trigger_event: EventWriter<GameWinEvent>,
-    query: Query<&Children>
+    query: Query<&Children>,
 ) {
     let tile_size = match config.tile_size {
         TileSize::Fixed(size) => size,
@@ -31,7 +31,7 @@ pub fn flag_tiles(
                     parent.spawn(SpriteBundle {
                         sprite: Sprite {
                             color: Color::from(basic::RED),
-                            custom_size:  Some(Vec2::splat(tile_size - config.tile_padding)),
+                            custom_size: Some(Vec2::splat(tile_size - config.tile_padding)),
                             ..Default::default()
                         },
                         transform: Transform::from_xyz(0., 0., 3.),
@@ -50,11 +50,11 @@ pub fn flag_tiles(
                     commands.entity(e).remove::<Flagged>();
                     commands.entity(e).remove::<Uncover>();
                 }
-                },
-            _ => (),
             }
+            _ => (),
         }
-    if board.is_win(config.flag_mode){
+    }
+    if board.is_win(config.flag_mode) {
         trigger_event.send(GameWinEvent);
     }
 }

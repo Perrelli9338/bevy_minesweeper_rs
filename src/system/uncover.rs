@@ -3,14 +3,14 @@ use crate::{
     components::{
         *,
         uncover::Uncover,
-        flag::Flagged
+        flag::Flagged,
     },
     resources::{
         board::Board,
         events::{
-            GameLoseEvent, 
-            GameWinEvent, 
-            TileTriggerEvent
+            GameLoseEvent,
+            GameWinEvent,
+            TileTriggerEvent,
         },
         settings::GameSettings,
     },
@@ -37,7 +37,7 @@ pub fn uncover_tiles(
     children: Query<(Entity, &Parent), (With<Uncover>, Without<Flagged>)>,
     parents: Query<(&Coordinates, Option<&Bomb>, Option<&BombNeighbor>)>,
     mut trigger_evr: EventWriter<GameLoseEvent>,
-    mut trigger_event: EventWriter<GameWinEvent>
+    mut trigger_event: EventWriter<GameWinEvent>,
 ) {
     for (entity, parent) in children.iter() {
         commands.entity(entity).despawn_recursive();
@@ -53,15 +53,14 @@ pub fn uncover_tiles(
                     commands.entity(entity).try_insert((Uncover, Bomb));
                 }
                 trigger_evr.send(GameLoseEvent);
-            }
-            else if bomb_counter.is_none() {
+            } else if bomb_counter.is_none() {
                 for entity in board.uncover_tile_neighbour(*coordinates) {
                     commands.entity(entity).try_insert(Uncover);
                 }
             }
         }
     }
-    if board.is_win(config.flag_mode){
+    if board.is_win(config.flag_mode) {
         trigger_event.send(GameWinEvent);
     }
 }
