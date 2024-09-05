@@ -2288,7 +2288,7 @@ dependencies = [
 
 [[package]]
 name = "minesweeper"
-version = "0.2.0"
+version = "0.1.9"
 dependencies = [
  "bevy",
  "bevy_asset_loader",
@@ -2320,7 +2320,7 @@ dependencies = [
 
 [[package]]
 name = "mobile"
-version = "0.2.0"
+version = "0.1.9"
 dependencies = [
  "bevy",
  "cpal",
