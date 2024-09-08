@@ -4,7 +4,6 @@ use system::SystemPlugins;
 use scenes::MenuPlugin;
 use bevy::prelude::*;
 use crate::{
-    components::TimingPlugin,
     resources::ResourcePlugin,
 };
 pub mod resources;
@@ -36,8 +35,7 @@ impl Plugin for GamePlugin {
             .add_plugins((
                 ResourcePlugin,
                 SystemPlugins,
-                MenuPlugin,
-                TimingPlugin
+                MenuPlugin
             ));
     }
 }

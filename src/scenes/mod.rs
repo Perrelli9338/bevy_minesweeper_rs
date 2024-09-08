@@ -9,6 +9,9 @@ use crate::{
     resources::settings::GameSettings,
     components::button_colors::ButtonColors,
 };
+use crate::scenes::endgame_plugin::EndgameScene;
+
+pub mod endgame_plugin;
 
 mod main_menu_plugin;
 mod settings_menu_plugin;
@@ -44,7 +47,8 @@ impl Plugin for MenuPlugin {
             .add_plugins((
                 SickleUiPlugin,
                 main_menu_plugin::MainMenu,
-                settings_menu_plugin::SettingsMenu
+                settings_menu_plugin::SettingsMenu,
+                EndgameScene
             ))
             .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
