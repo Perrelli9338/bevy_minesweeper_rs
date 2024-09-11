@@ -2,11 +2,12 @@ use bevy::{
     app::{App, Plugin, Update},
     prelude::*
 };
-use crate::{scenes, system, AppState,
+use crate::{scenes, AppState,
             components::{
                 stopwatch::GameStopwatch,
                 timer::GameTimer
             },
+            system::input::endgame_input_handling,
             resources::{board::Board, events::EndgameEvent, GameState}
 };
 use scenes::cleanup;
@@ -19,7 +20,7 @@ impl Plugin for EndgameScene {
             .add_systems(Update, cleanup_board.run_if(in_state(AppState::Playing)).run_if(in_state(GameState::Win)))
             .add_systems(Update, cleanup_board.run_if(in_state(AppState::Playing)).run_if(in_state(GameState::Lose)))
             .add_systems(OnEnter(AppState::Endgame), create_scene_endgame)
-            .add_systems(Update, (system::endgame_input_handling, exit).run_if(in_state(AppState::Endgame)))
+            .add_systems(Update, (endgame_input_handling, exit).run_if(in_state(AppState::Endgame)))
             .add_systems(OnExit(AppState::Endgame), cleanup::<Scene>)
             .add_event::<EndgameEvent>();
     }
