@@ -12,16 +12,18 @@ use bevy::{
     prelude::*,
     window::PrimaryWindow,
 };
+use crate::resources::settings::GameSettings;
 
 pub struct InputHandling;
 
 impl Plugin for InputHandling {
     fn build(&self, app: &mut App) {
-        app.insert_resource(GameTimer(Timer::from_seconds(0.15, TimerMode::Once)))
+        app
             .insert_resource(TouchStatus {
                 first_touch: Default::default(),
                 is_covered: true,
             })
+            .add_systems(OnEnter(GameState::Playing), setup)
             .add_systems(
                 Update,
                 (
@@ -31,6 +33,13 @@ impl Plugin for InputHandling {
                     .run_if(in_state(GameState::Playing)),
             );
     }
+}
+
+fn setup(
+    mut commands: Commands,
+    config: Res<GameSettings>,
+){
+    commands.insert_resource(GameTimer(Timer::from_seconds(config.timer_touch, TimerMode::Once)))
 }
 
 fn run_if_any_button_mouse_pressed(mouse_input: EventReader<MouseButtonInput>) -> bool {

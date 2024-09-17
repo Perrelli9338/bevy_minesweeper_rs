@@ -18,8 +18,10 @@ enum SettingsMenuButtonAction {
     SafeStartOff,
     TurnFlagOn,
     TurnFlagOff,
-    IncreaseTimer,
-    DecreaseTimer,
+    IncreaseStartTimer,
+    DecreaseStartTimer,
+    IncreaseTouchTimer,
+    DecreaseTouchTimer,
     BackToMainMenu,
 }
 
@@ -92,7 +94,8 @@ impl SettingsMenu {
                             true => "On",
                             false => "Off"
                         }.to_string()),
-                        (SettingsMenuButtonAction::DecreaseTimer, SettingsMenuButtonAction::IncreaseTimer, "Start delay", format!("{:.01}s", config.timer_start)),
+                        (SettingsMenuButtonAction::DecreaseStartTimer, SettingsMenuButtonAction::IncreaseStartTimer, "Start delay", format!("{:.01}s", config.timer_start)),
+                        (SettingsMenuButtonAction::DecreaseTouchTimer, SettingsMenuButtonAction::IncreaseTouchTimer, "Touch delay", format!("{:.2}s", config.timer_touch)),
                     ] {
                         children.container(
                             NodeBundle {
@@ -242,12 +245,12 @@ impl SettingsMenu {
                     SettingsMenuButtonAction::SafeStartOff => {
                         config.easy_mode = false;
                     }
-                    SettingsMenuButtonAction::DecreaseTimer => {
+                    SettingsMenuButtonAction::DecreaseStartTimer => {
                         if config.timer_start > 0. {
                             config.timer_start = format!("{:.01}", config.timer_start - 0.1).parse::<f32>().unwrap();
                         }
                     }
-                    SettingsMenuButtonAction::IncreaseTimer => {
+                    SettingsMenuButtonAction::IncreaseStartTimer => {
                         if config.timer_start < 3.0 {
                             config.timer_start += 0.1;
                         }
@@ -261,6 +264,16 @@ impl SettingsMenu {
                     SettingsMenuButtonAction::BackToMainMenu => {
                         menu_state.set(MenuStates::Main)
                     }
+                    SettingsMenuButtonAction::DecreaseTouchTimer => {
+                        if config.timer_touch > 0. {
+                            config.timer_touch = format!("{:.2}", config.timer_touch - 0.01).parse::<f32>().unwrap();
+                        }
+                    }
+                    SettingsMenuButtonAction::IncreaseTouchTimer => {
+                        if config.timer_touch < 3.0 {
+                            config.timer_touch += 0.01;
+                        }
+                    }
                 }
             }
         }
@@ -268,6 +281,7 @@ impl SettingsMenu {
             config.flag_mode = true
         }
         let mut settings_values = vec![
+            format!("{:.2}s", config.timer_touch),
             format!("{:.01}s", config.timer_start),
             match config.flag_mode {
                 true => "On",
@@ -292,6 +306,7 @@ impl SettingsMenu {
             tile_padding: config.tile_padding,
             easy_mode: config.easy_mode,
             timer_start: config.timer_start,
+            timer_touch: config.timer_touch,
             flag_mode: config.flag_mode,
         })
     }
@@ -366,13 +381,23 @@ impl SettingsMenu {
                         *color = button_colors.disabled.into();
                     }
                 }
-                SettingsMenuButtonAction::DecreaseTimer => {
+                SettingsMenuButtonAction::DecreaseStartTimer => {
                     if !(config.timer_start > 0.) {
                         *color = button_colors.disabled.into();
                     }
                 }
-                SettingsMenuButtonAction::IncreaseTimer => {
-                    if config.timer_start < 3.0 {} else {
+                SettingsMenuButtonAction::IncreaseStartTimer => {
+                    if !(config.timer_start < 3.0) {
+                        *color = button_colors.disabled.into();
+                    }
+                }
+                SettingsMenuButtonAction::DecreaseTouchTimer => {
+                    if !(config.timer_touch > 0.) {
+                        *color = button_colors.disabled.into();
+                    }
+                }
+                SettingsMenuButtonAction::IncreaseTouchTimer => {
+                    if !(config.timer_touch < 3.0) {
                         *color = button_colors.disabled.into();
                     }
                 }
