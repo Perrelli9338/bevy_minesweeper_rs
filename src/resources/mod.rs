@@ -4,6 +4,7 @@ use bevy::{app::{App, Plugin},
            color::palettes::*,
            math::Vec3Swizzles,
 };
+use bevy::winit::WinitSettings;
 use bevy_asset_loader::{
     loading_state::{LoadingState, LoadingStateAppExt},
     prelude::ConfigureLoadingState,
@@ -65,6 +66,7 @@ fn new_game(
 
 impl ResourcePlugin {
     pub fn create(mut commands: Commands, options: Res<GameSettings>, assets: (Res<TextureAssets>, Res<FontAssets>)) {
+        commands.insert_resource(WinitSettings::default());
         let mut safe_start: Option<Entity> = None;
 
         let (textures, fonts) = assets;

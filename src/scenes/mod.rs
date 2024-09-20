@@ -3,6 +3,8 @@ use bevy::{
     prelude::*,
     text::TextSettings,
 };
+use bevy::window::PrimaryWindow;
+use bevy::winit::WinitSettings;
 use sickle_ui::SickleUiPlugin;
 use crate::{
     AppState,
@@ -39,7 +41,7 @@ enum MenuButtonAction {
 
 pub struct MenuPlugin;
 
-// This plugin is responsible for the game menu (containing only one button...)
+// This plugin is responsible for the game menu
 // The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
@@ -52,6 +54,7 @@ impl Plugin for MenuPlugin {
             ))
             .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
+            .add_systems(Update, text_size_change)
             .add_systems(Update, button_states.run_if(in_state(MenuStates::Main)))
             .add_systems(Update, menu_action.run_if(in_state(AppState::Menu)))
             .insert_resource(GameSettings::default())
@@ -66,8 +69,26 @@ fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn menu_setup(mut menu_state: ResMut<NextState<MenuStates>>) {
+fn menu_setup(
+    mut menu_state: ResMut<NextState<MenuStates>>,
+    mut commands: Commands,
+) {
     menu_state.set(MenuStates::Main);
+    commands.insert_resource(WinitSettings::desktop_app());
+}
+
+#[derive(Component)]
+pub struct H1;
+
+fn text_size_change(
+    mut text: Query<&mut Text, With<H1>>,
+    mut window: Query<&Window, With<PrimaryWindow>>
+){
+    if text.is_empty() || window.is_empty() { return }
+    let width =  window.single_mut().width();
+    for mut t in text.iter_mut() {
+        t.sections[0].style.font_size = (8. * width) / 100.0;
+    }
 }
 
 fn button_states(

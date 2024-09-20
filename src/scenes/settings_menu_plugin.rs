@@ -246,8 +246,8 @@ impl SettingsMenu {
                         config.easy_mode = false;
                     }
                     SettingsMenuButtonAction::DecreaseStartTimer => {
-                        if config.timer_start > 0. {
-                            config.timer_start = format!("{:.01}", config.timer_start - 0.1).parse::<f32>().unwrap();
+                        if config.timer_start > 0.0 {
+                            config.timer_start = (config.timer_start * 10.0 - 1.0) / 10.0;
                         }
                     }
                     SettingsMenuButtonAction::IncreaseStartTimer => {
@@ -265,8 +265,8 @@ impl SettingsMenu {
                         menu_state.set(MenuStates::Main)
                     }
                     SettingsMenuButtonAction::DecreaseTouchTimer => {
-                        if config.timer_touch > 0. {
-                            config.timer_touch = format!("{:.2}", config.timer_touch - 0.01).parse::<f32>().unwrap();
+                        if config.timer_touch > 0.01 {
+                            config.timer_touch = (config.timer_touch * 100.0 - 1.0) / 100.0;
                         }
                     }
                     SettingsMenuButtonAction::IncreaseTouchTimer => {
