@@ -1,6 +1,6 @@
 [package]
 name = "minesweeper"
-version = "0.1.9"
+version = "0.2.0"
 publish = false
 authors = ["Me"]
 edition = "2021"

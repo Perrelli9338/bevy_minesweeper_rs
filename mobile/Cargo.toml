@@ -1,6 +1,6 @@
 [package]
 name = "mobile"
-version = "0.1.9"
+version = "0.2.0"
 edition = "2021"
 publish = false
 
@@ -10,7 +10,7 @@ crate-type = ["staticlib", "cdylib"]
 
 [dependencies]
 minesweeper = { path = ".." }
-bevy = { version = "0.14.1", default-features = false }
+bevy = { version = "0.14.2", default-features = false }
 
 # As long as Kira doesn't expose a feature for this, we need to enable it
 # See https://github.com/tesselode/kira/pull/51

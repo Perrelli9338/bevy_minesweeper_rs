@@ -63,6 +63,9 @@ impl MainMenu {
                 for (action, text) in [
                     (MenuButtonAction::Play, "Play"),
                     (MenuButtonAction::Settings, "Settings"),
+                    #[cfg(not(target_arch = "wasm32"))]
+                    #[cfg(not(target_os = "android"))]
+                    #[cfg(not(target_os = "ios"))]
                     (MenuButtonAction::Quit, "Exit"),
                 ] {
                     parent
@@ -85,7 +88,7 @@ impl MainMenu {
                         });
                 }
                 parent.spawn(TextBundle::from_section(
-                    format!("v{}", env!("CARGO_PKG_VERSION")),
+                    format!("v{}-rc", env!("CARGO_PKG_VERSION")),
                     TextStyle {
                         ..default()
                     },
