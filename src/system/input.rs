@@ -80,7 +80,7 @@ struct TouchStatus {
 pub fn handle_touch(
     window_primary_query: Query<&Window, With<PrimaryWindow>>,
     board: Res<Board>,
-    mut position: ResMut<TouchStatus>,
+    mut status: ResMut<TouchStatus>,
     mut timer: ResMut<GameTimer>,
     mut flag_trigger_ewr: EventWriter<TileFlaggedEvent>,
     mut tile_trigger_ewr: EventWriter<TileTriggerEvent>,
@@ -96,19 +96,21 @@ pub fn handle_touch(
                 is_covered: true,
             });
             timer.0.reset();
-        } else if let Some(tile_coordinates) = board.press_position(window, position.first_touch) {
-            if timer.0.finished() && position.is_covered {
-                commands.insert_resource(TouchStatus {
-                    first_touch: touch.position,
-                    is_covered: false,
-                });
-                flag_trigger_ewr.send(TileFlaggedEvent {
-                    coordinates: tile_coordinates,
-                });
-            } else if touch.phase == TouchPhase::Ended {
-                tile_trigger_ewr.send(TileTriggerEvent {
-                    coordinates: tile_coordinates,
-                });
+        } else if let Some(tile_coordinates) = board.press_position(window, status.first_touch) {
+            if status.is_covered {
+                if timer.0.finished() {
+                    commands.insert_resource(TouchStatus {
+                        first_touch: touch.position,
+                        is_covered: false,
+                    });
+                    flag_trigger_ewr.send(TileFlaggedEvent {
+                        coordinates: tile_coordinates,
+                    });
+                } else if touch.phase == TouchPhase::Ended {
+                    tile_trigger_ewr.send(TileTriggerEvent {
+                        coordinates: tile_coordinates,
+                    });
+                }
             }
         }
     }
