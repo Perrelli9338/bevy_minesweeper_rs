@@ -1,10 +1,14 @@
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    winit::WinitSettings
+};
 use sickle_ui::prelude::*;
 use crate::{
     resources::assets::TextureAssets,
-    scenes::{cleanup, MenuButtonAction, MenuStates},
-    components::uisettings::UISettings,
+    scenes::{cleanup, MenuButtonAction, MenuStates, H1},
 };
+use crate::widgets::button::UiButtonWidgetExt;
+use crate::widgets::text::UiTextWidgetExt;
 
 #[derive(Component)]
 struct Menu;
@@ -20,7 +24,6 @@ impl Plugin for MainMenu {
 
 impl MainMenu {
     fn create(mut commands: Commands, textures: Res<TextureAssets>) {
-        let settings = UISettings::default();
         commands.ui_builder(UiRoot).container(
             NodeBundle {
                 style: Style {
@@ -36,63 +39,19 @@ impl MainMenu {
             },
             |parent| {
                 parent.container(
-                    NodeBundle {
-                        style: Style {
-                            display: Display::Flex,
-                            flex_direction: FlexDirection::Row,
-                            ..default()
-                        },
-                        ..default()
-                    }, |children| {
-                        children.spawn(TextBundle::from_section(
-                            "Minesweeper",
-                            TextStyle {
-                                font_size: 59.,
-                                ..default()
-                            },
-                        ));
+                    NodeBundle::default(), |children| {
+                        children.text("Minesweeper").insert(H1);
                         children.spawn(ImageBundle {
                             image: textures.icon.clone().into(),
-                            style: Style {
-                                width: Val::Px(59.),
-                                ..default()
-                            },
                             ..default()
-                        });
-                    });
-                for (action, text) in [
-                    (MenuButtonAction::Play, "Play"),
-                    (MenuButtonAction::Settings, "Settings"),
-                    #[cfg(not(target_arch = "wasm32"))]
-                    #[cfg(not(target_os = "android"))]
-                    #[cfg(not(target_os = "ios"))]
-                    (MenuButtonAction::Quit, "Exit"),
-                ] {
-                    parent
-                        .container((
-                                       ButtonBundle {
-                                           style: settings.button_style.clone(),
-                                           background_color: settings.button_colors.clone().normal.into(),
-                                           border_radius: settings.button_border_style.clone(),
-                                           ..Default::default()
-                                       },
-                                       settings.button_colors.clone(),
-                                       action
-                                   ), |children| {
-                            children.spawn(TextBundle::from_section(
-                                text,
-                                TextStyle {
-                                    ..default()
-                                },
-                            ));
-                        });
-                }
-                parent.spawn(TextBundle::from_section(
-                    format!("v{}-rc", env!("CARGO_PKG_VERSION")),
-                    TextStyle {
-                        ..default()
-                    },
-                ));
+                        }).style().width(Val::Px(59.));
+                    }).style().display(Display::Flex).flex_direction(FlexDirection::Row);
+                parent.button_MainMenu( "Play", MenuButtonAction::Play);
+                parent.button_MainMenu( "Settings", MenuButtonAction::Settings);
+                #[cfg(all(not(target_arch = "wasm32"), not(target_os = "android"), not(target_os = "ios")))]
+                parent.button_MainMenu( "Quit", MenuButtonAction::Quit);
+                parent.text(&format!("v{}-rc", env!("CARGO_PKG_VERSION")));
             }).insert(Menu);
+        commands.insert_resource(WinitSettings::desktop_app());
     }
 }

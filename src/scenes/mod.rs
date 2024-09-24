@@ -1,4 +1,3 @@
-use std::time::Duration;
 use bevy::{
     prelude::*,
     text::TextSettings,
@@ -17,7 +16,6 @@ pub mod endgame_plugin;
 
 mod main_menu_plugin;
 mod settings_menu_plugin;
-mod widgets;
 
 #[derive(Component)]
 struct ChangeState(AppState);
@@ -32,7 +30,7 @@ pub enum MenuStates {
 }
 
 #[derive(Component)]
-enum MenuButtonAction {
+pub enum MenuButtonAction {
     Play,
     Settings,
     BackToMainMenu,
@@ -52,11 +50,9 @@ impl Plugin for MenuPlugin {
                 settings_menu_plugin::SettingsMenu,
                 EndgameScene
             ))
-            .add_systems(Startup, setup)
+            .add_systems(Startup, (setup, text_size_change))
             .add_systems(OnEnter(AppState::Menu), menu_setup)
-            .add_systems(Update, text_size_change)
-            .add_systems(Update, button_states.run_if(in_state(MenuStates::Main)))
-            .add_systems(Update, menu_action.run_if(in_state(AppState::Menu)))
+            .add_systems(Update, (button_states.run_if(in_state(MenuStates::Main)), menu_action).run_if(in_state(AppState::Menu)))
             .insert_resource(GameSettings::default())
             .insert_resource(TextSettings {
                 allow_dynamic_font_size: true,
@@ -81,13 +77,23 @@ fn menu_setup(
 pub struct H1;
 
 fn text_size_change(
-    mut text: Query<&mut Text, With<H1>>,
+    mut header: Query<&mut Text, With<H1>>,
+    mut text: Query<&mut Text, Without<H1>>,
     mut window: Query<&Window, With<PrimaryWindow>>
 ){
-    if text.is_empty() || window.is_empty() { return }
-    let width =  window.single_mut().width();
+    if header.is_empty() || window.is_empty() || text.is_empty() { return }
+    let width = (8. * window.single_mut().width()) / 100.0;
+    for mut t in header.iter_mut() {
+        t.sections[0].style.font_size = match width {
+            0.0..800.0 => width,
+            _ => 45.
+        };
+    }
     for mut t in text.iter_mut() {
-        t.sections[0].style.font_size = (8. * width) / 100.0;
+        t.sections[0].style.font_size = match width {
+            0.0..800.0 => width / 4.,
+            _ => 21.
+        };
     }
 }
 
