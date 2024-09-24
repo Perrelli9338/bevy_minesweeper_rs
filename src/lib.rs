@@ -12,6 +12,7 @@ mod system;
 
 mod components;
 pub(crate) mod scenes;
+mod widgets;
 
 #[derive(Default, Clone, Eq, PartialEq, Debug, Hash)]
 #[derive(States)]

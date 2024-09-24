@@ -1,7 +1,7 @@
 use bevy::prelude::{AlignItems, BorderRadius, Component, JustifyContent, Style, Val};
 use crate::components::button_colors::ButtonColors;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub(crate) struct UISettings {
     pub(crate) button_colors: ButtonColors,
     pub(crate) button_style: Style,

@@ -2288,7 +2288,7 @@ dependencies = [
 
 [[package]]
 name = "minesweeper"
-version = "0.1.9"
+version = "0.2.0"
 dependencies = [
  "bevy",
  "bevy_asset_loader",
@@ -2320,7 +2320,7 @@ dependencies = [
 
 [[package]]
 name = "mobile"
-version = "0.1.9"
+version = "0.2.0"
 dependencies = [
  "bevy",
  "cpal",
@@ -3103,11 +3103,10 @@ dependencies = [
 
 [[package]]
 name = "ruzstd"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c8b8f3d26bd9f945e5cbae77f7cdfbf37af9a66956f1115eb4516e45df519f4"
+checksum = "99c3938e133aac070997ddc684d4b393777d293ba170f2988c8fd5ea2ad4ce21"
 dependencies = [
- "byteorder",
  "twox-hash",
 ]
 
@@ -3185,9 +3184,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.127"
+version = "1.0.128"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8043c06d9f82bd7271361ed64f415fe5e12a77fdb52e573e7f06a516dea329ad"
+checksum = "6ff5456707a1de34e7e37f2a6fd3d3f808c318259cbd01ab6377795054b483d8"
 dependencies = [
  "itoa",
  "memchr",
