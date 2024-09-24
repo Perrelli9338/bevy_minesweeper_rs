@@ -1,18 +1,12 @@
 use bevy::{
     app::{App, Update},
-    input::{
-        ButtonInput,
-        mouse::MouseButtonInput
-    },
     prelude::*,
-    window::PrimaryWindow,
 };
 use crate::{
     AppState,
     resources::{
         GameState,
         events::*,
-        board::Board,
         settings::GameSettings,
     },
     components::{
@@ -37,12 +31,11 @@ impl Plugin for SystemPlugins {
             .add_systems(OnEnter(GameState::Playing), GameStopwatch::new)
             .add_systems(OnExit(GameState::Playing), GameStopwatch::pause)
             .add_systems(Update, (
-                game_state_handler, (
-                    flagged::flag_tiles,
-                    uncover::input_event,
-                    uncover::uncover_tiles,
-                    cross_flag::uncover_wrong_flags
-                ).run_if(in_state(GameState::Playing)),
+                game_state_handler,
+                flagged::flag_tiles,
+                uncover::uncover_tiles,
+                cross_flag::uncover_wrong_flags,
+                uncover::input_event.run_if(in_state(GameState::Playing)),
             ).run_if(in_state(AppState::Playing)))
             .add_plugins(
                 InputHandling
