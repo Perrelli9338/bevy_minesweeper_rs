@@ -6,9 +6,11 @@ use sickle_ui::prelude::*;
 use crate::{
     resources::assets::TextureAssets,
     scenes::{cleanup, MenuButtonAction, MenuStates, H1},
+    widgets::{
+        button::UiButtonWidgetExt,
+        text::UiTextWidgetExt,
+    }
 };
-use crate::widgets::button::UiButtonWidgetExt;
-use crate::widgets::text::UiTextWidgetExt;
 
 #[derive(Component)]
 struct Menu;

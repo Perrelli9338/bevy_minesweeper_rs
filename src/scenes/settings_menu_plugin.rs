@@ -3,11 +3,15 @@ use sickle_ui::prelude::*;
 use crate::{resources::settings::GameSettings,
             AppState,
             components::uisettings::UISettings,
-            scenes::{cleanup, ButtonColors, MenuStates, ChangeState},
+            scenes::{cleanup, ButtonColors, MenuStates, ChangeState, H1, MenuButtonAction},
+            widgets::{
+                button::UiButtonWidgetExt,
+                text::UiTextWidgetExt,
+            }
 };
 
 #[derive(Component)]
-enum SettingsMenuButtonAction {
+pub enum SettingsMenuButtonAction {
     DecrementBombCount,
     IncrementBombCount,
     IncrementWidthBoard,
@@ -64,13 +68,7 @@ impl SettingsMenu {
                 ..default()
             },
             |children| {
-                children.spawn(TextBundle::from_section(
-                    "Settings",
-                    TextStyle {
-                        font_size: 54.,
-                        ..default()
-                    },
-                ));
+                children.text("Settings").insert(H1);
                 children.container(NodeBundle {
                     style: Style {
                         display: Display::Flex,
@@ -109,13 +107,7 @@ impl SettingsMenu {
                                 ..default()
                             },
                             |children| {
-                                children.spawn(TextBundle::from_section(
-                                    text,
-                                    TextStyle {
-                                        font_size: 42.,
-                                        ..default()
-                                    },
-                                ));
+                                children.text(text);
                                 children.container(NodeBundle {
                                     style: Style {
                                         display: Display::Flex,
@@ -127,69 +119,13 @@ impl SettingsMenu {
                                     },
                                     ..default()
                                 }, |children| {
-                                    children.container((
-                                                           ButtonBundle {
-                                                               style: settings.button_settings_style.clone(),
-                                                               background_color: settings.button_colors.clone().normal.into(),
-                                                               border_radius: settings.button_border_style.clone(),
-                                                               ..Default::default()
-                                                           },
-                                                           first_action,
-                                                           settings.button_colors.clone(),
-                                                       ), |parent| {
-                                        parent.spawn(TextBundle::from_section(
-                                            "<",
-                                            TextStyle {
-                                                ..default()
-                                            },
-                                        ));
-                                    });
-                                    children.spawn((TextBundle::from_section(
-                                        value,
-                                        TextStyle {
-                                            font_size: 37.,
-                                            ..default()
-                                        },
-                                    ), SettingsValues));
-                                    children
-                                        .container((
-                                                       ButtonBundle {
-                                                           style: settings.button_settings_style.clone(),
-                                                           background_color: settings.button_colors.normal.clone().into(),
-                                                           border_radius: settings.button_border_style.clone(),
-                                                           ..Default::default()
-                                                       },
-                                                       second_action,
-                                                       settings.button_colors.clone(),
-                                                   ), |parent| {
-                                            parent.spawn(TextBundle::from_section(
-                                                ">",
-                                                TextStyle {
-                                                    ..default()
-                                                },
-                                            ));
-                                        });
+                                    children.button_SettingsMenu("<", first_action);
+                                    children.text(&value).insert(SettingsValues);
+                                    children.button_SettingsMenu(">", second_action);
                                 });
                             });
                     }});
-                    children
-                        .container((
-                                       ButtonBundle {
-                                           style: settings.button_style.clone(),
-                                           background_color: settings.button_colors.normal.clone().into(),
-                                           border_radius: settings.button_border_style.clone(),
-                                           ..Default::default()
-                                       },
-                                       settings.button_colors.clone(),
-                                       SettingsMenuButtonAction::BackToMainMenu,
-                                   ), |parent| {
-                            parent.spawn(TextBundle::from_section(
-                                "Close",
-                                TextStyle {
-                                    ..default()
-                                },
-                            ));
-                        });
+                    children.button_MainMenu("Close", MenuButtonAction::BackToMainMenu);
                 }).insert(MenuSettings);
     }
 
@@ -392,7 +328,7 @@ impl SettingsMenu {
                     }
                 }
                 SettingsMenuButtonAction::DecreaseTouchTimer => {
-                    if !(config.timer_touch > 0.) {
+                    if !(config.timer_touch > 0.01) {
                         *color = button_colors.disabled.into();
                     }
                 }

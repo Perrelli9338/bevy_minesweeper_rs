@@ -1,21 +1,20 @@
 use bevy::{
     prelude::*,
     text::TextSettings,
+    window::PrimaryWindow,
+    winit::WinitSettings
 };
-use bevy::window::PrimaryWindow;
-use bevy::winit::WinitSettings;
 use sickle_ui::SickleUiPlugin;
 use crate::{
     AppState,
     resources::settings::GameSettings,
     components::button_colors::ButtonColors,
+    scenes::endgame_plugin::EndgameScene,
 };
-use crate::scenes::endgame_plugin::EndgameScene;
 
 pub mod endgame_plugin;
-
 mod main_menu_plugin;
-mod settings_menu_plugin;
+pub mod settings_menu_plugin;
 
 #[derive(Component)]
 struct ChangeState(AppState);
