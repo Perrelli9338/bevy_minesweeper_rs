@@ -1,5 +1,6 @@
-body, html {
+body, html, .game-container {
     height: 100%;
+    width: 100%;
 }
 
 body {
@@ -11,8 +12,6 @@ body {
 }
 
 .game-container {
-    width: 800px;
-    height: 600px;
     display: flex;
     justify-content: center;
     align-items: center;
