@@ -1,30 +1,37 @@
-use std::collections::{HashMap, HashSet};
-use bevy::{app::{App, Plugin},
-           prelude::*,
-           color::palettes::*,
-           math::Vec3Swizzles,
+use crate::{
+    components::{timer::GameTimer, uncover::Uncover, *},
+    resources::{
+        assets::{FontAssets, TextureAssets},
+        board::Board,
+        settings::{GameSettings, Position, TileSize},
+        tile::Tile,
+        tile_map::TileMap,
+    },
+    AppState,
 };
 use bevy::winit::WinitSettings;
+use bevy::{
+    app::{App, Plugin},
+    color::palettes::*,
+    math::Vec3Swizzles,
+    prelude::*,
+};
 use bevy_asset_loader::{
     loading_state::{LoadingState, LoadingStateAppExt},
     prelude::ConfigureLoadingState,
 };
-use crate::{components::{*, uncover::Uncover, timer::GameTimer}, AppState,
-            resources::{board::Board, tile_map::TileMap,
-                        settings::{Position, GameSettings, TileSize},
-                        tile::Tile,
-                        assets::{FontAssets, TextureAssets}}};
 use bounds::Bounds2;
+use std::collections::{HashMap, HashSet};
 
+pub(crate) mod settings;
 pub(crate) mod tile;
 pub(crate) mod tile_map;
-pub(crate) mod settings;
 
-pub(crate) mod events;
 mod bounds;
+pub(crate) mod events;
 
-pub(crate) mod board;
 pub(crate) mod assets;
+pub(crate) mod board;
 
 pub struct ResourcePlugin;
 
@@ -36,14 +43,18 @@ impl Plugin for ResourcePlugin {
                 .load_collection::<FontAssets>()
                 .load_collection::<TextureAssets>(),
         )
-            .init_state::<GameState>()
-            .add_systems(OnEnter(AppState::Playing), Self::create)
-            .add_systems(Update, new_game.run_if(in_state(GameState::Disabled)).run_if(in_state(AppState::Playing)));
+        .init_state::<GameState>()
+        .add_systems(OnEnter(AppState::Playing), Self::create)
+        .add_systems(
+            Update,
+            new_game
+                .run_if(in_state(GameState::Disabled))
+                .run_if(in_state(AppState::Playing)),
+        );
     }
 }
 
-#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
-#[derive(States, Component)]
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States, Component)]
 pub enum GameState {
     Win,
     Lose,
@@ -65,7 +76,11 @@ fn new_game(
 }
 
 impl ResourcePlugin {
-    pub fn create(mut commands: Commands, options: Res<GameSettings>, assets: (Res<TextureAssets>, Res<FontAssets>)) {
+    pub fn create(
+        mut commands: Commands,
+        options: Res<GameSettings>,
+        assets: (Res<TextureAssets>, Res<FontAssets>),
+    ) {
         commands.insert_resource(WinitSettings::default());
         let mut safe_start: Option<Entity> = None;
 
@@ -79,7 +94,8 @@ impl ResourcePlugin {
 
         let mut tile_map = TileMap::new(config.map_size.0, config.map_size.1);
 
-        let mut covered_tiles = HashMap::with_capacity((tile_map.get_width() * tile_map.get_height()).into());
+        let mut covered_tiles =
+            HashMap::with_capacity((tile_map.get_width() * tile_map.get_height()).into());
 
         let board_size = Vec2::new(
             tile_map.get_width() as f32 * tile_size,
@@ -99,13 +115,14 @@ impl ResourcePlugin {
 
         tile_map.set_bombs(config.bomb_count);
 
-        let e = commands.spawn((
-            Name::new("Board"),
-            SpatialBundle {
-                transform: Transform::from_translation(position),
-                ..Default::default()
-            },
-        ))
+        let e = commands
+            .spawn((
+                Name::new("Board"),
+                SpatialBundle {
+                    transform: Transform::from_translation(position),
+                    ..Default::default()
+                },
+            ))
             .with_children(|parent| {
                 Self::generate(
                     parent,
@@ -121,7 +138,8 @@ impl ResourcePlugin {
                     &mut covered_tiles,
                     &mut safe_start,
                 );
-            }).id();
+            })
+            .id();
 
         if config.easy_mode {
             if let Some(entity) = safe_start {
@@ -165,40 +183,39 @@ impl ResourcePlugin {
                     x: x as u16,
                     y: y as u16,
                 };
-                let mut commands = parent.spawn(
-                    SpriteBundle {
-                        sprite: Sprite {
-                            color: background_color,
-                            custom_size: sprites_size,
-                            ..Default::default()
-                        },
-
-                        transform: Transform::from_xyz(
-                            (x as f32 * tile_size) + (tile_size / 2.),
-                            (y as f32 * tile_size) + (tile_size / 2.),
-                            1.,
-                        ),
-                        texture: tile_image.clone(),
+                let mut commands = parent.spawn(SpriteBundle {
+                    sprite: Sprite {
+                        color: background_color,
+                        custom_size: sprites_size,
                         ..Default::default()
-                    });
+                    },
+
+                    transform: Transform::from_xyz(
+                        (x as f32 * tile_size) + (tile_size / 2.),
+                        (y as f32 * tile_size) + (tile_size / 2.),
+                        1.,
+                    ),
+                    texture: tile_image.clone(),
+                    ..Default::default()
+                });
 
                 commands.insert(coordinates);
 
                 commands.with_children(|parent| {
-                    let e = parent.spawn(SpriteBundle {
-                        sprite: Sprite {
-                            custom_size: sprites_size,
-                            color: covered_background_color,
+                    let e = parent
+                        .spawn(SpriteBundle {
+                            sprite: Sprite {
+                                custom_size: sprites_size,
+                                color: covered_background_color,
+                                ..Default::default()
+                            },
+                            transform: Transform::from_xyz(0.0, 0.0, 2.0),
+                            texture: covered_tile_image.clone(),
                             ..Default::default()
-                        },
-                        transform: Transform::from_xyz(0.0, 0.0, 2.0),
-                        texture: covered_tile_image.clone(),
-                        ..Default::default()
-                    }).id();
+                        })
+                        .id();
                     covered_tiles.insert(coordinates, e);
-                    if safe_start.is_none() && *tile == Tile::Empty {
-                        *safe_start = Some(e);
-                    } else if !(*tile == Tile::Bomb) {
+                    if safe_start.is_none() && *tile == Tile::Empty || !(*tile == Tile::Bomb) {
                         *safe_start = Some(e);
                     }
                 });
@@ -220,7 +237,9 @@ impl ResourcePlugin {
                         });
                     }
                     Tile::BombNeighbour(bombs_count) => {
-                        commands.insert(BombNeighbor { count: *bombs_count });
+                        commands.insert(BombNeighbor {
+                            count: *bombs_count,
+                        });
                         commands.with_children(|parent| {
                             parent.spawn(Self::bomb_count_text_bundle(
                                 *bombs_count,

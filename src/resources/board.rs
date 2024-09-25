@@ -1,13 +1,6 @@
+use crate::{components::Coordinates, resources::bounds::Bounds2, resources::TileMap};
+use bevy::{ecs::system::Resource, math::Vec2, prelude::*, window::Window};
 use std::collections::{HashMap, HashSet};
-use crate::{
-    resources::bounds::Bounds2,
-    components::Coordinates, resources::TileMap,
-};
-use bevy::{
-    ecs::system::Resource,
-    math::Vec2, prelude::*,
-    window::Window,
-};
 
 pub(crate) enum FlagToggle {
     FlagIsSet(Entity),
@@ -15,8 +8,7 @@ pub(crate) enum FlagToggle {
     Nothing,
 }
 
-#[derive(Debug, Clone)]
-#[derive(Resource)]
+#[derive(Debug, Clone, Resource)]
 pub struct Board {
     pub tile_map: TileMap,
     pub bounds: Bounds2,
@@ -46,7 +38,7 @@ impl Board {
     }
 
     pub fn tile_selected(&self, coordinates: &Coordinates) -> Option<&Entity> {
-        return self.covered_tiles.get(coordinates);
+        self.covered_tiles.get(coordinates)
     }
 
     pub fn try_uncover_tile(&mut self, coordinates: &Coordinates) -> Option<Entity> {
@@ -58,44 +50,42 @@ impl Board {
     }
 
     pub fn try_toggle_flag(&mut self, coordinates: &Coordinates) -> FlagToggle {
-        return match self.covered_tiles.get(coordinates) {
+        match self.covered_tiles.get(coordinates) {
             Some(e) => {
                 if self.flagged_tiles.contains(coordinates) {
                     self.flagged_tiles.remove(coordinates);
-                    FlagToggle::FlagIsUnset(e.clone())
+                    FlagToggle::FlagIsUnset(*e)
                 } else {
                     self.flagged_tiles.insert(*coordinates);
-                    FlagToggle::FlagIsSet(e.clone())
+                    FlagToggle::FlagIsSet(*e)
                 }
             }
             _ => FlagToggle::Nothing,
-        };
+        }
     }
 
     pub fn is_win(&self, flag_mode: bool) -> bool {
         if flag_mode {
-            self.tile_map.get_bomb_count() as usize == self.flagged_tiles.len() &&
-                self.tile_map.get_bomb_count() as usize == self.covered_tiles.len()
+            self.tile_map.get_bomb_count() as usize == self.flagged_tiles.len()
+                && self.tile_map.get_bomb_count() as usize == self.covered_tiles.len()
         } else {
             self.tile_map.get_bomb_count() as usize == self.covered_tiles.len()
         }
     }
 
     pub fn uncover_tile_neighbour(&self, coordinate: Coordinates) -> Vec<Entity> {
-        return self
-            .tile_map
+        self.tile_map
             .safe_square_at(coordinate)
             .filter_map(|c| self.covered_tiles.get(&c))
             .copied()
-            .collect();
+            .collect()
     }
 
     pub fn uncover_bomb(&self) -> Vec<Entity> {
-        return self
-            .tile_map
+        self.tile_map
             .get_bomb_tiles()
             .filter_map(|c| self.covered_tiles.get(&c))
             .copied()
-            .collect();
+            .collect()
     }
 }

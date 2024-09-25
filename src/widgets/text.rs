@@ -9,10 +9,7 @@ pub trait UiTextWidgetExt {
 }
 impl UiTextWidgetExt for UiBuilder<'_, Entity> {
     fn text(&mut self, text: &str, size: Option<f64>) -> UiBuilder<'_, Entity> {
-        let font_size = match size {
-            Some(v) => v,
-            None => 21.,
-        };
+        let font_size = size.unwrap_or(21.);
         self.spawn((
             TextBundle::from_section(
                 text,

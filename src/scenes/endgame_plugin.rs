@@ -70,6 +70,7 @@ pub fn cleanup_board(
 #[derive(Component)]
 struct Scene;
 
+#[warn(unused_mut)]
 pub fn create_scene_endgame(
     mut commands: Commands,
     game_state: Res<State<GameState>>,
@@ -79,7 +80,7 @@ pub fn create_scene_endgame(
     msg.push_str(match game_state.get() {
         GameState::Lose => "lose!",
         GameState::Win => "win!",
-        _ => "[This is an easter egg ;)]"
+        _ => "[This is an easter egg ;)]",
     });
     let min = stopwatch.total_time.as_secs() / 60;
     let secs = stopwatch.total_time.as_secs() - (60 * min);

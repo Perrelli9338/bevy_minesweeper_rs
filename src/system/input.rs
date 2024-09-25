@@ -1,3 +1,4 @@
+use crate::resources::settings::GameSettings;
 use crate::{
     components::timer::GameTimer,
     resources::{
@@ -12,34 +13,32 @@ use bevy::{
     prelude::*,
     window::PrimaryWindow,
 };
-use crate::resources::settings::GameSettings;
 
 pub struct InputHandling;
 
 impl Plugin for InputHandling {
     fn build(&self, app: &mut App) {
-        app
-            .insert_resource(TouchStatus {
-                first_touch: Default::default(),
-                is_covered: true,
-            })
-            .add_systems(OnEnter(GameState::Playing), setup)
-            .add_systems(
-                Update,
-                (
-                    handle_mouse.run_if(run_if_any_button_mouse_pressed),
-                    handle_touch,
-                )
-                    .run_if(in_state(GameState::Playing)),
-            );
+        app.insert_resource(TouchStatus {
+            first_touch: Default::default(),
+            is_covered: true,
+        })
+        .add_systems(OnEnter(GameState::Playing), setup)
+        .add_systems(
+            Update,
+            (
+                handle_mouse.run_if(run_if_any_button_mouse_pressed),
+                handle_touch,
+            )
+                .run_if(in_state(GameState::Playing)),
+        );
     }
 }
 
-fn setup(
-    mut commands: Commands,
-    config: Res<GameSettings>,
-){
-    commands.insert_resource(GameTimer(Timer::from_seconds(config.timer_touch, TimerMode::Once)))
+fn setup(mut commands: Commands, config: Res<GameSettings>) {
+    commands.insert_resource(GameTimer(Timer::from_seconds(
+        config.timer_touch,
+        TimerMode::Once,
+    )))
 }
 
 fn run_if_any_button_mouse_pressed(mouse_input: EventReader<MouseButtonInput>) -> bool {
@@ -76,7 +75,9 @@ struct TouchStatus {
     first_touch: Vec2,
     is_covered: bool,
 }
-
+#[allow(clippy::too_many_arguments)]
+#[allow(private_interfaces)]
+#[warn(unused_mut)]
 pub fn handle_touch(
     window_primary_query: Query<&Window, With<PrimaryWindow>>,
     board: Res<Board>,
@@ -88,7 +89,9 @@ pub fn handle_touch(
     time: Res<Time>,
     mut commands: Commands,
 ) {
-    let Ok(window) = window_primary_query.get_single() else { return; };
+    let Ok(window) = window_primary_query.get_single() else {
+        return;
+    };
     for touch in touch_events.read() {
         if touch.phase == TouchPhase::Started {
             commands.insert_resource(TouchStatus {
