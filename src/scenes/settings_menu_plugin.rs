@@ -40,9 +40,8 @@ pub struct SettingsMenu;
 impl Plugin for SettingsMenu {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(MenuStates::Settings), Self::create)
-            .add_systems(Update, Self::settings_button_functions.run_if(in_state(MenuStates::Settings)))
-            .add_systems(OnExit(MenuStates::Settings), cleanup::<MenuSettings>)
-            .add_systems(Update, Self::settings_button_colors.run_if(in_state(MenuStates::Settings)));
+            .add_systems(Update, (Self::settings_button_functions, Self::settings_button_colors).run_if(in_state(MenuStates::Settings)))
+            .add_systems(OnExit(MenuStates::Settings), cleanup::<MenuSettings>);
     }
 }
 
@@ -68,7 +67,7 @@ impl SettingsMenu {
                 ..default()
             },
             |children| {
-                children.text("Settings").insert(H1);
+                children.text("Settings", None).insert(H1);
                 children.container(NodeBundle {
                     style: Style {
                         display: Display::Flex,
@@ -107,7 +106,7 @@ impl SettingsMenu {
                                 ..default()
                             },
                             |children| {
-                                children.text(text);
+                                children.text(text, None);
                                 children.container(NodeBundle {
                                     style: Style {
                                         display: Display::Flex,
@@ -120,7 +119,7 @@ impl SettingsMenu {
                                     ..default()
                                 }, |children| {
                                     children.button_SettingsMenu("<", first_action);
-                                    children.text(&value).insert(SettingsValues);
+                                    children.text(&value, None).insert(SettingsValues);
                                     children.button_SettingsMenu(">", second_action);
                                 });
                             });

@@ -31,7 +31,7 @@ impl UiButtonWidgetExt for UiBuilder<'_, Entity> {
                            settings.button_colors,
                            action,
                        ), |children| {
-                children.text(text);
+                children.text(text, None);
             }).insert(ButtonWidget);
     }
 
@@ -48,7 +48,7 @@ impl UiButtonWidgetExt for UiBuilder<'_, Entity> {
                            settings.button_colors,
                            action,
                        ), |children| {
-                children.text(text);
+                children.text(text, None);
             }).insert(ButtonWidget);
     }
 }

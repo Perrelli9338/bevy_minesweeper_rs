@@ -42,7 +42,7 @@ impl MainMenu {
             |parent| {
                 parent.container(
                     NodeBundle::default(), |children| {
-                        children.text("Minesweeper").insert(H1);
+                        children.text("Minesweeper", None).insert(H1);
                         children.spawn(ImageBundle {
                             image: textures.icon.clone().into(),
                             ..default()
@@ -52,7 +52,7 @@ impl MainMenu {
                 parent.button_MainMenu( "Settings", MenuButtonAction::Settings);
                 #[cfg(all(not(target_arch = "wasm32"), not(target_os = "android"), not(target_os = "ios")))]
                 parent.button_MainMenu( "Quit", MenuButtonAction::Quit);
-                parent.text(&format!("v{}-rc", env!("CARGO_PKG_VERSION")));
+                parent.text(&format!("v{}-rc", env!("CARGO_PKG_VERSION")), None);
             }).insert(Menu);
         commands.insert_resource(WinitSettings::desktop_app());
     }
