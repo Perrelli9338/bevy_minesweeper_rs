@@ -5,17 +5,23 @@ use sickle_ui::prelude::*;
 struct TextWidget;
 
 pub trait UiTextWidgetExt {
-    fn text(&mut self, text: &str) -> UiBuilder<'_, Entity>;
+    fn text(&mut self, text: &str, size: Option<f64>) -> UiBuilder<'_, Entity>;
 }
 impl UiTextWidgetExt for UiBuilder<'_, Entity> {
-    fn text(&mut self, text: &str) -> UiBuilder<'_, Entity> {
-        self.spawn((TextBundle::from_section(text, TextStyle::default()), TextWidget))
-        /*self.spawn((TextBundle::from_section(
-            text,
-            TextStyle {
-                ..default()
-            },
-            TextWidget
-        )), TextWidget)*/
+    fn text(&mut self, text: &str, size: Option<f64>) -> UiBuilder<'_, Entity> {
+        let font_size = match size {
+            Some(v) => v,
+            None => 21.,
+        };
+        self.spawn((
+            TextBundle::from_section(
+                text,
+                TextStyle {
+                    font_size: font_size as f32,
+                    ..default()
+                },
+            ),
+            TextWidget,
+        ))
     }
 }
