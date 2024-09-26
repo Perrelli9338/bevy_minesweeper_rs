@@ -49,9 +49,9 @@ impl Plugin for MenuPlugin {
                 settings_menu_plugin::SettingsMenu,
                 EndgameScene
             ))
-            .add_systems(Startup, (setup, text_size_change))
+            .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
-            .add_systems(Update, (button_states.run_if(in_state(MenuStates::Main)), menu_action).run_if(in_state(AppState::Menu)))
+            .add_systems(Update, (button_states.run_if(in_state(MenuStates::Main)), menu_action, text_size_change).run_if(in_state(AppState::Menu)))
             .insert_resource(GameSettings::default())
             .insert_resource(TextSettings {
                 allow_dynamic_font_size: true,
@@ -81,16 +81,17 @@ fn text_size_change(
     mut window: Query<&Window, With<PrimaryWindow>>
 ){
     if header.is_empty() || window.is_empty() || text.is_empty() { return }
-    let width = (8. * window.single_mut().width()) / 100.0;
+    let width = (12. * window.single_mut().width()) / 100.0;
     for mut t in header.iter_mut() {
         t.sections[0].style.font_size = match width {
-            0.0..800.0 => width,
+            0.0..70.0 => width,
             _ => 45.
         };
     }
     for mut t in text.iter_mut() {
         t.sections[0].style.font_size = match width {
-            0.0..800.0 => width / 4.,
+            0.0..60.0 => width / 2.,
+            60.0..100.0 => width / 4.,
             _ => 21.
         };
     }
