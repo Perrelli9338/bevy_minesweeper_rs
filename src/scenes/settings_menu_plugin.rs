@@ -1,3 +1,4 @@
+use crate::widgets::settings::UiSettingsWidgetExt;
 use crate::{
     resources::settings::GameSettings,
     scenes::{cleanup, ButtonColors, ChangeState, MenuButtonAction, MenuStates, H1},
@@ -54,128 +55,88 @@ impl SettingsMenu {
             None => GameSettings::default(),
             Some(c) => c.clone(),
         };
+
         commands
             .ui_builder(UiRoot)
-            .container(
-                NodeBundle {
-                    style: Style {
-                        display: Display::Flex,
-                        flex_direction: FlexDirection::Column,
-                        width: Val::Percent(100.0),
-                        margin: UiRect::all(Val::Auto),
-                        align_items: AlignItems::Center,
-                        row_gap: Val::Px(15.),
-                        ..default()
-                    },
+            .container(NodeBundle {
+                style: Style {
+                    display: Display::Flex,
+                    flex_direction: FlexDirection::Column,
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(90.0),
+                    margin: UiRect::all(Val::Auto),
+                    align_items: AlignItems::Center,
+                    row_gap: Val::Px(15.),
                     ..default()
                 },
-                |children| {
-                    children.text("Settings", None).insert(H1);
-                    children.container(
-                        NodeBundle {
-                            style: Style {
-                                display: Display::Flex,
-                                flex_direction: FlexDirection::Column,
-                                align_items: AlignItems::FlexEnd,
-                                row_gap: Val::Px(5.),
-                                width: Val::Percent(80.0),
-                                ..default()
-                            },
-                            ..default()
-                        },
-                        |children| {
-                            for (first_action, second_action, text, value) in [
-                                (
-                                    SettingsMenuButtonAction::DecrementWidthBoard,
-                                    SettingsMenuButtonAction::IncrementWidthBoard,
-                                    "Width",
-                                    config.map_size.0.to_string(),
-                                ),
-                                (
-                                    SettingsMenuButtonAction::DecrementHeightBoard,
-                                    SettingsMenuButtonAction::IncrementHeightBoard,
-                                    "Height",
-                                    config.map_size.1.to_string(),
-                                ),
-                                (
-                                    SettingsMenuButtonAction::DecrementBombCount,
-                                    SettingsMenuButtonAction::IncrementBombCount,
-                                    "Bombs",
-                                    config.bomb_count.to_string(),
-                                ),
-                                (
-                                    SettingsMenuButtonAction::SafeStartOff,
-                                    SettingsMenuButtonAction::SafeStartOn,
-                                    "Safe start",
-                                    match config.easy_mode {
-                                        true => "On",
-                                        false => "Off",
-                                    }
-                                    .to_string(),
-                                ),
-                                (
-                                    SettingsMenuButtonAction::TurnFlagOff,
-                                    SettingsMenuButtonAction::TurnFlagOn,
-                                    "Flag mode",
-                                    match config.flag_mode {
-                                        true => "On",
-                                        false => "Off",
-                                    }
-                                    .to_string(),
-                                ),
-                                (
-                                    SettingsMenuButtonAction::DecreaseStartTimer,
-                                    SettingsMenuButtonAction::IncreaseStartTimer,
-                                    "Start delay",
-                                    format!("{:.01}s", config.timer_start),
-                                ),
-                                (
-                                    SettingsMenuButtonAction::DecreaseTouchTimer,
-                                    SettingsMenuButtonAction::IncreaseTouchTimer,
-                                    "Touch delay",
-                                    format!("{:.2}s", config.timer_touch),
-                                ),
-                            ] {
-                                children.container(
-                                    NodeBundle {
-                                        style: Style {
-                                            display: Display::Flex,
-                                            justify_content: JustifyContent::SpaceBetween,
-                                            width: Val::Percent(100.0),
-                                            align_items: AlignItems::Center,
-                                            ..default()
-                                        },
-                                        ..default()
-                                    },
-                                    |children| {
-                                        children.text(text, None);
-                                        children.container(
-                                            NodeBundle {
-                                                style: Style {
-                                                    display: Display::Flex,
-                                                    justify_content: JustifyContent::SpaceBetween,
-                                                    width: Val::Percent(30.0),
-                                                    column_gap: Val::Px(5.),
-                                                    align_items: AlignItems::Center,
-                                                    ..default()
-                                                },
-                                                ..default()
-                                            },
-                                            |children| {
-                                                children.button_settings_menu("<", first_action);
-                                                children.text(&value, None).insert(SettingsValues);
-                                                children.button_settings_menu(">", second_action);
-                                            },
-                                        );
-                                    },
-                                );
-                            }
-                        },
-                    );
-                    children.button_main_menu("Close", MenuButtonAction::BackToMainMenu);
-                },
-            )
-            .insert(MenuSettings);
+                ..default()
+            },
+                       |children| {
+                           children.text("Settings", None).insert(H1);
+                           children.container(
+                               NodeBundle {
+                                   style: Style {
+                                       display: Display::Flex,
+                                       flex_direction: FlexDirection::Column,
+                                       align_items: AlignItems::FlexEnd,
+                                       width: Val::Percent(80.0),
+                                       height: Val::Percent(100.0),
+                                       ..default()
+                                   },
+                                   ..default()
+                               },
+                               |children| {
+                                   children.row(|row| {
+                                       row.docking_zone_split(
+                                           SizedZoneConfig {
+                                               size: 25.,
+                                               ..default()
+                                           },
+                                           |right_side| {
+                                               right_side.docking_zone(
+                                                   SizedZoneConfig {
+                                                       size: 25.,
+                                                       ..default()
+                                                   },
+                                                   true,
+                                                   |tab_container| {
+                                                       tab_container.add_tab("Grid".into(), |panel| {
+                                                           panel.container(NodeBundle::default(), |children| {
+                                                               children.settings(SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width",  &config.map_size.0.to_string());
+                                                               children.settings(SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height",  &config.map_size.1.to_string());
+                                                               children.settings(SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs",  &config.bomb_count.to_string());
+                                                           }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
+                                                       });
+                                                       tab_container.add_tab("Game".into(), |panel| {
+                                                           panel.container(NodeBundle::default(), |children| {
+
+                                                               children.settings(SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start",  & match config.easy_mode {
+                                                               true => "On",
+                                                               false => "Off",
+                                                           }
+                                                               .to_string());
+                                                               children.settings(SettingsMenuButtonAction::TurnFlagOff, SettingsMenuButtonAction::TurnFlagOn, "Flag mode",  &match config.flag_mode {
+                                                               true => "On",
+                                                               false => "Off",
+                                                           }
+                                                               .to_string());
+                                                           }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
+
+                                                       });
+                                                       tab_container.add_tab("Accessibility".into(), |panel| {
+                                                           panel.container(NodeBundle::default(), |children| {
+                                                               children.settings(SettingsMenuButtonAction::DecreaseStartTimer, SettingsMenuButtonAction::IncreaseStartTimer, "Start delay",  &format!("{:.01}s", config.timer_start));
+                                                               children.settings(SettingsMenuButtonAction::DecreaseTouchTimer, SettingsMenuButtonAction::IncreaseTouchTimer, "Touch delay",  &format!("{:.2}s", config.timer_touch));
+                                                       }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
+                                                   });
+                                                   },
+                                               );
+                                           },
+                                       );
+                                   }).style().height(Val::Percent(100.));
+                               });
+                           children.button_main_menu("Close", MenuButtonAction::BackToMainMenu);
+                       }).insert(MenuSettings);
     }
 
     fn settings_button_functions(
