@@ -163,7 +163,7 @@ impl SettingsMenu {
                         }
                     }
                     SettingsMenuButtonAction::IncrementWidthBoard => {
-                        if config.map_size.0 <= 32 {
+                        if config.map_size.0 <= 200 {
                             config.map_size.0 += 1;
                         }
                     }
@@ -182,7 +182,7 @@ impl SettingsMenu {
                         }
                     }
                     SettingsMenuButtonAction::IncrementHeightBoard => {
-                        if config.map_size.1 <= 32 {
+                        if config.map_size.1 <= 200 {
                             config.map_size.1 += 1;
                         }
                     }
@@ -303,7 +303,7 @@ impl SettingsMenu {
                     }
                 }
                 SettingsMenuButtonAction::IncrementWidthBoard => {
-                    if config.map_size.0 <= 32 {
+                    if config.map_size.0 <= 200 {
                     } else {
                         *color = button_colors.disabled.into();
                     }
@@ -323,7 +323,7 @@ impl SettingsMenu {
                     }
                 }
                 SettingsMenuButtonAction::IncrementHeightBoard => {
-                    if !(config.map_size.1 <= 32) {
+                    if !(config.map_size.1 <= 200) {
                         *color = button_colors.disabled.into();
                     }
                 }

@@ -27,7 +27,7 @@ impl Plugin for InputHandling {
             Update,
             (
                 handle_mouse.run_if(run_if_any_button_mouse_pressed),
-                handle_touch,
+                handle_touch.run_if(run_if_only_one_fingers),
             )
                 .run_if(in_state(GameState::Playing)),
         );
@@ -43,6 +43,10 @@ fn setup(mut commands: Commands, config: Res<GameSettings>) {
 
 fn run_if_any_button_mouse_pressed(mouse_input: EventReader<MouseButtonInput>) -> bool {
     !mouse_input.is_empty()
+}
+
+fn run_if_only_one_fingers(touches: Res<Touches>) -> bool {
+    touches.iter().count() == 1
 }
 
 fn handle_mouse(
