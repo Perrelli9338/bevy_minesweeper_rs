@@ -10,15 +10,15 @@ use sickle_ui::prelude::*;
 struct ButtonWidget;
 
 pub trait UiButtonWidgetExt {
-    fn button_main_menu(&mut self, text: &str, action: MenuButtonAction);
-    fn button_settings_menu(&mut self, text: &str, action: SettingsMenuButtonAction);
+    fn button_main_menu(&mut self, text: &str, action: MenuButtonAction) -> UiBuilder<'_, Entity>;
+    fn button_settings_menu(&mut self, text: &str, action: SettingsMenuButtonAction) -> UiBuilder<'_, Entity>;
 }
 
 impl UiButtonWidgetExt for UiBuilder<'_, Entity> {
-    fn button_settings_menu(&mut self, text: &str, action: SettingsMenuButtonAction) {
+    fn button_settings_menu(&mut self, text: &str, action: SettingsMenuButtonAction) -> UiBuilder<'_, Entity> {
         let settings = UISettings::default();
         self.container(
-            (
+            ((
                 ButtonBundle {
                     style: settings.button_settings_style,
                     background_color: settings.button_colors.normal.into(),
@@ -28,17 +28,18 @@ impl UiButtonWidgetExt for UiBuilder<'_, Entity> {
                 settings.button_colors,
                 action,
             ),
+                ButtonWidget
+            ),
             |children| {
                 children.text(text, None);
             },
         )
-        .insert(ButtonWidget);
     }
 
-    fn button_main_menu(&mut self, text: &str, action: MenuButtonAction) {
+    fn button_main_menu(&mut self, text: &str, action: MenuButtonAction) -> UiBuilder<'_, Entity> {
         let settings = UISettings::default();
         self.container(
-            (
+            ((
                 ButtonBundle {
                     style: settings.button_style,
                     background_color: settings.button_colors.normal.into(),
@@ -48,10 +49,11 @@ impl UiButtonWidgetExt for UiBuilder<'_, Entity> {
                 settings.button_colors,
                 action,
             ),
+             ButtonWidget
+            ),
             |children| {
                 children.text(text, None);
             },
         )
-        .insert(ButtonWidget);
     }
 }
