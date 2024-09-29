@@ -1,5 +1,5 @@
 use crate::{components::Coordinates, resources::bounds::Bounds2, resources::TileMap};
-use bevy::{ecs::system::Resource, math::Vec2, prelude::*, window::Window};
+use bevy::{ecs::system::Resource, math::Vec2, prelude::*};
 use std::collections::{HashMap, HashSet};
 
 pub(crate) enum FlagToggle {
@@ -19,22 +19,18 @@ pub struct Board {
 }
 
 impl Board {
-    pub(crate) fn press_position(&self, window: &Window, position: Vec2) -> Option<Coordinates> {
-        let windows_size = Vec2 {
-            x: window.width(),
-            y: window.height(),
-        };
+    pub(crate) fn press_position(&self, camera: &Camera, transform: &GlobalTransform, position: Vec2) -> Option<Coordinates> {
+        if let Some(position_cursor) = camera.viewport_to_world_2d(transform, position) {
+            if !self.bounds.in_bounds(position_cursor) {
+                return None;
+            }
 
-        let position_cursor = position - (windows_size / 2.0);
-        if !self.bounds.in_bounds(position_cursor) {
-            return None;
-        }
-
-        let coordinates = position_cursor - self.bounds.position;
-        Some(Coordinates {
-            x: (coordinates.x / self.tile_size) as u16,
-            y: self.tile_map.get_height() - 1 - (coordinates.y / self.tile_size) as u16,
-        })
+            let coordinates = position_cursor - self.bounds.position;
+            Some(Coordinates {
+                x: (coordinates.x / self.tile_size) as u16,
+                y: (coordinates.y / self.tile_size) as u16,
+            })
+        } else { None }
     }
 
     pub fn tile_selected(&self, coordinates: &Coordinates) -> Option<&Entity> {
