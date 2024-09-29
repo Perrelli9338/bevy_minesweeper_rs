@@ -72,14 +72,16 @@ pub fn handle_touch(
             .iter()
             .map(|touch| touch.position())
             .collect::<Vec<_>>();
-            for event in touch_events.read().last() {
-                let delta = event.position - Vec2::new(
-                    (fingers[0].x + fingers[1].x) / 2.0,
-                    (fingers[0].y + fingers[1].y) / 2.0,
-                );
-                for mut transform in camera.iter_mut() {
-                    transform.translation.x += delta.x;
-                    transform.translation.y -= delta.y;
+            for event in touch_events.read() {
+                if event.id == 2 {
+                    let delta = event.position - Vec2::new(
+                        (fingers[0].x + fingers[1].x) / 2.0,
+                        (fingers[0].y + fingers[1].y) / 2.0,
+                    );
+                    for mut transform in camera.iter_mut() {
+                        transform.translation.x += delta.x;
+                        transform.translation.y -= delta.y;
+                    }
                 }
         }
     }
