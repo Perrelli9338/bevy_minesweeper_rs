@@ -19,6 +19,6 @@ Input:
 Gestures:
 - Tap to uncover a tile
 - Long tap to add a flag
-- Drag with two fingers to move around
+- Drag with three fingers to move around
 # Credits
 Thanks to [NiklasEi](https://github.com/NiklasEi/bevy_game_template) for his beautiful project!

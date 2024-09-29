@@ -35,19 +35,20 @@ pub fn handle_mouse(
     }
 }
 
-pub fn handle_touch(mut camera: Query<&mut Transform, With<Camera>>, mut touches: Res<Touches>) {
-    if touches.iter().count() == 2 {
-        let mut fingers = touches
-            .iter()
-            .map(|touch| touch.position())
-            .collect::<Vec<_>>();
-        let delta = Vec2::new(
-            (fingers[0].x + fingers[1].x) / 2.0,
-            (fingers[0].y + fingers[1].y) / 2.0,
-        );
-        for mut transform in camera.iter_mut() {
-            transform.translation.x += delta.x;
-            transform.translation.y -= delta.y;
+pub fn handle_touch(
+    mut camera: Query<&mut Transform, With<Camera>>,
+    mut touches: Res<Touches>,
+    mut touch_events: EventReader<TouchInput>,
+) {
+    if touches.iter().count() == 3 {
+        if let Some(last_position) = touches.iter().nth(1) {
+            for event in touch_events.read().nth(1) {
+                let delta = event.position - last_position.position();
+                for mut transform in camera.iter_mut() {
+                    transform.translation.x += delta.x;
+                    transform.translation.y -= delta.y;
+                }
+            }
         }
     }
 }
