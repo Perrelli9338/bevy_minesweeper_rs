@@ -1,3 +1,4 @@
+use bevy::input::touch::TouchPhase;
 use crate::AppState;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -8,7 +9,7 @@ impl Plugin for CameraHandling {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (handle_mouse, handle_touch).run_if(in_state(AppState::Playing)),
+            (handle_mouse, handle_touch.after(dummy_third_finger)).run_if(in_state(AppState::Playing)),
         );
     }
 }
@@ -35,20 +36,51 @@ pub fn handle_mouse(
     }
 }
 
+pub fn dummy_third_finger(
+    mut touches: Res<Touches>,
+    mut touch_events: EventWriter<TouchInput>,
+    window_primary_query: Query<Entity, With<PrimaryWindow>>,
+) {
+    let Ok(window) = window_primary_query.get_single() else {
+        return;
+    };
+    if touches.iter().count() == 2 {
+        let mut fingers = touches
+            .iter()
+            .map(|touch| touch.position())
+            .collect::<Vec<_>>();
+        touch_events.send(TouchInput {
+            phase: TouchPhase::Moved,
+            position: Vec2::new(
+                (fingers[0].x + fingers[1].x) / 2.0,
+                (fingers[0].y + fingers[1].y) / 2.0,
+            ),
+            window: window,
+            force: None,
+            id: 2,
+        });
+    }
+}
+
 pub fn handle_touch(
     mut camera: Query<&mut Transform, With<Camera>>,
     mut touches: Res<Touches>,
     mut touch_events: EventReader<TouchInput>,
 ) {
-    if touches.iter().count() == 3 {
-        if let Some(last_position) = touches.iter().nth(1) {
-            for event in touch_events.read().nth(1) {
-                let delta = event.position - last_position.position();
+    if touches.iter().count() == 2 {
+        let mut fingers = touches
+            .iter()
+            .map(|touch| touch.position())
+            .collect::<Vec<_>>();
+            for event in touch_events.read().last() {
+                let delta = event.position - Vec2::new(
+                    (fingers[0].x + fingers[1].x) / 2.0,
+                    (fingers[0].y + fingers[1].y) / 2.0,
+                );
                 for mut transform in camera.iter_mut() {
                     transform.translation.x += delta.x;
                     transform.translation.y -= delta.y;
                 }
-            }
         }
     }
 }
