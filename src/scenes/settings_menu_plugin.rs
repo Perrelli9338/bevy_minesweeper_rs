@@ -1,8 +1,7 @@
-use crate::widgets::settings::UiSettingsWidgetExt;
 use crate::{
     resources::settings::GameSettings,
     scenes::{cleanup, ButtonColors, ChangeState, MenuButtonAction, MenuStates, H1},
-    widgets::{button::UiButtonWidgetExt, text::UiTextWidgetExt},
+    widgets::{button::UiButtonWidgetExt, text::UiTextWidgetExt, settings::UiSettingsWidgetExt, tab_container::TabContainerExt},
     AppState,
 };
 use bevy::prelude::*;
@@ -99,17 +98,13 @@ impl SettingsMenu {
                                                        ..default()
                                                    },
                                                    true,
-                                                   |tab_container| {
-                                                       tab_container.add_tab("Grid".into(), |panel| {
-                                                           panel.container(NodeBundle::default(), |children| {
-                                                               children.settings(SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width",  &config.map_size.0.to_string());
-                                                               children.settings(SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height",  &config.map_size.1.to_string());
-                                                               children.settings(SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs",  &config.bomb_count.to_string());
-                                                           }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
+                                                   |bar| {
+                                                       bar.add_tab_container("Grid", |children| {
+                                                           children.settings(SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width",  &config.map_size.0.to_string());
+                                                           children.settings(SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height",  &config.map_size.1.to_string());
+                                                           children.settings(SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs",  &config.bomb_count.to_string());
                                                        });
-                                                       tab_container.add_tab("Game".into(), |panel| {
-                                                           panel.container(NodeBundle::default(), |children| {
-
+                                                       bar.add_tab_container("Game".into(), |children| {
                                                                children.settings(SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start",  & match config.easy_mode {
                                                                true => "On",
                                                                false => "Off",
@@ -120,14 +115,10 @@ impl SettingsMenu {
                                                                false => "Off",
                                                            }
                                                                .to_string());
-                                                           }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
-
                                                        });
-                                                       tab_container.add_tab("Accessibility".into(), |panel| {
-                                                           panel.container(NodeBundle::default(), |children| {
+                                                       bar.add_tab_container("Accessibility".into(), |children| {
                                                                children.settings(SettingsMenuButtonAction::DecreaseStartTimer, SettingsMenuButtonAction::IncreaseStartTimer, "Start delay",  &format!("{:.01}s", config.timer_start));
                                                                children.settings(SettingsMenuButtonAction::DecreaseTouchTimer, SettingsMenuButtonAction::IncreaseTouchTimer, "Touch delay",  &format!("{:.2}s", config.timer_touch));
-                                                       }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
                                                    });
                                                    },
                                                );
