@@ -1,5 +1,5 @@
-use bevy::input::touch::TouchPhase;
 use crate::AppState;
+use bevy::input::touch::TouchPhase;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
@@ -9,7 +9,7 @@ impl Plugin for CameraHandling {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (handle_mouse, handle_touch.after(dummy_third_finger)).run_if(in_state(AppState::Playing)),
+            (handle_mouse, handle_touch).run_if(in_state(AppState::Playing)),
         );
     }
 }
@@ -36,53 +36,16 @@ pub fn handle_mouse(
     }
 }
 
-pub fn dummy_third_finger(
-    mut touches: Res<Touches>,
-    mut touch_events: EventWriter<TouchInput>,
-    window_primary_query: Query<Entity, With<PrimaryWindow>>,
-) {
-    let Ok(window) = window_primary_query.get_single() else {
-        return;
-    };
-    if touches.iter().count() == 2 {
-        let mut fingers = touches
-            .iter()
-            .map(|touch| touch.position())
-            .collect::<Vec<_>>();
-        touch_events.send(TouchInput {
-            phase: TouchPhase::Moved,
-            position: Vec2::new(
-                (fingers[0].x + fingers[1].x) / 2.0,
-                (fingers[0].y + fingers[1].y) / 2.0,
-            ),
-            window: window,
-            force: None,
-            id: 2,
-        });
-    }
-}
+pub fn handle_touch(mut camera: Query<&mut Transform, With<Camera>>, touch_input: Res<Touches>) {
+    if touch_input.iter().count() == 2 {
+        let fingers: Vec<_> = touch_input.iter().collect();
+        let (x1, y1) = (fingers[0].position().x, fingers[0].position().y);
+        let (x2, y2) = (fingers[1].position().x, fingers[1].position().y);
+        let delta = Vec2::new((x1 + x2) / 2.0, (y1 + y2) / 2.0);
 
-pub fn handle_touch(
-    mut camera: Query<&mut Transform, With<Camera>>,
-    mut touches: Res<Touches>,
-    mut touch_events: EventReader<TouchInput>,
-) {
-    if touches.iter().count() == 2 {
-            for event in touch_events.read() {
-                let mut fingers = touches
-                    .iter()
-                    .map(|touch| touch.position())
-                    .collect::<Vec<_>>();
-                if event.id == 2 {
-                    let delta = event.position - Vec2::new(
-                        (fingers[0].x + fingers[1].x) / 2.0,
-                        (fingers[0].y + fingers[1].y) / 2.0,
-                    );
-                    for mut transform in camera.iter_mut() {
-                        transform.translation.x += delta.x;
-                        transform.translation.y -= delta.y;
-                    }
-                }
+        for mut transform in camera.iter_mut() {
+            transform.translation.x += delta.x;
+            transform.translation.y -= delta.y;
         }
     }
 }
