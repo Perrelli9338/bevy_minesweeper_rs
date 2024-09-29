@@ -68,11 +68,11 @@ pub fn handle_touch(
     mut touch_events: EventReader<TouchInput>,
 ) {
     if touches.iter().count() == 2 {
-        let mut fingers = touches
-            .iter()
-            .map(|touch| touch.position())
-            .collect::<Vec<_>>();
             for event in touch_events.read() {
+                let mut fingers = touches
+                    .iter()
+                    .map(|touch| touch.position())
+                    .collect::<Vec<_>>();
                 if event.id == 2 {
                     let delta = event.position - Vec2::new(
                         (fingers[0].x + fingers[1].x) / 2.0,
