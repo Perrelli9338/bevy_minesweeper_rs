@@ -60,8 +60,9 @@ fn handle_mouse(
     let Ok(window) = window_primary_query.get_single() else {
         return;
     };
+    let (camera, transform) = cameras.single();
     if let Some(mouse_position) = window.cursor_position() {
-        if let Some(tile_coordinates) = board.press_position(cameras, mouse_position) {
+        if let Some(tile_coordinates) = board.press_position(camera, transform, mouse_position) {
             if mouse_input.just_pressed(MouseButton::Left) {
                 tile_trigger_ewr.send(TileTriggerEvent {
                     coordinates: tile_coordinates,
@@ -94,14 +95,15 @@ pub fn handle_touch(
     mut commands: Commands,
     cameras: Query<(&Camera, &GlobalTransform)>,
 ) {
-        if let Some(touch) = touch_events.read().nth(0) {
+    let (camera, transform) = cameras.single();
+        for touch in touch_events.read() {
             if touch.phase == TouchPhase::Started {
                 commands.insert_resource(TouchStatus {
                     first_touch: touch.position,
                     is_covered: true,
                 });
                 timer.0.reset();
-            } else if let Some(tile_coordinates) = board.press_position(cameras, status.first_touch) {
+            } else if let Some(tile_coordinates) = board.press_position(camera, transform, status.first_touch) {
                 if status.is_covered {
                 if timer.0.finished() {
                     commands.insert_resource(TouchStatus {

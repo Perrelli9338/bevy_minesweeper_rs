@@ -19,8 +19,7 @@ pub struct Board {
 }
 
 impl Board {
-    pub(crate) fn press_position(&self, cameras: Query<(&Camera, &GlobalTransform)>, position: Vec2) -> Option<Coordinates> {
-        let (camera, transform) = cameras.single();
+    pub(crate) fn press_position(&self, camera: &Camera, transform: &GlobalTransform, position: Vec2) -> Option<Coordinates> {
         if let Some(position_cursor) = camera.viewport_to_world_2d(transform, position) {
             if !self.bounds.in_bounds(position_cursor) {
                 return None;
