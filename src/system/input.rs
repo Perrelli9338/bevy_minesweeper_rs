@@ -94,15 +94,15 @@ pub fn handle_touch(
     mut commands: Commands,
     cameras: Query<(&Camera, &GlobalTransform)>,
 ) {
-    if let Some(tile_coordinates) = board.press_position(cameras, status.first_touch) {
-        for touch in touch_events.read() {
+        if let Some(touch) = touch_events.read().nth(0) {
             if touch.phase == TouchPhase::Started {
                 commands.insert_resource(TouchStatus {
                     first_touch: touch.position,
                     is_covered: true,
                 });
                 timer.0.reset();
-            } else if status.is_covered {
+            } else if let Some(tile_coordinates) = board.press_position(cameras, status.first_touch) {
+                if status.is_covered {
                 if timer.0.finished() {
                     commands.insert_resource(TouchStatus {
                         first_touch: touch.position,
