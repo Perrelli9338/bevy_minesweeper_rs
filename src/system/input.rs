@@ -46,7 +46,7 @@ fn run_if_any_button_mouse_pressed(mouse_input: EventReader<MouseButtonInput>) -
 }
 
 fn run_if_only_one_fingers(touches: Res<Touches>) -> bool {
-    touches.iter().count() == 1
+    touches.iter().count() <= 1
 }
 
 fn handle_mouse(
