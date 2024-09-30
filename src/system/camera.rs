@@ -1,8 +1,6 @@
 use crate::AppState;
-use bevy::input::touch::TouchPhase;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use crate::resources::board::Board;
 
 pub struct CameraHandling;
 
@@ -18,7 +16,6 @@ impl Plugin for CameraHandling {
 pub fn handle_mouse(
     mut camera: Query<&mut Transform, With<Camera>>,
     mouse_input: Res<ButtonInput<MouseButton>>,
-    mut board: ResMut<Board>,
     window_primary_query: Query<&Window, With<PrimaryWindow>>,
     mut cursor_moved_events: EventReader<CursorMoved>,
 ) {
@@ -30,14 +27,6 @@ pub fn handle_mouse(
             if let Some(last_position) = window.cursor_position() {
                 let delta = event.position - last_position;
                 for mut transform in camera.iter_mut() {
-                    match board.tile_size {
-                        0.0..=784. => {
-                            board.bounds.position.x -= delta.x;
-                            board.bounds.position.y -= delta.y;
-                        }
-                        _ => {board.bounds.position.x += delta.x;
-                            board.bounds.position.y += delta.y;}
-                    }
                     transform.translation.x += delta.x;
                     transform.translation.y -= delta.y;
                 }
@@ -46,8 +35,11 @@ pub fn handle_mouse(
     }
 }
 
-pub fn handle_touch(mut camera: Query<&mut Transform, With<Camera>>, touch_input: Res<Touches>,
-                    mut touch_events: EventReader<TouchInput>) {
+pub fn handle_touch(
+    mut camera: Query<&mut Transform, With<Camera>>,
+    touch_input: Res<Touches>,
+    mut touch_events: EventReader<TouchInput>,
+) {
     if touch_input.iter().count() == 2 {
         while touch_events.read().last().is_some() {
             let fingers: Vec<_> = touch_input.iter().collect();

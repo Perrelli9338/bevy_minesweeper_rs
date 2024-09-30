@@ -55,12 +55,13 @@ fn handle_mouse(
     mouse_input: Res<ButtonInput<MouseButton>>,
     mut tile_trigger_ewr: EventWriter<TileTriggerEvent>,
     mut flag_trigger_ewr: EventWriter<TileFlaggedEvent>,
+    cameras: Query<(&Camera, &GlobalTransform)>,
 ) {
     let Ok(window) = window_primary_query.get_single() else {
         return;
     };
     if let Some(mouse_position) = window.cursor_position() {
-        if let Some(tile_coordinates) = board.press_position(window, mouse_position) {
+        if let Some(tile_coordinates) = board.press_position(cameras, mouse_position) {
             if mouse_input.just_pressed(MouseButton::Left) {
                 tile_trigger_ewr.send(TileTriggerEvent {
                     coordinates: tile_coordinates,
@@ -83,7 +84,6 @@ struct TouchStatus {
 #[allow(private_interfaces)]
 #[warn(unused_mut)]
 pub fn handle_touch(
-    window_primary_query: Query<&Window, With<PrimaryWindow>>,
     board: Res<Board>,
     mut status: ResMut<TouchStatus>,
     mut timer: ResMut<GameTimer>,
@@ -92,19 +92,17 @@ pub fn handle_touch(
     mut touch_events: EventReader<TouchInput>,
     time: Res<Time>,
     mut commands: Commands,
+    cameras: Query<(&Camera, &GlobalTransform)>,
 ) {
-    let Ok(window) = window_primary_query.get_single() else {
-        return;
-    };
-    for touch in touch_events.read() {
-        if touch.phase == TouchPhase::Started {
-            commands.insert_resource(TouchStatus {
-                first_touch: touch.position,
-                is_covered: true,
-            });
-            timer.0.reset();
-        } else if let Some(tile_coordinates) = board.press_position(window, status.first_touch) {
-            if status.is_covered {
+    if let Some(tile_coordinates) = board.press_position(cameras, status.first_touch) {
+        for touch in touch_events.read() {
+            if touch.phase == TouchPhase::Started {
+                commands.insert_resource(TouchStatus {
+                    first_touch: touch.position,
+                    is_covered: true,
+                });
+                timer.0.reset();
+            } else if status.is_covered {
                 if timer.0.finished() {
                     commands.insert_resource(TouchStatus {
                         first_touch: touch.position,
