@@ -9,7 +9,6 @@ use crate::{
     },
     AppState,
 };
-use bevy::winit::WinitSettings;
 use bevy::{
     app::{App, Plugin},
     color::palettes::*,
@@ -81,7 +80,6 @@ impl ResourcePlugin {
         options: Res<GameSettings>,
         assets: (Res<TextureAssets>, Res<FontAssets>),
     ) {
-        commands.insert_resource(WinitSettings::default());
         let mut safe_start: Option<Entity> = None;
 
         let (textures, fonts) = assets;

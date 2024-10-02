@@ -11,12 +11,13 @@ use bevy::{
 use minesweeper::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
+use bevy_embedded_assets::EmbeddedAssetPlugin;
 
 fn main() {
     App::new()
         .insert_resource(Msaa::Off)
         .insert_resource(ClearColor(Color::linear_rgb(0.4, 0.4, 0.4)))
-        .add_plugins(
+        .add_plugins((
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
@@ -34,8 +35,9 @@ fn main() {
                     meta_check: AssetMetaCheck::Never,
                     ..default()
                 }),
-        )
-        .add_plugins(GamePlugin)
+            GamePlugin,
+            EmbeddedAssetPlugin::default()
+        ))
         .add_systems(Startup, set_window_icon)
         .run();
 }
