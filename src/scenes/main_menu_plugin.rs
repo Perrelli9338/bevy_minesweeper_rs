@@ -3,7 +3,7 @@ use crate::{
     scenes::{cleanup, MenuButtonAction, MenuStates, H1},
     widgets::{button::UiButtonWidgetExt, text::UiTextWidgetExt},
 };
-use bevy::{prelude::*, winit::WinitSettings};
+use bevy::prelude::*;
 use sickle_ui::prelude::*;
 
 #[derive(Component)]
@@ -52,12 +52,15 @@ impl MainMenu {
                         .flex_direction(FlexDirection::Row);
                     parent.button_main_menu("Play", MenuButtonAction::Play);
                     parent.button_main_menu("Settings", MenuButtonAction::Settings);
-                    #[cfg(all(not(target_arch = "wasm32"), not(target_os = "android"), not(target_os = "ios")))]
+                    #[cfg(all(
+                        not(target_arch = "wasm32"),
+                        not(target_os = "android"),
+                        not(target_os = "ios")
+                    ))]
                     parent.button_main_menu("Quit", MenuButtonAction::Quit);
                     parent.text(&format!("v{}-rc", env!("CARGO_PKG_VERSION")), None);
                 },
             )
             .insert(Menu);
-        commands.insert_resource(WinitSettings::desktop_app());
     }
 }

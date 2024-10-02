@@ -1,8 +1,7 @@
 use bevy::{
     prelude::*,
     text::TextSettings,
-    window::PrimaryWindow,
-    winit::WinitSettings
+    window::PrimaryWindow
 };
 use sickle_ui::SickleUiPlugin;
 use crate::{
@@ -11,6 +10,7 @@ use crate::{
     components::button_colors::ButtonColors,
     scenes::endgame_plugin::EndgameScene,
 };
+use crate::components::timer::GameTimer;
 
 pub mod endgame_plugin;
 mod main_menu_plugin;
@@ -52,11 +52,7 @@ impl Plugin for MenuPlugin {
             .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
             .add_systems(Update, (button_states.run_if(in_state(MenuStates::Main)), menu_action, text_size_change).run_if(in_state(AppState::Menu)))
-            .insert_resource(GameSettings::default())
-            .insert_resource(TextSettings {
-                allow_dynamic_font_size: true,
-                ..default()
-            });
+            .insert_resource(GameSettings::default()) ;
     }
 }
 
