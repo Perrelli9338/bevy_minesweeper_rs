@@ -13,7 +13,7 @@ on:
 
 env:
   # This variable is used to name release output files.
-  GAME_EXECUTABLE_NAME: minesweeper
+  GAME_EXECUTABLE_NAME: Minesweeper
   GAME_OSX_APP_NAME: Minesweeper
 
 permissions:
@@ -46,11 +46,11 @@ jobs:
       - name: Install rust toolchain for Apple Silicon
         uses: dtolnay/rust-toolchain@master
         with:
-            toolchain: stable
-            targets: aarch64-apple-darwin
+          toolchain: stable
+          targets: aarch64-apple-darwin
       - name: Build release for Apple Silicon
         run: |
-            SDKROOT=$(xcrun -sdk macosx --show-sdk-path) cargo build --profile dist --target=aarch64-apple-darwin
+          SDKROOT=$(xcrun -sdk macosx --show-sdk-path) cargo build --profile dist --target=aarch64-apple-darwin
       - name: Install rust toolchain for Apple x86
         uses: dtolnay/rust-toolchain@master
         with:
@@ -138,14 +138,9 @@ jobs:
       - name: Build release
         run: |
           cargo build --profile dist
-      - name: Prepare release
-        run: |
-          mkdir target/dist/assets && cp -r assets target/dist/assets
       - name: Zip release
-        uses: vimtor/action-zip@v1.1
-        with:
-          files: target/dist/assets/ target/dist/${{ env.GAME_EXECUTABLE_NAME }}.exe
-          dest: ${{ env.GAME_EXECUTABLE_NAME }}_windows.zip
+        run: |
+          tar -cavf "${{ env.GAME_EXECUTABLE_NAME }}_windows.zip" "target/dist/${{ env.GAME_EXECUTABLE_NAME }}.exe"
       - name: Create Installer
         if: ${{ env.BUILD_INSTALLER }}
         run: dotnet build -p:Version=${{ env.VERSION }} -c Release build/windows/installer/Installer.wixproj --output installer
@@ -198,10 +193,8 @@ jobs:
         with:
           file: dist/*.wasm
       - name: Zip release
-        uses: vimtor/action-zip@v1.1
-        with:
-          files: dist/
-          dest: ${{ env.GAME_EXECUTABLE_NAME }}_web.zip
+        run: |
+          tar -cavf "${{ env.GAME_EXECUTABLE_NAME }}_web.zip" "dist/"
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -231,6 +224,7 @@ jobs:
           mv build/Build/Products/Release-iphoneos/*.app Payload
           zip -r ${{ env.GAME_EXECUTABLE_NAME }}.zip Payload
           mv ${{ env.GAME_EXECUTABLE_NAME }}.zip ${{ env.GAME_EXECUTABLE_NAME }}.ipa
+          tar -cavf "${{ env.GAME_EXECUTABLE_NAME }}.zip" "${{ env.GAME_EXECUTABLE_NAME }}.ipa"
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -256,12 +250,15 @@ jobs:
         run: cargo install --force cargo-apk
       - name: Build app for Android
         run: ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME cargo apk build --package mobile
+      - name: Zip release
+        run: |
+          tar -cavf "${{ env.GAME_EXECUTABLE_NAME }}_android-debug.zip" "target/debug/apk/${{ env.GAME_OSX_APP_NAME }}.apk"
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/debug/apk/${{ env.GAME_OSX_APP_NAME }}.apk
-          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android-universal.apk
+          file: ${{ env.GAME_EXECUTABLE_NAME }}_android-debug.zip
+          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android-debug.apk
           release_name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           overwrite: true
@@ -307,11 +304,14 @@ jobs:
           keystorePassword: ${{ secrets.PLAYSTORE_KEYSTORE_PASSWORD }}
           keystoreAlias: upload
           keyPassword: ${{ secrets.PLAYSTORE_KEYSTORE_PASSWORD }}
+      - name: Zip release
+        run: |
+          tar -cavf "${{ env.GAME_EXECUTABLE_NAME }}_android.zip" "${{ steps.convert_aab.outputs.apkPath }}"
       - name: Upload signed apk to GitHub
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ steps.convert_aab.outputs.apkPath }}
+          file: ${{ env.GAME_EXECUTABLE_NAME }}_android.zip
           asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android.apk
           release_name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
