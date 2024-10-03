@@ -9,7 +9,7 @@ name = "mobile"
 crate-type = ["staticlib", "cdylib"]
 
 [dependencies]
-minesweeper = { path = ".." }
+Minesweeper = { path = ".." }
 bevy = { version = "0.14.2", default-features = false }
 
 # As long as Kira doesn't expose a feature for this, we need to enable it
