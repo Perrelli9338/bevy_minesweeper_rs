@@ -8,7 +8,7 @@ use bevy::{
     winit::WinitWindows,
     DefaultPlugins,
 };
-use minesweeper::GamePlugin;
+use Minesweeper::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
 use bevy_embedded_assets::EmbeddedAssetPlugin;
