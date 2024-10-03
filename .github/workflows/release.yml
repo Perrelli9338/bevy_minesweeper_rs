@@ -73,7 +73,7 @@ jobs:
         run: |
           tar -czvf ${{ env.GAME_EXECUTABLE_NAME }}_macOS.tar.gz ${{ env.GAME_EXECUTABLE_NAME }}.dmg
       - name: Upload release
-        uses: svenstaro/upload-release-action@v2.9.0
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.GAME_EXECUTABLE_NAME }}_macOS.tar.gz
@@ -108,7 +108,7 @@ jobs:
         run: |
           tar -czvf ${{ env.GAME_EXECUTABLE_NAME }}_linux.tar.gz ${{ env.GAME_EXECUTABLE_NAME }}
       - name: Upload release
-        uses: svenstaro/upload-release-action@v2.9.0
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.GAME_EXECUTABLE_NAME }}_linux.tar.gz
@@ -155,7 +155,7 @@ jobs:
           overwrite: true
       - name: Upload installer
         if: ${{ env.BUILD_INSTALLER }}
-        uses: svenstaro/upload-release-action@v2.9.0
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: installer/en-US/installer.msi
@@ -213,7 +213,7 @@ jobs:
         run: |
           tar -czvf "${{ env.GAME_EXECUTABLE_NAME }}_android-debug.tar.gz" "target/debug/apk/${{ env.GAME_OSX_APP_NAME }}.apk"
       - name: Upload release
-        uses: svenstaro/upload-release-action@v2.9.0
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.GAME_EXECUTABLE_NAME }}_android-debug.tar.gz
@@ -228,7 +228,7 @@ jobs:
     needs: get-version
     env:
       VERSION: ${{needs.get-version.outputs.version}}
-      GAME_EXECUTABLE_NAME: minesweeper
+      GAME_EXECUTABLE_NAME: Minesweeper
       BUNDLE_PATH: "target/x/release/android/mobile.aab"
       PACKAGE_NAME: "prrmrc.game.minesweeper"
       TRACK: internal
@@ -267,7 +267,7 @@ jobs:
         run: |
           tar -czvf "${{ env.GAME_EXECUTABLE_NAME }}_android.tar.gz" "${{ steps.convert_aab.outputs.apkPath }}"
       - name: Upload signed apk to GitHub
-        uses: svenstaro/upload-release-action@v2.9.0
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.GAME_EXECUTABLE_NAME }}_android.tar.gz
