@@ -65,6 +65,7 @@ jobs:
           lipo -create -output target/dist/${{ env.GAME_EXECUTABLE_NAME }} target/aarch64-apple-darwin/dist/${{ env.GAME_EXECUTABLE_NAME }} target/x86_64-apple-darwin/dist/${{ env.GAME_EXECUTABLE_NAME }}
       - name: Create release
         run: |
+          mkdir -p build/macos/src/Game.app/Contents/MacOS/
           cp target/dist/${{ env.GAME_EXECUTABLE_NAME }} build/macos/src/Game.app/Contents/MacOS/
           mv build/macos/src/Game.app build/macos/src/${{ env.GAME_OSX_APP_NAME }}.app
           ln -s /Applications build/macos/src/
