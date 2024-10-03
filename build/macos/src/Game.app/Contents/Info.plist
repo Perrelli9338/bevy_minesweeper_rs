@@ -7,7 +7,7 @@
         <key>CFBundleDisplayName</key>
         <string>Minesweeper</string>
         <key>CFBundleExecutable</key>
-        <string>minesweeper</string>
+        <string>Minesweeper</string>
         <key>CFBundleIconFile</key>
         <string>AppIcon.icns</string>
         <key>CFBundleIdentifier</key>
