@@ -4,7 +4,6 @@ use rand::{thread_rng, Rng};
 use std::ops::{Deref, DerefMut};
 
 const RANGE: [(i8, i8); 8] = [
-    // todo!()
     (-1, -1),
     (0, -1),
     (1, -1),
@@ -45,18 +44,14 @@ impl TileMap {
     }
 
     pub fn is_bomb_at(&self, coordinates: Coordinates) -> bool {
-        if coordinates.x >= self.width || coordinates.y >= self.height {
-            return false;
-        }
-
-        self.map[coordinates.y as usize][coordinates.x as usize].is_bomb()
+        !(coordinates.x >= self.width || coordinates.y >= self.height) &&
+            self.map[coordinates.y as usize][coordinates.x as usize].is_bomb()
     }
 
     pub fn bomb_count_at(&self, coordinates: Coordinates) -> u8 {
         if self.is_bomb_at(coordinates) {
             return 0;
         }
-
         let res = self
             .safe_square_at(coordinates)
             .filter(|c| self.is_bomb_at(*c))
@@ -73,7 +68,10 @@ impl TileMap {
             let column = rng.gen_range(0..self.width) as usize;
             if let Tile::Empty | Tile::BombNeighbour(0..=8) = self[row][column] {
                 self[row][column] = Tile::Bomb;
-                self.bomb_coordinates.insert(Coordinates {y: row as u16, x: column as u16});
+                self.bomb_coordinates.insert(Coordinates {
+                    y: row as u16,
+                    x: column as u16,
+                });
                 r_bombs -= 1;
             }
         }
