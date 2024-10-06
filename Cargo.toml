@@ -57,7 +57,7 @@ bevy = { version = "0.14.2", default-features = false, features = [
 # keep the following in sync with Bevy's dependencies
 bevy_asset_loader = "0.21"
 bevy_embedded_assets = "0.11.0"
-sickle_ui = "0.3.0"
+sickle_ui = { rev = "9c6ebb6", git = "https://github.com/UkoeHB/sickle_ui" }
 web-time = "1.1.0"
 rand = { version = "0.8.5", default-features = false, features = ["std", "std_rng"] }
 winit = "0.30.5"

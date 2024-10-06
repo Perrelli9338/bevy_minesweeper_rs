@@ -63,7 +63,7 @@ impl SettingsMenu {
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
                     width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
+                    height: Val::Percent(90.0),
                     margin: UiRect::all(Val::Auto),
                     align_items: AlignItems::Center,
                     row_gap: Val::Px(15.),
@@ -105,21 +105,20 @@ impl SettingsMenu {
                                                                children.settings(SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width",  &config.map_size.0.to_string());
                                                                children.settings(SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height",  &config.map_size.1.to_string());
                                                                children.settings(SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs",  &config.bomb_count.to_string());
-                                                           }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
+                                                           }).style_inplace(|style| {
+                                                               style.display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.)).background_color(Color::linear_rgb(0.2, 0.2, 0.2));
+                                                           }).style_unchecked();
                                                        });
                                                        tab_container.add_tab("Game".into(), |panel| {
                                                            panel.container(NodeBundle::default(), |children| {
-
-                                                               children.settings(SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start",  & match config.easy_mode {
+                                                               children.settings(SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start",  &match config.easy_mode {
                                                                true => "On",
                                                                false => "Off",
-                                                           }
-                                                               .to_string());
+                                                           }.to_string());
                                                                children.settings(SettingsMenuButtonAction::TurnFlagOff, SettingsMenuButtonAction::TurnFlagOn, "Flag mode",  &match config.flag_mode {
                                                                true => "On",
                                                                false => "Off",
-                                                           }
-                                                               .to_string());
+                                                           }.to_string());
                                                            }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
 
                                                        });
@@ -232,12 +231,12 @@ impl SettingsMenu {
                         true => "On",
                         false => "Off",
                     }
-                        .to_string(),
+                    .to_string(),
                     match config.easy_mode {
                         true => "On",
                         false => "Off",
                     }
-                        .to_string(),
+                    .to_string(),
                     config.bomb_count.to_string(),
                     config.map_size.1.to_string(),
                     config.map_size.0.to_string(),

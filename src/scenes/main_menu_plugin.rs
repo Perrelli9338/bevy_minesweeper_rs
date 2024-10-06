@@ -52,11 +52,7 @@ impl MainMenu {
                         .flex_direction(FlexDirection::Row);
                     parent.button_main_menu("Play", MenuButtonAction::Play);
                     parent.button_main_menu("Settings", MenuButtonAction::Settings);
-                    #[cfg(all(
-                        not(target_arch = "wasm32"),
-                        not(target_os = "android"),
-                        not(target_os = "ios")
-                    ))]
+                    #[cfg(not(all(target_os = "android", target_os = "ios", target_os = "wasm32")))]
                     parent.button_main_menu("Quit", MenuButtonAction::Quit);
                     parent.text(&format!("v{}-rc", env!("CARGO_PKG_VERSION")), None);
                 },
