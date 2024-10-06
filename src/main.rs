@@ -11,7 +11,7 @@ use bevy::{
 use Minesweeper::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
-use bevy_embedded_assets::EmbeddedAssetPlugin;
+use bevy_embedded_assets::{EmbeddedAssetPlugin, PluginMode};
 
 fn main() {
     App::new()
@@ -36,7 +36,7 @@ fn main() {
                     ..default()
                 }),
             GamePlugin,
-            EmbeddedAssetPlugin::default()
+            EmbeddedAssetPlugin::default().mode = PluginMode::AutoLoad,
         ))
         .add_systems(Startup, set_window_icon)
         .run();

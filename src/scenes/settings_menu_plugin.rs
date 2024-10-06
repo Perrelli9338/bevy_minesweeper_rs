@@ -108,7 +108,9 @@ impl SettingsMenu {
                                                            }).style_inplace(|style| {
                                                                style.display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.)).background_color(Color::linear_rgb(0.2, 0.2, 0.2));
                                                            }).style_unchecked();
-                                                       });
+                                                       }).style_inplace(|style| {
+                                                           style.background_color(Color::linear_rgb(0.2, 0.2, 0.2));
+                                                       }).style_unchecked();
                                                        tab_container.add_tab("Game".into(), |panel| {
                                                            panel.container(NodeBundle::default(), |children| {
                                                                children.settings(SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start",  &match config.easy_mode {
