@@ -10,4 +10,3 @@ pub(crate) mod flag;
 pub(crate) mod timer;
 pub(crate) mod stopwatch;
 pub(crate) mod button_colors;
-pub(crate) mod uisettings;

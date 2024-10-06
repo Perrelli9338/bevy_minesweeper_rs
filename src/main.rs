@@ -36,7 +36,8 @@ fn main() {
                     ..default()
                 }),
             GamePlugin,
-            EmbeddedAssetPlugin::default().mode = PluginMode::AutoLoad,
+            #[cfg(any(target_family = "unix", target_os = "windows"))]
+            EmbeddedAssetPlugin { mode: PluginMode::AutoLoad },
         ))
         .add_systems(Startup, set_window_icon)
         .run();

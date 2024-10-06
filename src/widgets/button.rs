@@ -1,10 +1,10 @@
 use crate::{
-    components::uisettings::UISettings,
     scenes::{settings_menu_plugin::SettingsMenuButtonAction, MenuButtonAction},
     widgets::text::UiTextWidgetExt,
 };
 use bevy::prelude::*;
 use sickle_ui::prelude::*;
+use crate::components::button_colors::ButtonColors;
 
 #[derive(Component)]
 struct ButtonWidget;
@@ -16,16 +16,23 @@ pub trait UiButtonWidgetExt {
 
 impl UiButtonWidgetExt for UiBuilder<'_, Entity> {
     fn button_settings_menu(&mut self, text: &str, action: SettingsMenuButtonAction) -> UiBuilder<'_, Entity> {
-        let settings = UISettings::default();
         self.container(
             ((
                 ButtonBundle {
-                    style: settings.button_settings_style,
-                    background_color: settings.button_colors.normal.into(),
-                    border_radius: settings.button_border_style,
+                    style: Style {
+                        width: Val::Px(25.0),
+                        height: Val::Px(50.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    background_color: ButtonColors::default().normal.into(),
+                    border_radius: BorderRadius::all(
+                        Val::Px(8.),
+                    ),
                     ..Default::default()
                 },
-                settings.button_colors,
+                ButtonColors::default(),
                 action,
             ),
                 ButtonWidget
@@ -37,16 +44,23 @@ impl UiButtonWidgetExt for UiBuilder<'_, Entity> {
     }
 
     fn button_main_menu(&mut self, text: &str, action: MenuButtonAction) -> UiBuilder<'_, Entity> {
-        let settings = UISettings::default();
         self.container(
             ((
                 ButtonBundle {
-                    style: settings.button_style,
-                    background_color: settings.button_colors.normal.into(),
-                    border_radius: settings.button_border_style,
+                    style: Style {
+                        width: Val::Px(140.0),
+                        height: Val::Px(50.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    background_color: ButtonColors::default().normal.into(),
+                    border_radius: BorderRadius::all(
+                        Val::Px(8.),
+                    ),
                     ..Default::default()
                 },
-                settings.button_colors,
+                ButtonColors::default(),
                 action,
             ),
              ButtonWidget
