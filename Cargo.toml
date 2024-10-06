@@ -55,13 +55,12 @@ bevy = { version = "0.14.2", default-features = false, features = [
     "png"
 ] }
 # keep the following in sync with Bevy's dependencies
-bevy_asset_loader = "0.21"
-bevy_embedded_assets = "0.11.0"
-sickle_ui = "0.3.0"
-web-time = "1.1.0"
+bevy_asset_loader = { version = "0.21", default-features = false }
+sickle_ui = { rev = "9c6ebb6", git = "https://github.com/UkoeHB/sickle_ui" }
+web-time = { version = "1.1.0", default-features = false }
 rand = { version = "0.8.5", default-features = false, features = ["std", "std_rng"] }
-winit = "0.30.5"
-image = "0.25.2"
+winit = { version = "0.30.5", default-features = false }
+image = { version = "0.25.2", default-features = false }
 serde = { version = "1.0.210", default-features = false, features = ["derive"] }
 
 ## This greatly improves WGPU's performance due to its heavy use of trace! calls

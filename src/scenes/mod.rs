@@ -65,7 +65,6 @@ fn menu_setup(
     mut commands: Commands,
 ) {
     menu_state.set(MenuStates::Main);
-    commands.insert_resource(WinitSettings::desktop_app());
 }
 
 #[derive(Component)]

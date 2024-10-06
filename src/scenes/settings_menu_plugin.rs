@@ -62,7 +62,7 @@ impl SettingsMenu {
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
                     width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
+                    height: Val::Percent(90.0),
                     margin: UiRect::all(Val::Auto),
                     align_items: AlignItems::Center,
                     row_gap: Val::Px(15.),
@@ -103,7 +103,9 @@ impl SettingsMenu {
                                                            children.settings(SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width",  &config.map_size.0.to_string());
                                                            children.settings(SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height",  &config.map_size.1.to_string());
                                                            children.settings(SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs",  &config.bomb_count.to_string());
-                                                       });
+                                                       }).style_inplace(|style| {
+                                                           style.background_color(Color::linear_rgb(0.2, 0.2, 0.2));
+                                                       }).style_unchecked();
                                                        bar.add_tab_container("Game".into(), |children| {
                                                                children.settings(SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start",  & match config.easy_mode {
                                                                true => "On",
@@ -138,7 +140,6 @@ impl SettingsMenu {
             (Changed<Interaction>, With<Button>),
         >,
         mut config: ResMut<GameSettings>,
-        mut menu_state: ResMut<NextState<MenuStates>>,
     ) {
         for (interaction, button_action) in &mut interaction_query {
             if *interaction == Interaction::Pressed {
