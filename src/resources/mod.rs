@@ -14,6 +14,7 @@ use bevy::{
     color::palettes::*,
     math::Vec3Swizzles,
     prelude::*,
+    asset::embedded_asset
 };
 use bevy_asset_loader::{
     loading_state::{LoadingState, LoadingStateAppExt},
@@ -50,6 +51,16 @@ impl Plugin for ResourcePlugin {
                 .run_if(in_state(GameState::Disabled))
                 .run_if(in_state(AppState::Playing)),
         );
+        #[cfg(any(target_family = "unix", target_os = "windows"))] 
+        {
+            embedded_asset!(app, "", "assets/pixeled.ttf");
+            embedded_asset!(app, "", "assets/textures/bomb.png");
+            embedded_asset!(app, "", "assets/textures/flag.png");
+            embedded_asset!(app, "", "assets/textures/icon.png");
+            embedded_asset!(app, "", "assets/textures/tile_covered.png");
+            embedded_asset!(app, "", "assets/textures/tile_uncovered.png");
+            embedded_asset!(app, "", "assets/textures/wrong.png");
+        }
     }
 }
 
