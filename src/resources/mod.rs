@@ -53,13 +53,13 @@ impl Plugin for ResourcePlugin {
         );
         #[cfg(any(target_family = "unix", target_os = "windows"))] 
         {
-            embedded_asset!(app, "", "assets/pixeled.ttf");
-            embedded_asset!(app, "", "assets/textures/bomb.png");
-            embedded_asset!(app, "", "assets/textures/flag.png");
-            embedded_asset!(app, "", "assets/textures/icon.png");
-            embedded_asset!(app, "", "assets/textures/tile_covered.png");
-            embedded_asset!(app, "", "assets/textures/tile_uncovered.png");
-            embedded_asset!(app, "", "assets/textures/wrong.png");
+            embedded_asset!(app, "../../", "assets/pixeled.ttf");
+            embedded_asset!(app, "../../", "assets/textures/bomb.png");
+            embedded_asset!(app, "../../", "assets/textures/flag.png");
+            embedded_asset!(app, "../../", "assets/textures/icon.png");
+            embedded_asset!(app, "../../", "assets/textures/tile_covered.png");
+            embedded_asset!(app, "../../", "assets/textures/tile_uncovered.png");
+            embedded_asset!(app, "../../", "assets/textures/wrong.png");
         }
     }
 }
