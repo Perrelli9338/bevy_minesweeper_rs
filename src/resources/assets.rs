@@ -5,13 +5,13 @@ use bevy::{
 use bevy_asset_loader::asset_collection::AssetCollection;
 #[derive(AssetCollection, Resource)]
 pub struct AudioAssets {}
-
+#[cfg(not(any(target_family = "unix", target_os = "windows")))]
 #[derive(AssetCollection, Resource)]
 pub struct FontAssets {
     #[asset(path = "pixeled.ttf")]
     pub font: Handle<Font>,
 }
-
+#[cfg(not(any(target_family = "unix", target_os = "windows")))]
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
     #[asset(path = "textures/icon.png")]
@@ -25,5 +25,28 @@ pub struct TextureAssets {
     #[asset(path = "textures/tile_covered.png")]
     pub covered_tile: Handle<Image>,
     #[asset(path = "textures/wrong.png")]
+    pub wrong: Handle<Image>,
+}
+#[cfg(any(target_family = "unix", target_os = "windows"))]
+#[derive(AssetCollection, Resource)]
+pub struct FontAssets {
+    #[asset(path = "embedded://pixeled.ttf")]
+    pub font: Handle<Font>,
+}
+
+#[cfg(any(target_family = "unix", target_os = "windows"))]
+#[derive(AssetCollection, Resource)]
+pub struct TextureAssets {
+    #[asset(path = "embedded://textures/icon.png")]
+    pub icon: Handle<Image>,
+    #[asset(path = "embedded://textures/bomb.png")]
+    pub bomb: Handle<Image>,
+    #[asset(path = "embedded://textures/flag.png")]
+    pub flag: Handle<Image>,
+    #[asset(path = "embedded://textures/tile_uncovered.png")]
+    pub tile: Handle<Image>,
+    #[asset(path = "embedded://textures/tile_covered.png")]
+    pub covered_tile: Handle<Image>,
+    #[asset(path = "embedded://textures/wrong.png")]
     pub wrong: Handle<Image>,
 }
