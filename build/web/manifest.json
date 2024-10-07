@@ -1,0 +1,33 @@
+{
+    "name": "Minesweeper",
+    "short_name": "Minesweeper",
+    "icons": [{
+        "src": "build/macos/AppIcon.iconset/icon_32x32.png",
+        "sizes": "32x32",
+        "type": "image/png"
+    },
+        {
+            "src": "build/macos/AppIcon.iconset/icon_32x32@2.png",
+            "sizes": "64x64",
+            "type": "image/png"
+        },
+        {
+            "src": "build/macos/AppIcon.iconset/icon_128x128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "build/macos/AppIcon.iconset/icon_256x256.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        },
+        {
+            "src": "build/macos/AppIcon.iconset/icon_512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }],
+    "scope": "",
+    "display": "standalone",
+    "theme_color": "#ffffff",
+    "background_color": "#ffffff"
+}
