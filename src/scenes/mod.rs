@@ -1,8 +1,8 @@
 use bevy::{
     prelude::*,
-    text::TextSettings,
     window::PrimaryWindow
 };
+use bevy_touch_camera::TouchCameraTag;
 use sickle_ui::SickleUiPlugin;
 use crate::{
     AppState,
@@ -10,7 +10,6 @@ use crate::{
     components::button_colors::ButtonColors,
     scenes::endgame_plugin::EndgameScene,
 };
-use crate::components::timer::GameTimer;
 
 pub mod endgame_plugin;
 mod main_menu_plugin;
@@ -57,7 +56,7 @@ impl Plugin for MenuPlugin {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn((Camera2dBundle::default(), TouchCameraTag));
 }
 
 fn menu_setup(
