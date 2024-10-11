@@ -36,8 +36,7 @@ impl Plugin for GamePlugin {
         app.init_state::<AppState>()
             .add_plugins((
                 TouchCameraPlugin { config: TouchCameraConfig {
-                zoom_sensitivity: 0.1,
-                min_scale: 0.1,
+                min_scale: 0.2,
                 max_scale: 8.,
                 ..default()
                 } },
