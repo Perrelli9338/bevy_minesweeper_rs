@@ -8,12 +8,14 @@ use bevy::{
     app::{App, Update},
     prelude::*,
 };
+use crate::system::camera::CameraHandling;
 
 mod achievements;
 pub(crate) mod cross_flag;
 mod flagged;
 pub(crate) mod input;
 mod uncover;
+mod camera;
 
 pub struct SystemPlugins;
 
@@ -33,7 +35,7 @@ impl Plugin for SystemPlugins {
                 )
                     .run_if(in_state(AppState::Playing)),
             )
-            .add_plugins(InputHandling)
+            .add_plugins((InputHandling, CameraHandling))
             .add_event::<TileTriggerEvent>()
             .add_event::<TileFlaggedEvent>()
             .add_event::<GameWinEvent>()

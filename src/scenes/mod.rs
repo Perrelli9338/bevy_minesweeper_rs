@@ -1,9 +1,8 @@
 use bevy::{
     prelude::*,
-    text::TextSettings,
-    window::PrimaryWindow,
-    winit::WinitSettings
+    window::PrimaryWindow
 };
+use bevy_touch_camera::TouchCameraTag;
 use sickle_ui::SickleUiPlugin;
 use crate::{
     AppState,
@@ -52,16 +51,12 @@ impl Plugin for MenuPlugin {
             .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
             .add_systems(Update, (button_states.run_if(in_state(MenuStates::Main)), menu_action, text_size_change).run_if(in_state(AppState::Menu)))
-            .insert_resource(GameSettings::default())
-            .insert_resource(TextSettings {
-                allow_dynamic_font_size: true,
-                ..default()
-            });
+            .insert_resource(GameSettings::default()) ;
     }
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn((Camera2dBundle::default(), TouchCameraTag));
 }
 
 fn menu_setup(
@@ -69,7 +64,6 @@ fn menu_setup(
     mut commands: Commands,
 ) {
     menu_state.set(MenuStates::Main);
-    commands.insert_resource(WinitSettings::desktop_app());
 }
 
 #[derive(Component)]

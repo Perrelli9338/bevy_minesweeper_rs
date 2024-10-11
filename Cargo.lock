@@ -970,6 +970,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_touch_camera"
+version = "0.1.2"
+source = "git+https://github.com/Perrelli9338/bevy_touch_camera?rev=a00edc7#a00edc7076fbefd7ff83dc5ad7739beafaf36230"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_transform"
 version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2292,6 +2300,7 @@ version = "0.2.0"
 dependencies = [
  "bevy",
  "bevy_asset_loader",
+ "bevy_touch_camera",
  "embed-resource",
  "image",
  "log",

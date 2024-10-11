@@ -8,11 +8,19 @@ Yet another project of the classic Minesweeper game, but! It's made with [Rust](
 - Track your time with the stopwatch
 - Simple and customizable user interface
 # Platforms
-[Click here](https://github.com/Perrelli9338/bevy_minesweeper_rs/releases/latest) for the latest version of the supported platform. \
-It should work fine, but the user interface has not yet been adapted, so it may be difficult to use on a small screen.
-# How to play on mobile
+[Click here](https://github.com/Perrelli9338/bevy_minesweeper_rs/releases/latest) for the latest version of the supported platform.
+# How to play 
+## With a mouse
+Input:
+- Left click to uncover a tile
+- Right click to add a flag
+- Press middle button and drag to move around
+- Scroll middle button to zoom
+## Using touchscreen
 Gestures:
 - Tap to uncover a tile
 - Long tap to add a flag
+- Drag with your finger to move around
+- Two finger pinch to zoom
 # Credits
 Thanks to [NiklasEi](https://github.com/NiklasEi/bevy_game_template) for his beautiful project!
