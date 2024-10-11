@@ -1,4 +1,5 @@
 use crate::AppState;
+use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
@@ -15,10 +16,13 @@ impl Plugin for CameraHandling {
 
 pub fn handle_mouse(
     mut camera: Query<&mut Transform, With<Camera>>,
+    mut zoom: Query<&mut OrthographicProjection, With<Camera>>,
     mouse_input: Res<ButtonInput<MouseButton>>,
     window_primary_query: Query<&Window, With<PrimaryWindow>>,
     mut cursor_moved_events: EventReader<CursorMoved>,
+    mut evr_scroll: EventReader<MouseWheel>,
 ) {
+    use bevy::input::mouse::MouseScrollUnit;
     let Ok(window) = window_primary_query.get_single() else {
         return;
     };
@@ -30,6 +34,19 @@ pub fn handle_mouse(
                     transform.translation.x += delta.x;
                     transform.translation.y -= delta.y;
                 }
+            }
+        }
+    }
+
+    for mut projection in zoom.iter_mut() {
+        for ev in evr_scroll.read() {
+            match ev.unit {
+                MouseScrollUnit::Line => {
+                    if (projection.scale - ev.y * 0.1) > 0.0 {
+                        projection.scale -= ev.y * 0.1;
+                    }
+                }
+                _ => {}
             }
         }
     }
