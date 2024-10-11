@@ -15,10 +15,12 @@ Input:
 - Left click to uncover a tile
 - Right click to add a flag
 - Press middle button and drag to move around
+- Scroll middle button to zoom
 ## Using touchscreen
 Gestures:
 - Tap to uncover a tile
 - Long tap to add a flag
-- Drag with two fingers to move around
+- Drag with your finger to move around
+- Two finger pinch to zoom
 # Credits
 Thanks to [NiklasEi](https://github.com/NiklasEi/bevy_game_template) for his beautiful project!

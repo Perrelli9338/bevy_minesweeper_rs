@@ -9,7 +9,7 @@ impl Plugin for CameraHandling {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (handle_mouse, handle_touch).run_if(in_state(AppState::Playing)),
+            handle_mouse.run_if(in_state(AppState::Playing)),
         );
     }
 }
@@ -47,31 +47,6 @@ pub fn handle_mouse(
                     }
                 }
                 _ => {}
-            }
-        }
-    }
-}
-
-pub fn handle_touch(
-    mut camera: Query<&mut Transform, With<Camera>>,
-    touch_input: Res<Touches>,
-    mut touch_events: EventReader<TouchInput>,
-) {
-    if touch_input.iter().count() == 2 {
-        while touch_events.read().last().is_some() {
-            let fingers: Vec<_> = touch_input.iter().collect();
-            let (x1, y1) = (fingers[0].position().x, fingers[0].position().y);
-            let (x2, y2) = (fingers[1].position().x, fingers[1].position().y);
-            let previous_position = Vec2::new(
-                (fingers[0].previous_position().x + fingers[1].previous_position().x) / 2.0,
-                (fingers[0].previous_position().y + fingers[1].previous_position().y) / 2.0,
-            );
-            let last_position = Vec2::new((x1 + x2) / 2.0, (y1 + y2) / 2.0);
-
-            let delta = previous_position - last_position;
-            for mut transform in camera.iter_mut() {
-                transform.translation.x += delta.x;
-                transform.translation.y -= delta.y;
             }
         }
     }
