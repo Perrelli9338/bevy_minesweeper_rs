@@ -42,7 +42,7 @@ pub fn handle_mouse(
         for ev in evr_scroll.read() {
             match ev.unit {
                 MouseScrollUnit::Line => {
-                    if (projection.scale - ev.y * 0.1) > 0.0 {
+                    if (projection.scale - ev.y * 0.1) > 0.1 && (projection.scale + ev.y * 0.1) < 8. {
                         projection.scale -= ev.y * 0.1;
                     }
                 }
