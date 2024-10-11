@@ -10,7 +10,6 @@ use bevy::{
 };
 use minesweeper::GamePlugin;
 use std::io::Cursor;
-use bevy_touch_camera::TouchCameraPlugin;
 use winit::window::Icon;
 
 fn main() {
@@ -35,8 +34,7 @@ fn main() {
                     meta_check: AssetMetaCheck::Never,
                     ..default()
                 }),
-            GamePlugin,
-            TouchCameraPlugin::default()
+            GamePlugin
         ))
         .add_systems(Startup, set_window_icon)
         .run();

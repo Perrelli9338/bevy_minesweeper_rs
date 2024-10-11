@@ -3,6 +3,7 @@
 use system::SystemPlugins;
 use scenes::MenuPlugin;
 use bevy::prelude::*;
+use bevy_touch_camera::{TouchCameraConfig, TouchCameraPlugin};
 use crate::{
     resources::ResourcePlugin,
 };
@@ -34,6 +35,12 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<AppState>()
             .add_plugins((
+                TouchCameraPlugin { config: TouchCameraConfig {
+                zoom_sensitivity: 0.1,
+                min_scale: 0.1,
+                max_scale: 8.,
+                ..default()
+                } },
                 ResourcePlugin,
                 SystemPlugins,
                 MenuPlugin
