@@ -1,8 +1,7 @@
-use crate::widgets::settings::UiSettingsWidgetExt;
 use crate::{
-    game::settings::GameSettings,
+    resources::settings::GameSettings,
     scenes::{cleanup, ButtonColors, ChangeState, MenuButtonAction, MenuStates, H1},
-    widgets::{button::UiButtonWidgetExt, text::UiTextWidgetExt},
+    widgets::{button::UiButtonWidgetExt, text::UiTextWidgetExt, settings::UiSettingsWidgetExt, tab_container::TabContainerExt},
     AppState,
 };
 use bevy::prelude::*;
@@ -99,17 +98,15 @@ impl SettingsMenu {
                                                        ..default()
                                                    },
                                                    true,
-                                                   |tab_container| {
-                                                       tab_container.add_tab("Grid".into(), |panel| {
-                                                           panel.container(NodeBundle::default(), |children| {
-                                                               children.settings(SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width",  &config.map_size.0.to_string());
-                                                               children.settings(SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height",  &config.map_size.1.to_string());
-                                                               children.settings(SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs",  &config.bomb_count.to_string());
-                                                           }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
-                                                       });
-                                                       tab_container.add_tab("Game".into(), |panel| {
-                                                           panel.container(NodeBundle::default(), |children| {
-
+                                                   |bar| {
+                                                       bar.add_tab_container("Grid", |children| {
+                                                           children.settings(SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width",  &config.map_size.0.to_string());
+                                                           children.settings(SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height",  &config.map_size.1.to_string());
+                                                           children.settings(SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs",  &config.bomb_count.to_string());
+                                                       }).style_inplace(|style| {
+                                                           style.background_color(Color::linear_rgb(0.2, 0.2, 0.2));
+                                                       }).style_unchecked();
+                                                       bar.add_tab_container("Game".into(), |children| {
                                                                children.settings(SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start",  & match config.easy_mode {
                                                                true => "On",
                                                                false => "Off",
@@ -120,14 +117,10 @@ impl SettingsMenu {
                                                                false => "Off",
                                                            }
                                                                .to_string());
-                                                           }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
-
                                                        });
-                                                       tab_container.add_tab("Accessibility".into(), |panel| {
-                                                           panel.container(NodeBundle::default(), |children| {
-                                                               children.settings(SettingsMenuButtonAction::DecreaseStartTimer, SettingsMenuButtonAction::IncreaseStartTimer, "Start delay",  &format!("{:.01}s", config.timer_start));
-                                                               children.settings(SettingsMenuButtonAction::DecreaseTouchTimer, SettingsMenuButtonAction::IncreaseTouchTimer, "Touch delay",  &format!("{:.2}s", config.timer_touch));
-                                                       }).style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.));
+                                                       bar.add_tab_container("Accessibility".into(), |children| {
+                                                           children.settings(SettingsMenuButtonAction::DecreaseStartTimer, SettingsMenuButtonAction::IncreaseStartTimer, "Start delay",  &format!("{:.01}s", config.timer_start));
+                                                           children.settings(SettingsMenuButtonAction::DecreaseTouchTimer, SettingsMenuButtonAction::IncreaseTouchTimer, "Touch delay",  &format!("{:.2}s", config.timer_touch));
                                                    });
                                                    },
                                                );
@@ -147,7 +140,6 @@ impl SettingsMenu {
             (Changed<Interaction>, With<Button>),
         >,
         mut config: ResMut<GameSettings>,
-        mut menu_state: ResMut<NextState<MenuStates>>,
     ) {
         for (interaction, button_action) in &mut interaction_query {
             if *interaction == Interaction::Pressed {
@@ -163,7 +155,7 @@ impl SettingsMenu {
                         }
                     }
                     SettingsMenuButtonAction::IncrementWidthBoard => {
-                        if config.map_size.0 <= 32 {
+                        if config.map_size.0 <= 200 {
                             config.map_size.0 += 1;
                         }
                     }
@@ -182,7 +174,7 @@ impl SettingsMenu {
                         }
                     }
                     SettingsMenuButtonAction::IncrementHeightBoard => {
-                        if config.map_size.1 <= 32 {
+                        if config.map_size.1 <= 200 {
                             config.map_size.1 += 1;
                         }
                     }
@@ -219,45 +211,45 @@ impl SettingsMenu {
                         }
                     }
                 }
+                if (config.bomb_count == (config.map_size.0 * config.map_size.1) - 1
+                    || config.bomb_count == 1)
+                    && config.easy_mode
+                {
+                    config.flag_mode = true
+                }
+                let mut settings_values = vec![
+                    format!("{:.2}s", config.timer_touch),
+                    format!("{:.01}s", config.timer_start),
+                    match config.flag_mode {
+                        true => "On",
+                        false => "Off",
+                    }
+                        .to_string(),
+                    match config.easy_mode {
+                        true => "On",
+                        false => "Off",
+                    }
+                        .to_string(),
+                    config.bomb_count.to_string(),
+                    config.map_size.1.to_string(),
+                    config.map_size.0.to_string(),
+                ];
+                for mut b in query.iter_mut() {
+                    b.sections[0].value = settings_values.pop().unwrap();
+                }
+                commands.insert_resource(GameSettings {
+                    map_size: config.map_size,
+                    bomb_count: config.bomb_count,
+                    position: config.clone().position,
+                    tile_size: config.clone().tile_size,
+                    tile_padding: config.tile_padding,
+                    easy_mode: config.easy_mode,
+                    timer_start: config.timer_start,
+                    timer_touch: config.timer_touch,
+                    flag_mode: config.flag_mode,
+                })
             }
         }
-        if (config.bomb_count == (config.map_size.0 * config.map_size.1) - 1
-            || config.bomb_count == 1)
-            && config.easy_mode
-        {
-            config.flag_mode = true
-        }
-        let mut settings_values = vec![
-            format!("{:.2}s", config.timer_touch),
-            format!("{:.01}s", config.timer_start),
-            match config.flag_mode {
-                true => "On",
-                false => "Off",
-            }
-            .to_string(),
-            match config.easy_mode {
-                true => "On",
-                false => "Off",
-            }
-            .to_string(),
-            config.bomb_count.to_string(),
-            config.map_size.1.to_string(),
-            config.map_size.0.to_string(),
-        ];
-        for mut b in query.iter_mut() {
-            b.sections[0].value = settings_values.pop().unwrap();
-        }
-        commands.insert_resource(GameSettings {
-            map_size: config.map_size,
-            bomb_count: config.bomb_count,
-            position: config.clone().position,
-            tile_size: config.clone().tile_size,
-            tile_padding: config.tile_padding,
-            easy_mode: config.easy_mode,
-            timer_start: config.timer_start,
-            timer_touch: config.timer_touch,
-            flag_mode: config.flag_mode,
-        })
     }
 
     fn settings_button_colors(
@@ -303,7 +295,7 @@ impl SettingsMenu {
                     }
                 }
                 SettingsMenuButtonAction::IncrementWidthBoard => {
-                    if config.map_size.0 <= 32 {
+                    if config.map_size.0 <= 200 {
                     } else {
                         *color = button_colors.disabled.into();
                     }
@@ -323,7 +315,7 @@ impl SettingsMenu {
                     }
                 }
                 SettingsMenuButtonAction::IncrementHeightBoard => {
-                    if !(config.map_size.1 <= 32) {
+                    if !(config.map_size.1 <= 200) {
                         *color = button_colors.disabled.into();
                     }
                 }
