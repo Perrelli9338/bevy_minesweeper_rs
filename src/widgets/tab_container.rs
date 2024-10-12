@@ -1,8 +1,5 @@
 use bevy::prelude::*;
-use sickle_ui::{
-    prelude::*,
-    widgets::layout::tab_container::TabContainer,
-};
+use sickle_ui::{prelude::*, widgets::layout::tab_container::TabContainer};
 
 pub trait TabContainerExt {
     fn add_tab_container(
@@ -18,9 +15,16 @@ impl TabContainerExt for UiBuilder<'_, (Entity, TabContainer)> {
         str: &str,
         spawn_children: impl FnOnce(&mut UiBuilder<Entity>),
     ) -> UiBuilder<'_, (Entity, TabContainer)> {
-        self.add_tab(str.into(), |panel| {
-            panel.container(NodeBundle::default(), spawn_children)
-                .style().display(Display::Flex).flex_direction(FlexDirection::Column).row_gap(Val::Px(5.)).margin(UiRect::all(Val::Px(5.)));
+        self.add_tab(str.into(), |scroll| {
+            scroll.scroll_view(Some(ScrollAxis::Vertical), |children| {
+                children
+                    .container(NodeBundle::default(), spawn_children)
+                    .style()
+                    .display(Display::Flex)
+                    .flex_direction(FlexDirection::Column)
+                    .row_gap(Val::Px(5.))
+                    .margin(UiRect::all(Val::Px(5.)));
+            });
         })
     }
 }
