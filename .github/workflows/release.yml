@@ -255,7 +255,7 @@ jobs:
       - name: Install Cargo APK
         run: cargo install --force cargo-apk
       - name: Build app for Android
-        run: ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME cargo apk build --package mobile
+        run: ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME cargo apk build --release --package mobile
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:

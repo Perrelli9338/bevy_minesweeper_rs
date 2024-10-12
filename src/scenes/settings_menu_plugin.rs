@@ -119,8 +119,8 @@ impl SettingsMenu {
                                                                .to_string());
                                                        });
                                                        bar.add_tab_container("Accessibility".into(), |children| {
-                                                               children.settings(SettingsMenuButtonAction::DecreaseStartTimer, SettingsMenuButtonAction::IncreaseStartTimer, "Start delay",  &format!("{:.01}s", config.timer_start));
-                                                               children.settings(SettingsMenuButtonAction::DecreaseTouchTimer, SettingsMenuButtonAction::IncreaseTouchTimer, "Touch delay",  &format!("{:.2}s", config.timer_touch));
+                                                           children.settings(SettingsMenuButtonAction::DecreaseStartTimer, SettingsMenuButtonAction::IncreaseStartTimer, "Start delay",  &format!("{:.01}s", config.timer_start));
+                                                           children.settings(SettingsMenuButtonAction::DecreaseTouchTimer, SettingsMenuButtonAction::IncreaseTouchTimer, "Touch delay",  &format!("{:.2}s", config.timer_touch));
                                                    });
                                                    },
                                                );

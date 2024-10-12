@@ -3,7 +3,7 @@ android:
   # this assets configuration is currently only used without gradle!
   #assets:
   #  - "../assets/*"
-  icon: "ios-src/Assets.xcassets/AppIcon.appiconset/icon_1024x1024.png"
+  icon: "../build/android/res/mipmap-mdpi/icon.png"
   manifest:
     package: "prrmrc.game.minesweeper"
     version_code: 1
