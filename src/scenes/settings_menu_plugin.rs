@@ -9,20 +9,13 @@ use sickle_ui::prelude::*;
 
 #[derive(Component)]
 pub enum SettingsMenuButtonAction {
-    DecrementBombCount,
-    IncrementBombCount,
-    IncrementWidthBoard,
-    DecrementWidthBoard,
-    IncrementHeightBoard,
-    DecrementHeightBoard,
-    SafeStartOn,
-    SafeStartOff,
-    TurnFlagOn,
-    TurnFlagOff,
-    IncreaseStartTimer,
-    DecreaseStartTimer,
-    IncreaseTouchTimer,
-    DecreaseTouchTimer,
+    BombCount(bool),
+    WidthBoard(bool),
+    HeightBoard(bool),
+    SafeStart(bool),
+    TurnFlag(bool),
+    StartTimer(bool),
+    TouchTimer(bool),
 }
 
 #[derive(Component)]
@@ -100,27 +93,27 @@ impl SettingsMenu {
                                                    true,
                                                    |bar| {
                                                        bar.add_tab_container("Grid", |children| {
-                                                           children.settings(SettingsMenuButtonAction::DecrementWidthBoard, SettingsMenuButtonAction::IncrementWidthBoard, "Width",  &config.map_size.0.to_string());
-                                                           children.settings(SettingsMenuButtonAction::DecrementHeightBoard, SettingsMenuButtonAction::IncrementHeightBoard, "Height",  &config.map_size.1.to_string());
-                                                           children.settings(SettingsMenuButtonAction::DecrementBombCount, SettingsMenuButtonAction::IncrementBombCount, "Bombs",  &config.bomb_count.to_string());
+                                                           children.settings(SettingsMenuButtonAction::WidthBoard(false), SettingsMenuButtonAction::WidthBoard(true), "Width",  &config.map_size.0.to_string());
+                                                           children.settings(SettingsMenuButtonAction::HeightBoard(false), SettingsMenuButtonAction::HeightBoard(true), "Height",  &config.map_size.1.to_string());
+                                                           children.settings(SettingsMenuButtonAction::BombCount(false), SettingsMenuButtonAction::BombCount(true), "Bombs",  &config.bomb_count.to_string());
                                                        }).style_inplace(|style| {
                                                            style.background_color(Color::linear_rgb(0.2, 0.2, 0.2));
                                                        }).style_unchecked();
                                                        bar.add_tab_container("Game".into(), |children| {
-                                                               children.settings(SettingsMenuButtonAction::SafeStartOff, SettingsMenuButtonAction::SafeStartOn, "Safe start",  & match config.easy_mode {
+                                                               children.settings(SettingsMenuButtonAction::SafeStart(false), SettingsMenuButtonAction::SafeStart(true), "Safe start",  & match config.easy_mode {
                                                                true => "On",
                                                                false => "Off",
                                                            }
                                                                .to_string());
-                                                               children.settings(SettingsMenuButtonAction::TurnFlagOff, SettingsMenuButtonAction::TurnFlagOn, "Flag mode",  &match config.flag_mode {
+                                                               children.settings(SettingsMenuButtonAction::TurnFlag(false), SettingsMenuButtonAction::TurnFlag(true), "Flag mode",  &match config.flag_mode {
                                                                true => "On",
                                                                false => "Off",
                                                            }
                                                                .to_string());
                                                        });
                                                        bar.add_tab_container("Accessibility".into(), |children| {
-                                                           children.settings(SettingsMenuButtonAction::DecreaseStartTimer, SettingsMenuButtonAction::IncreaseStartTimer, "Start delay",  &format!("{:.01}s", config.timer_start));
-                                                           children.settings(SettingsMenuButtonAction::DecreaseTouchTimer, SettingsMenuButtonAction::IncreaseTouchTimer, "Touch delay",  &format!("{:.2}s", config.timer_touch));
+                                                           children.settings(SettingsMenuButtonAction::StartTimer(false), SettingsMenuButtonAction::StartTimer(true), "Start delay",  &format!("{:.01}s", config.timer_start));
+                                                           children.settings(SettingsMenuButtonAction::TouchTimer(false), SettingsMenuButtonAction::TouchTimer(true), "Touch delay",  &format!("{:.2}s", config.timer_touch));
                                                    });
                                                    },
                                                );
@@ -144,70 +137,50 @@ impl SettingsMenu {
         for (interaction, button_action) in &mut interaction_query {
             if *interaction == Interaction::Pressed {
                 match button_action {
-                    SettingsMenuButtonAction::DecrementBombCount => {
-                        if config.bomb_count > 1 {
+                    SettingsMenuButtonAction::BombCount(b) => {
+                        if *b && config.bomb_count < (config.map_size.0 * config.map_size.1) - 1 {
+                            config.bomb_count += 1;
+                        } else if !*b && config.bomb_count > 1
+                        {
                             config.bomb_count -= 1;
                         }
                     }
-                    SettingsMenuButtonAction::IncrementBombCount => {
-                        if config.bomb_count < (config.map_size.0 * config.map_size.1) - 1 {
-                            config.bomb_count += 1;
-                        }
-                    }
-                    SettingsMenuButtonAction::IncrementWidthBoard => {
-                        if config.map_size.0 <= 200 {
+                    SettingsMenuButtonAction::WidthBoard(b) => {
+                        if *b && config.map_size.0 <= 200 {
                             config.map_size.0 += 1;
-                        }
-                    }
-                    SettingsMenuButtonAction::DecrementWidthBoard => {
-                        if config.map_size.0 > 1
+                        } else if config.map_size.0 > 1
                             && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count
                         {
                             config.map_size.0 -= 1;
                         }
                     }
-                    SettingsMenuButtonAction::DecrementHeightBoard => {
-                        if config.map_size.1 > 1
+                    SettingsMenuButtonAction::HeightBoard(b) => {
+                        if *b && config.map_size.1 <= 200 {
+                            config.map_size.1 += 1;
+                        } else if config.map_size.1 > 1
                             && (config.map_size.0 * (config.map_size.1 - 1)) > config.bomb_count
                         {
                             config.map_size.1 -= 1;
                         }
                     }
-                    SettingsMenuButtonAction::IncrementHeightBoard => {
-                        if config.map_size.1 <= 200 {
-                            config.map_size.1 += 1;
-                        }
+                    SettingsMenuButtonAction::SafeStart(b) => {
+                        config.easy_mode = *b;
                     }
-                    SettingsMenuButtonAction::SafeStartOn => {
-                        config.easy_mode = true;
-                    }
-                    SettingsMenuButtonAction::SafeStartOff => {
-                        config.easy_mode = false;
-                    }
-                    SettingsMenuButtonAction::DecreaseStartTimer => {
-                        if config.timer_start > 0.0 {
+                    SettingsMenuButtonAction::StartTimer(b) => {
+                        if *b && config.timer_start < 3.0 {
+                            config.timer_start += 0.1;
+                        } else if config.timer_start > 0.0 {
                             config.timer_start = (config.timer_start * 10.0 - 1.0) / 10.0;
                         }
                     }
-                    SettingsMenuButtonAction::IncreaseStartTimer => {
-                        if config.timer_start < 3.0 {
-                            config.timer_start += 0.1;
-                        }
+                    SettingsMenuButtonAction::TurnFlag(b) => {
+                        config.flag_mode = *b;
                     }
-                    SettingsMenuButtonAction::TurnFlagOn => {
-                        config.flag_mode = true;
-                    }
-                    SettingsMenuButtonAction::TurnFlagOff => {
-                        config.flag_mode = false;
-                    }
-                    SettingsMenuButtonAction::DecreaseTouchTimer => {
-                        if config.timer_touch > 0.01 {
-                            config.timer_touch = (config.timer_touch * 100.0 - 1.0) / 100.0;
-                        }
-                    }
-                    SettingsMenuButtonAction::IncreaseTouchTimer => {
-                        if config.timer_touch < 3.0 {
+                    SettingsMenuButtonAction::TouchTimer(b) => {
+                        if *b && config.timer_touch < 3.0 {
                             config.timer_touch += 0.01;
+                        } else if config.timer_touch > 0.01 {
+                            config.timer_touch = (config.timer_touch * 100.0 - 1.0) / 100.0;
                         }
                     }
                 }
@@ -224,12 +197,12 @@ impl SettingsMenu {
                         true => "On",
                         false => "Off",
                     }
-                        .to_string(),
+                    .to_string(),
                     match config.easy_mode {
                         true => "On",
                         false => "Off",
                     }
-                        .to_string(),
+                    .to_string(),
                     config.bomb_count.to_string(),
                     config.map_size.1.to_string(),
                     config.map_size.0.to_string(),
@@ -275,91 +248,51 @@ impl SettingsMenu {
                 }
                 Interaction::Pressed => {
                     *color = button_colors.pressed.into();
-                    if let Some(state) = change_state {
-                        next_state.set(state.0.clone());
-                    }
                 }
                 Interaction::Hovered => {
                     *color = button_colors.hovered.into();
                 }
             }
             match button_action {
-                SettingsMenuButtonAction::DecrementBombCount => {
-                    if !(config.bomb_count > 1) {
+                SettingsMenuButtonAction::BombCount(b) => {
+                    if (!*b && !(config.bomb_count > 1)) || (*b && !(config.bomb_count < (config.map_size.0 * config.map_size.1) - 1)) {
                         *color = button_colors.disabled.into();
                     }
                 }
-                SettingsMenuButtonAction::IncrementBombCount => {
-                    if !(config.bomb_count < (config.map_size.0 * config.map_size.1) - 1) {
-                        *color = button_colors.disabled.into();
-                    }
-                }
-                SettingsMenuButtonAction::IncrementWidthBoard => {
-                    if config.map_size.0 <= 200 {
-                    } else {
-                        *color = button_colors.disabled.into();
-                    }
-                }
-                SettingsMenuButtonAction::DecrementWidthBoard => {
-                    if !(config.map_size.0 > 1
+                SettingsMenuButtonAction::WidthBoard(b) => {
+                    if !(*b && config.map_size.0 <= 200) && !(config.map_size.0 > 1
                         && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count)
                     {
                         *color = button_colors.disabled.into();
                     }
                 }
-                SettingsMenuButtonAction::DecrementHeightBoard => {
-                    if !(config.map_size.1 > 1
-                        && (config.map_size.0 * (config.map_size.1 - 1)) > config.bomb_count)
+                SettingsMenuButtonAction::HeightBoard(b) => {
+                    if !(*b && config.map_size.1 <= 200) && !(config.map_size.1 > 1
+                        && ((config.map_size.1 - 1) * config.map_size.0) > config.bomb_count)
                     {
                         *color = button_colors.disabled.into();
                     }
                 }
-                SettingsMenuButtonAction::IncrementHeightBoard => {
-                    if !(config.map_size.1 <= 200) {
+                SettingsMenuButtonAction::SafeStart(b) => {
+                    if (*b && config.easy_mode) || (!*b && !config.easy_mode) {
                         *color = button_colors.disabled.into();
                     }
                 }
-                SettingsMenuButtonAction::SafeStartOn => {
-                    if !config.easy_mode {
-                    } else {
+                SettingsMenuButtonAction::StartTimer(b) => {
+                    if !(config.timer_start > 0.) && !(*b && config.timer_start < 3.0) {
                         *color = button_colors.disabled.into();
                     }
                 }
-                SettingsMenuButtonAction::SafeStartOff => {
-                    if !config.easy_mode {
+                SettingsMenuButtonAction::TouchTimer(b) => {
+                    if !(config.timer_touch > 0.01) && !(*b && config.timer_touch < 3.0) {
                         *color = button_colors.disabled.into();
                     }
                 }
-                SettingsMenuButtonAction::DecreaseStartTimer => {
-                    if !(config.timer_start > 0.) {
-                        *color = button_colors.disabled.into();
-                    }
-                }
-                SettingsMenuButtonAction::IncreaseStartTimer => {
-                    if !(config.timer_start < 3.0) {
-                        *color = button_colors.disabled.into();
-                    }
-                }
-                SettingsMenuButtonAction::DecreaseTouchTimer => {
-                    if !(config.timer_touch > 0.01) {
-                        *color = button_colors.disabled.into();
-                    }
-                }
-                SettingsMenuButtonAction::IncreaseTouchTimer => {
-                    if !(config.timer_touch < 3.0) {
-                        *color = button_colors.disabled.into();
-                    }
-                }
-                SettingsMenuButtonAction::TurnFlagOn => {
-                    if config.flag_mode {
-                        *color = button_colors.disabled.into();
-                    }
-                }
-                SettingsMenuButtonAction::TurnFlagOff => {
-                    if !config.flag_mode
+                SettingsMenuButtonAction::TurnFlag(b) => {
+                    if (*b && config.flag_mode) || (!*b && !config.flag_mode
                         || (config.bomb_count == (config.map_size.0 * config.map_size.1) - 1
                             || config.bomb_count == 1)
-                            && config.easy_mode
+                            && config.easy_mode)
                     {
                         *color = button_colors.disabled.into();
                     }
