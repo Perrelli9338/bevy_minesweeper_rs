@@ -1,6 +1,7 @@
 use crate::{
     components::{stopwatch::GameStopwatch, timer::GameTimer},
-    resources::{board::Board, events::EndgameEvent, GameState},
+    game::{board::Board, events::EndgameEvent},
+    resources::GameState,
     scenes::cleanup,
     system::input::endgame_input_handling,
     widgets::text::UiTextWidgetExt,

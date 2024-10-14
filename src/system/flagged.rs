@@ -2,13 +2,17 @@ use bevy::{
     color::palettes::basic,
     prelude::*,
 };
-use crate::components::flag::Flagged;
-use crate::components::uncover::Uncover;
-use crate::resources::{
-    board::{Board, FlagToggle},
-    events::{GameWinEvent, TileFlaggedEvent},
-    assets::TextureAssets,
-    settings::{GameSettings, TileSize},
+use crate::{
+    components::{
+        flag::Flagged,
+        uncover::Uncover
+    },
+    resources::assets::TextureAssets,
+    game::{
+        board::{Board, FlagToggle},
+        events::{GameWinEvent, TileFlaggedEvent},
+        settings::{GameSettings, TileSize},
+    }
 };
 
 pub fn flag_tiles(

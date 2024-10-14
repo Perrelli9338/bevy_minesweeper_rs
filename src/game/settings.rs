@@ -1,6 +1,6 @@
 use bevy::{prelude::Vec3, ecs::system::Resource};
 use serde::{Deserialize, Serialize};
-use crate::resources::settings::TileSize::Fixed;
+use crate::game::settings::TileSize::Fixed;
 
 /// Tile size options
 #[derive(Debug, Clone, Serialize, Deserialize)]

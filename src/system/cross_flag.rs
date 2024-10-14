@@ -7,8 +7,8 @@ use crate::{
         Bomb,
         flag::Flagged,
     },
-    resources::{
-        assets::TextureAssets,
+    resources::assets::TextureAssets,
+    game::{
         events::GameLoseEvent,
         settings::{GameSettings, TileSize},
     },

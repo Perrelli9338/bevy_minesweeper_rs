@@ -1,7 +1,8 @@
 use crate::system::input::InputHandling;
 use crate::{
     components::{stopwatch::GameStopwatch, timer::GameTimer},
-    resources::{events::*, settings::GameSettings, GameState},
+    resources::GameState,
+    game::{events::*, settings::GameSettings},
     AppState,
 };
 use bevy::{

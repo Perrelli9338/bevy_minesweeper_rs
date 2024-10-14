@@ -1,11 +1,11 @@
-use crate::resources::settings::GameSettings;
 use crate::{
     components::timer::GameTimer,
-    resources::{
+    game::{
+        settings::GameSettings,
         board::Board,
         events::{EndgameEvent, TileFlaggedEvent, TileTriggerEvent},
-        GameState,
     },
+    resources::GameState,
 };
 use bevy::{
     app::App,

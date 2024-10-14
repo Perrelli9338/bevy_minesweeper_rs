@@ -1,6 +1,6 @@
 use crate::widgets::settings::UiSettingsWidgetExt;
 use crate::{
-    resources::settings::GameSettings,
+    game::settings::GameSettings,
     scenes::{cleanup, ButtonColors, ChangeState, MenuButtonAction, MenuStates, H1},
     widgets::{button::UiButtonWidgetExt, text::UiTextWidgetExt},
     AppState,

@@ -6,7 +6,7 @@ use bevy_touch_camera::TouchCameraTag;
 use sickle_ui::SickleUiPlugin;
 use crate::{
     AppState,
-    resources::settings::GameSettings,
+    game::settings::GameSettings,
     components::button_colors::ButtonColors,
     scenes::endgame_plugin::EndgameScene,
 };

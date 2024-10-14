@@ -5,7 +5,7 @@ use crate::{
         uncover::Uncover,
         flag::Flagged,
     },
-    resources::{
+    game::{
         board::Board,
         events::{
             GameLoseEvent,
