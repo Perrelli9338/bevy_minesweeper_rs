@@ -13,7 +13,7 @@ on:
 
 env:
   # This variable is used to name release output files.
-  GAME_EXECUTABLE_NAME: minesweeper
+  GAME_EXECUTABLE_NAME: Minesweeper
   GAME_OSX_APP_NAME: Minesweeper
 
 permissions:
@@ -46,11 +46,11 @@ jobs:
       - name: Install rust toolchain for Apple Silicon
         uses: dtolnay/rust-toolchain@master
         with:
-            toolchain: stable
-            targets: aarch64-apple-darwin
+          toolchain: stable
+          targets: aarch64-apple-darwin
       - name: Build release for Apple Silicon
         run: |
-            SDKROOT=$(xcrun -sdk macosx --show-sdk-path) cargo build --profile dist --target=aarch64-apple-darwin
+          SDKROOT=$(xcrun -sdk macosx --show-sdk-path) cargo build --profile dist --target=aarch64-apple-darwin
       - name: Install rust toolchain for Apple x86
         uses: dtolnay/rust-toolchain@master
         with:
@@ -65,18 +65,20 @@ jobs:
           lipo -create -output target/dist/${{ env.GAME_EXECUTABLE_NAME }} target/aarch64-apple-darwin/dist/${{ env.GAME_EXECUTABLE_NAME }} target/x86_64-apple-darwin/dist/${{ env.GAME_EXECUTABLE_NAME }}
       - name: Create release
         run: |
-          mkdir -p build/macos/src/Game.app/Contents/MacOS/assets
-          cp -r assets/ build/macos/src/Game.app/Contents/MacOS/assets
+          mkdir -p build/macos/src/Game.app/Contents/MacOS/
           cp target/dist/${{ env.GAME_EXECUTABLE_NAME }} build/macos/src/Game.app/Contents/MacOS/
           mv build/macos/src/Game.app build/macos/src/${{ env.GAME_OSX_APP_NAME }}.app
           ln -s /Applications build/macos/src/
           hdiutil create -fs HFS+ -volname "${{ env.GAME_OSX_APP_NAME }}" -srcfolder build/macos/src ${{ env.GAME_EXECUTABLE_NAME }}.dmg
+      - name: Compress release
+        run: |
+          zip ${{ env.GAME_EXECUTABLE_NAME }}_macOS.zip ${{ env.GAME_EXECUTABLE_NAME }}.dmg
       - name: Upload release
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.GAME_EXECUTABLE_NAME }}.dmg
-          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_macOS.dmg
+          file: ${{ env.GAME_EXECUTABLE_NAME }}_macOS.zip
+          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_macOS.zip
           release_name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           overwrite: true
@@ -103,15 +105,15 @@ jobs:
         run: |
           chmod +x target/dist/${{ env.GAME_EXECUTABLE_NAME }}
           mv target/dist/${{ env.GAME_EXECUTABLE_NAME }} .
-      - name: Bundle release
+      - name: Compress release
         run: |
-          tar -czf ${{ env.GAME_EXECUTABLE_NAME }}_linux.tar.gz ${{ env.GAME_EXECUTABLE_NAME }} assets
+          zip ${{ env.GAME_EXECUTABLE_NAME }}_linux.zip ${{ env.GAME_EXECUTABLE_NAME }}
       - name: Upload release
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.GAME_EXECUTABLE_NAME }}_linux.tar.gz
-          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_linux.tar.gz
+          file: ${{ env.GAME_EXECUTABLE_NAME }}_linux.zip
+          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_linux.zip
           release_name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           overwrite: true
@@ -138,13 +140,10 @@ jobs:
       - name: Build release
         run: |
           cargo build --profile dist
-      - name: Prepare release
-        run: |
-          mkdir target/dist/assets && cp -r assets target/dist/assets
       - name: Zip release
         uses: vimtor/action-zip@v1.1
         with:
-          files: target/dist/assets/ target/dist/${{ env.GAME_EXECUTABLE_NAME }}.exe
+          files: target/dist/${{ env.GAME_EXECUTABLE_NAME }}.exe
           dest: ${{ env.GAME_EXECUTABLE_NAME }}_windows.zip
       - name: Create Installer
         if: ${{ env.BUILD_INSTALLER }}
@@ -153,13 +152,13 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.GAME_EXECUTABLE_NAME }}_windows.zip
+          file: target/dist/${{ env.GAME_EXECUTABLE_NAME }}_windows.zip
           asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_windows.zip
           tag: ${{ env.VERSION }}
           overwrite: true
       - name: Upload installer
         if: ${{ env.BUILD_INSTALLER }}
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: installer/en-US/installer.msi
@@ -230,13 +229,14 @@ jobs:
           mkdir Payload
           mv build/Build/Products/Release-iphoneos/*.app Payload
           zip -r ${{ env.GAME_EXECUTABLE_NAME }}.zip Payload
-          mv ${{ env.GAME_EXECUTABLE_NAME }}.zip ${{ env.GAME_EXECUTABLE_NAME }}.ipa
+          mv ${{ env.GAME_EXECUTABLE_NAME }}.zip ${{ env.GAME_EXECUTABLE_NAME }}_unsigned_ios.ipa
+          zip "${{ env.GAME_EXECUTABLE_NAME }}.zip" "${{ env.GAME_EXECUTABLE_NAME }}_unsigned_ios.ipa"
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: mobile/${{ env.GAME_EXECUTABLE_NAME }}.ipa
-          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_unsigned_ios.ipa
+          file: mobile/${{ env.GAME_EXECUTABLE_NAME }}.zip
+          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_unsigned_ios.zip
           release_name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           overwrite: true
@@ -256,12 +256,15 @@ jobs:
         run: cargo install --force cargo-apk
       - name: Build app for Android
         run: ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME cargo apk build --package mobile
+      - name: Zip release
+        run: |
+          cd target/debug/apk && zip "${{ env.GAME_EXECUTABLE_NAME }}_android-debug.zip" ${{ env.GAME_OSX_APP_NAME }}.apk && cd ../../../
       - name: Upload release
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/debug/apk/${{ env.GAME_OSX_APP_NAME }}.apk
-          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android-universal.apk
+          file: target/debug/apk/${{ env.GAME_EXECUTABLE_NAME }}_android-debug.zip
+          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android-debug.zip
           release_name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           overwrite: true
@@ -272,7 +275,7 @@ jobs:
     needs: get-version
     env:
       VERSION: ${{needs.get-version.outputs.version}}
-      GAME_EXECUTABLE_NAME: minesweeper
+      GAME_EXECUTABLE_NAME: Minesweeper
       BUNDLE_PATH: "target/x/release/android/mobile.aab"
       PACKAGE_NAME: "prrmrc.game.minesweeper"
       TRACK: internal
@@ -307,12 +310,15 @@ jobs:
           keystorePassword: ${{ secrets.PLAYSTORE_KEYSTORE_PASSWORD }}
           keystoreAlias: upload
           keyPassword: ${{ secrets.PLAYSTORE_KEYSTORE_PASSWORD }}
+      - name: Zip release
+        run: |
+          zip "${{ env.GAME_EXECUTABLE_NAME }}_android.zip" ${{ steps.convert_aab.outputs.apkPath }}
       - name: Upload signed apk to GitHub
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ steps.convert_aab.outputs.apkPath }}
-          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android.apk
+          file: ${{ env.GAME_EXECUTABLE_NAME }}_android.zip
+          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android.zip
           release_name: ${{ env.VERSION }}
           tag: ${{ env.VERSION }}
           overwrite: true

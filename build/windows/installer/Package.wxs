@@ -27,13 +27,12 @@
         <Feature Id="Main">
             <ComponentGroupRef Id="MainComponent" />
             <ComponentRef Id="StartMenuShortcut" />
-            <ComponentGroupRef Id="AssetsDirectory" />
         </Feature>
 
         <!-- Installs the actual files -->
         <ComponentGroup Id="MainComponent" Directory="INSTALLFOLDER">
             <Component>
-                <File Id="Executable" Source="..\..\..\target\dist\minesweeper.exe" Vital="true" />
+                <File Id="Executable" Source="..\..\..\target\dist\Minesweeper.exe" Vital="true" />
             </Component>
         </ComponentGroup>
 
