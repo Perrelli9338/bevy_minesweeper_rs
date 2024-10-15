@@ -3,6 +3,24 @@
 version = 3
 
 [[package]]
+name = "Minesweeper"
+version = "0.2.0"
+dependencies = [
+ "bevy",
+ "bevy_asset_loader",
+ "bevy_embedded_assets",
+ "bevy_touch_camera",
+ "embed-resource",
+ "image",
+ "log",
+ "rand",
+ "serde",
+ "sickle_ui",
+ "web-time",
+ "winit",
+]
+
+[[package]]
 name = "ab_glyph"
 version = "0.2.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -296,12 +314,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
 
 [[package]]
-name = "base64"
-version = "0.22.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
-
-[[package]]
 name = "bevy"
 version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -531,6 +543,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_embedded_assets"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3f3e7b41a9b01b767ba07c4ebb083b2d8d8055e57ddef7e55e502bbfc961505"
+dependencies = [
+ "bevy",
+ "cargo-emit",
+ "futures-io",
+ "futures-lite",
+ "thiserror",
+]
+
+[[package]]
 name = "bevy_encase_derive"
 version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -573,36 +598,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.58",
-]
-
-[[package]]
-name = "bevy_gltf"
-version = "0.14.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6adbd325b90e3c700d0966b5404e226c7deec1b8bda8f36832788d7b435b9b8"
-dependencies = [
- "base64 0.22.1",
- "bevy_app",
- "bevy_asset",
- "bevy_color",
- "bevy_core",
- "bevy_core_pipeline",
- "bevy_ecs",
- "bevy_hierarchy",
- "bevy_math",
- "bevy_pbr",
- "bevy_reflect",
- "bevy_render",
- "bevy_scene",
- "bevy_tasks",
- "bevy_transform",
- "bevy_utils",
- "gltf",
- "percent-encoding",
- "serde",
- "serde_json",
- "smallvec",
- "thiserror",
 ]
 
 [[package]]
@@ -650,7 +645,6 @@ dependencies = [
  "bevy_diagnostic",
  "bevy_ecs",
  "bevy_gizmos",
- "bevy_gltf",
  "bevy_hierarchy",
  "bevy_input",
  "bevy_log",
@@ -1256,6 +1250,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo-emit"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1582e1c9e755dd6ad6b224dcffb135d199399a4568d454bd89fe515ca8425695"
+
+[[package]]
 name = "cc"
 version = "1.0.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1592,9 +1592,9 @@ checksum = "11157ac094ffbdde99aa67b23417ebdd801842852b500e395a45a9c0aac03e4a"
 
 [[package]]
 name = "embed-resource"
-version = "2.4.3"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4edcacde9351c33139a41e3c97eb2334351a81a2791bebb0b243df837128f602"
+checksum = "f4e24052d7be71f0efb50c201557f6fe7d237cfd5a64fd5bcd7fd8fe32dbbffa"
 dependencies = [
  "cc",
  "memchr",
@@ -1871,42 +1871,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gltf"
-version = "1.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3ce1918195723ce6ac74e80542c5a96a40c2b26162c1957a5cd70799b8cacf7"
-dependencies = [
- "byteorder",
- "gltf-json",
- "lazy_static",
- "serde_json",
-]
-
-[[package]]
-name = "gltf-derive"
-version = "1.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14070e711538afba5d6c807edb74bcb84e5dbb9211a3bf5dea0dfab5b24f4c51"
-dependencies = [
- "inflections",
- "proc-macro2",
- "quote",
- "syn 2.0.58",
-]
-
-[[package]]
-name = "gltf-json"
-version = "1.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6176f9d60a7eab0a877e8e96548605dedbde9190a7ae1e80bbcc1c9af03ab14"
-dependencies = [
- "gltf-derive",
- "serde",
- "serde_derive",
- "serde_json",
-]
-
-[[package]]
 name = "glutin_wgl_sys"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2072,12 +2036,6 @@ dependencies = [
  "equivalent",
  "hashbrown",
 ]
-
-[[package]]
-name = "inflections"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a257582fdcde896fd96463bf2d40eefea0580021c0712a0e2b028b60b47a837a"
 
 [[package]]
 name = "itertools"
@@ -2295,23 +2253,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "minesweeper"
-version = "0.2.0"
-dependencies = [
- "bevy",
- "bevy_asset_loader",
- "bevy_touch_camera",
- "embed-resource",
- "image",
- "log",
- "rand",
- "serde",
- "sickle_ui",
- "web-time",
- "winit",
-]
-
-[[package]]
 name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2331,9 +2272,9 @@ dependencies = [
 name = "mobile"
 version = "0.2.0"
 dependencies = [
+ "Minesweeper",
  "bevy",
  "cpal",
- "minesweeper",
 ]
 
 [[package]]
@@ -3076,7 +3017,7 @@ version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b91f7eff05f748767f183df4320a63d6936e9c6107d97c9e6bdd9784f4289c94"
 dependencies = [
- "base64 0.21.7",
+ "base64",
  "bitflags 2.5.0",
  "serde",
  "serde_derive",
@@ -3229,9 +3170,8 @@ checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "sickle_macros"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72a7d0692bc405bbcfe7a1135da077478b59f3ed46e61bd20c0fb255d8c8ffe0"
+version = "0.4.0"
+source = "git+https://github.com/UkoeHB/sickle_ui?rev=9c6ebb6#9c6ebb6939a2e9628890854953d43bcda566656d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3240,9 +3180,8 @@ dependencies = [
 
 [[package]]
 name = "sickle_math"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8746a11e3d4d3163ee5a0f75207a3fe62f7497b4410340e7b91732c07272bcad"
+version = "0.4.0"
+source = "git+https://github.com/UkoeHB/sickle_ui?rev=9c6ebb6#9c6ebb6939a2e9628890854953d43bcda566656d"
 dependencies = [
  "bevy_color",
  "bevy_reflect",
@@ -3252,9 +3191,8 @@ dependencies = [
 
 [[package]]
 name = "sickle_ui"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7cb05ccdf62551743a75e023451836bd594f08d376545226e1493853e4e109c6"
+version = "0.4.0"
+source = "git+https://github.com/UkoeHB/sickle_ui?rev=9c6ebb6#9c6ebb6939a2e9628890854953d43bcda566656d"
 dependencies = [
  "bevy",
  "serde",
@@ -3266,9 +3204,8 @@ dependencies = [
 
 [[package]]
 name = "sickle_ui_scaffold"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43cdfec379b4ae7365f86fc8d959277c0df47c5879c68089f76871a2b7888df4"
+version = "0.4.0"
+source = "git+https://github.com/UkoeHB/sickle_ui?rev=9c6ebb6#9c6ebb6939a2e9628890854953d43bcda566656d"
 dependencies = [
  "bevy",
  "serde",

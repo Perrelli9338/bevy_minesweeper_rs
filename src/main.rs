@@ -2,13 +2,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use bevy::{
-    asset::AssetMetaCheck,
-    prelude::*,
-    window::PrimaryWindow,
-    winit::WinitWindows,
-    DefaultPlugins,
+    asset::AssetMetaCheck, prelude::*, window::PrimaryWindow, winit::WinitWindows, DefaultPlugins,
 };
-use minesweeper::GamePlugin;
+use Minesweeper::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
 
@@ -34,7 +30,7 @@ fn main() {
                     meta_check: AssetMetaCheck::Never,
                     ..default()
                 }),
-            GamePlugin,
+            GamePlugin
         ))
         .add_systems(Startup, set_window_icon)
         .run();

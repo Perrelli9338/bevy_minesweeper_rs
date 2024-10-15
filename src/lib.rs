@@ -2,16 +2,16 @@
 
 use system::SystemPlugins;
 use scenes::MenuPlugin;
+use game::BoardPlugin;
+use resources::ResourcePlugin;
 use bevy::prelude::*;
 use bevy_touch_camera::{TouchCameraConfig, TouchCameraPlugin};
-use crate::{
-    resources::ResourcePlugin,
-};
 pub mod resources;
 
 mod system;
 
 mod components;
+mod game;
 pub(crate) mod scenes;
 mod widgets;
 
@@ -35,12 +35,13 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<AppState>()
             .add_plugins((
-                TouchCameraPlugin { config: TouchCameraConfig {
-                min_scale: 0.2,
-                max_scale: 8.,
-                ..default()
-                } },
                 ResourcePlugin,
+                TouchCameraPlugin { config: TouchCameraConfig {
+                    min_scale: 0.2,
+                    max_scale: 8.,
+                    ..default()
+                } },
+                BoardPlugin,
                 SystemPlugins,
                 MenuPlugin
             ));
