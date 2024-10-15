@@ -3,7 +3,7 @@ use crate::{
     scenes::{cleanup, MenuButtonAction, MenuStates, H1},
     widgets::{button::UiButtonWidgetExt, text::UiTextWidgetExt},
 };
-use bevy::{prelude::*, winit::WinitSettings};
+use bevy::prelude::*;
 use sickle_ui::prelude::*;
 
 #[derive(Component)]
@@ -58,6 +58,5 @@ impl MainMenu {
                 },
             )
             .insert(Menu);
-        commands.insert_resource(WinitSettings::desktop_app());
     }
 }

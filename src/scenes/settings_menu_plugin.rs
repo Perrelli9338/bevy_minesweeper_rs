@@ -1,5 +1,5 @@
 use crate::{
-    resources::settings::GameSettings,
+    game::settings::GameSettings,
     scenes::{cleanup, ButtonColors, ChangeState, MenuButtonAction, MenuStates, H1},
     widgets::{button::UiButtonWidgetExt, text::UiTextWidgetExt, settings::UiSettingsWidgetExt, tab_container::TabContainerExt},
     AppState,
