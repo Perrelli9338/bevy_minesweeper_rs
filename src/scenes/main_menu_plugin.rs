@@ -54,7 +54,7 @@ impl MainMenu {
                     parent.button_main_menu("Settings", MenuButtonAction::Settings);
                     #[cfg(all(not(target_arch = "wasm32"), not(target_os = "android"), not(target_os = "ios")))]
                     parent.button_main_menu("Quit", MenuButtonAction::Quit);
-                    parent.text(&format!("v{}-rc", env!("CARGO_PKG_VERSION")), None);
+                    parent.text(&format!("v{}", env!("CARGO_PKG_VERSION")), None);
                 },
             )
             .insert(Menu);
