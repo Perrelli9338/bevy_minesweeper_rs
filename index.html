@@ -2,13 +2,24 @@
 <html lang="en">
     <head>
         <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="description" content="Minesweeper, made with Bevy">
+        <meta name="keywords" content="Minesweeper, Bevy, Rust, game development, open source, GitHub, puzzle game, 2D game, game engine, programming, Rust programming, Minesweeper clone, interactive game, gaming, software development, educational game, algorithm, user interface, game mechanics ">
+        <meta name="web-app" content="yes">
         <title>Minesweeper</title>
+        <meta name="theme-color" content="red">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="Minesweeper">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
         
         
         <link rel="icon" href="icon.ico">
-        <style nonce="sqNrNYkhEdpXGzRFc8vzlg==">body, html {
+        <style nonce="n+VDDRbgYLPBVQkxk2ll4Q==">body, html, .game-container {
     height: 100%;
+    width: 100%;
 }
 
 body {
@@ -20,8 +31,6 @@ body {
 }
 
 .game-container {
-    width: 800px;
-    height: 600px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -61,11 +70,10 @@ body {
     z-index: 2;
 }
 </style>
-    
-<link rel="modulepreload" href="./minesweeper-6855ac44c3a2f7c9.js" crossorigin=anonymous integrity="sha384-XcZTAUQ9r2gZi+XRL+tVTVkPsobv0J4JUKapbOdiUO50s+2nnSj+NuroMZ5pUO7T">
-<link rel="preload" href="./minesweeper-6855ac44c3a2f7c9_bg.wasm" crossorigin=anonymous integrity="sha384-957MoLkC3A2z0CSOKLDio6fHSRmZZ7sqRFHkwxiS3IqRNVlM6jbKOGkzAtoFflND" as="fetch" type="application/wasm"></head>
+        <link href="build/web/manifest.json" rel="manifest">
+    <link rel="modulepreload" href="./Minesweeper-743d9cca541ceeee.js" crossorigin=anonymous integrity="sha384-tJ9DxfBOYvjJjy6QH4OigDVBl2onhYKsiCjELdmTvwOb6S46/j8YG0v5IQ5bPXij"><link rel="preload" href="./Minesweeper-743d9cca541ceeee_bg.wasm" crossorigin=anonymous integrity="sha384-wzXx5/tr90tylM62ZCs8ouZIibPZobWvkpxk9W2qnS3Rs/zt3kEBjPpORwMGS+vs" as="fetch" type="application/wasm"></head>
     <body>
-        <script nonce="mBt8Gg/kcRKezWkAhZFCnA==">// Insert hack to make sound autoplay on Chrome as soon as the user interacts with the tab:
+        <script nonce="KmaPa1NpWVUMdVIyY6/Lcw==">// Insert hack to make sound autoplay on Chrome as soon as the user interacts with the tab:
 // https://developers.google.com/web/updates/2018/11/web-audio-autoplay#moving-forward
 
 // the following function keeps track of all AudioContexts and resumes them on the first user
@@ -135,9 +143,9 @@ body {
             </canvas>
         </div>
     
-<script type="module" nonce="wFm6Oyce8Z/grIrbOrpI/w==">
-import init, * as bindings from './minesweeper-6855ac44c3a2f7c9.js';
-const wasm = await init('./minesweeper-6855ac44c3a2f7c9_bg.wasm');
+<script type="module" nonce="Armo1i33EniKdlNNUYMe0w==">
+import init, * as bindings from './Minesweeper-743d9cca541ceeee.js';
+const wasm = await init('./Minesweeper-743d9cca541ceeee_bg.wasm');
 
 
 window.wasmBindings = bindings;
