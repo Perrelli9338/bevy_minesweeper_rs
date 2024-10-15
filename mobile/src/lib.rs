@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::window::WindowMode;
-use minesweeper::GamePlugin;
+use Minesweeper::GamePlugin;
 
 #[bevy_main]
 fn main() {
