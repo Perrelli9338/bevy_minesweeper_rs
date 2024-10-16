@@ -6,6 +6,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use sickle_ui::prelude::*;
+use crate::scenes::BTNdisabled;
 
 #[derive(Component)]
 pub enum SettingsMenuButtonAction {
@@ -226,66 +227,52 @@ impl SettingsMenu {
     }
 
     fn settings_button_colors(
-        mut next_state: ResMut<NextState<AppState>>,
+        mut commands: Commands,
         mut interaction_query: Query<
             (
-                &Interaction,
-                &mut BackgroundColor,
-                &ButtonColors,
+                Entity,
                 &SettingsMenuButtonAction,
-                Option<&ChangeState>,
             ),
             With<Button>,
         >,
         mut config: ResMut<GameSettings>,
     ) {
-        for (interaction, mut color, button_colors, button_action, change_state) in
-            &mut interaction_query
+        for (e, button_action) in &mut interaction_query
         {
-            match *interaction {
-                Interaction::None => {
-                    *color = button_colors.normal.into();
-                }
-                Interaction::Pressed => {
-                    *color = button_colors.pressed.into();
-                }
-                Interaction::Hovered => {
-                    *color = button_colors.hovered.into();
-                }
-            }
+            commands.entity(e).remove::<BTNdisabled>();
             match button_action {
                 SettingsMenuButtonAction::BombCount(b) => {
                     if (!*b && !(config.bomb_count > 1)) || (*b && !(config.bomb_count < (config.map_size.0 * config.map_size.1) - 1)) {
-                        *color = button_colors.disabled.into();
+                        commands.entity(e).insert(BTNdisabled);
                     }
                 }
                 SettingsMenuButtonAction::WidthBoard(b) => {
                     if !(*b && config.map_size.0 <= 200) && !(config.map_size.0 > 1
                         && ((config.map_size.0 - 1) * config.map_size.1) > config.bomb_count)
                     {
-                        *color = button_colors.disabled.into();
+                        commands.entity(e).insert(BTNdisabled);
                     }
                 }
                 SettingsMenuButtonAction::HeightBoard(b) => {
                     if !(*b && config.map_size.1 <= 200) && !(config.map_size.1 > 1
                         && ((config.map_size.1 - 1) * config.map_size.0) > config.bomb_count)
                     {
-                        *color = button_colors.disabled.into();
+                        commands.entity(e).insert(BTNdisabled);
                     }
                 }
                 SettingsMenuButtonAction::SafeStart(b) => {
                     if (*b && config.easy_mode) || (!*b && !config.easy_mode) {
-                        *color = button_colors.disabled.into();
+                        commands.entity(e).insert(BTNdisabled);
                     }
                 }
                 SettingsMenuButtonAction::StartTimer(b) => {
                     if !(config.timer_start > 0.) && !(*b && config.timer_start < 3.0) {
-                        *color = button_colors.disabled.into();
+                        commands.entity(e).insert(BTNdisabled);
                     }
                 }
                 SettingsMenuButtonAction::TouchTimer(b) => {
                     if !(config.timer_touch > 0.01) && !(*b && config.timer_touch < 3.0) {
-                        *color = button_colors.disabled.into();
+                        commands.entity(e).insert(BTNdisabled);
                     }
                 }
                 SettingsMenuButtonAction::TurnFlag(b) => {
@@ -294,7 +281,7 @@ impl SettingsMenu {
                             || config.bomb_count == 1)
                             && config.easy_mode)
                     {
-                        *color = button_colors.disabled.into();
+                        commands.entity(e).insert(BTNdisabled);
                     }
                 }
             }

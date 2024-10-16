@@ -16,6 +16,9 @@ mod main_menu_plugin;
 pub mod settings_menu_plugin;
 
 #[derive(Component)]
+pub(crate) struct BTNdisabled;
+
+#[derive(Component)]
 struct ChangeState(AppState);
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
@@ -50,7 +53,7 @@ impl Plugin for MenuPlugin {
             ))
             .add_systems(Startup, setup)
             .add_systems(OnEnter(AppState::Menu), menu_setup)
-            .add_systems(Update, (button_states.run_if(in_state(MenuStates::Main)), menu_action, text_size_change).run_if(in_state(AppState::Menu)))
+            .add_systems(Update, (button_states, menu_action, text_size_change).run_if(in_state(AppState::Menu)))
             .insert_resource(GameSettings::default()) ;
     }
 }
@@ -100,7 +103,14 @@ fn button_states(
             &ButtonColors,
             Option<&ChangeState>,
         ),
-        (Changed<Interaction>, With<Button>),
+        (With<Button>, Without<BTNdisabled>),
+    >,
+    mut disabled_buttons: Query<
+        (
+            &mut BackgroundColor,
+            &ButtonColors,
+        ),
+        (With<Button>, With<BTNdisabled>),
     >,
 ) {
     for (interaction, mut color, button_colors, change_state) in &mut interaction_query {
@@ -118,6 +128,9 @@ fn button_states(
                 *color = button_colors.normal.into();
             }
         }
+    }
+    for (mut color, button_colors) in &mut disabled_buttons {
+        *color = button_colors.disabled.into();
     }
 }
 
