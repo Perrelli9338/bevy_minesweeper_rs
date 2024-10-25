@@ -8,7 +8,7 @@ Yet another project of the classic Minesweeper game, but! It's made with [Rust](
 - Track your time with the stopwatch
 - Simple and customizable user interface
 # Platforms
-[Click here](https://github.com/Perrelli9338/bevy_minesweeper_rs/releases/latest) for the latest version of the supported platform.
+[Get the latest version](https://github.com/Perrelli9338/bevy_minesweeper_rs/releases/latest) of the supported platform.
 # How to play 
 ## With a mouse
 Input:
