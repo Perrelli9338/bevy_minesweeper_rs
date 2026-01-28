@@ -76,6 +76,7 @@ impl Board {
     pub fn uncover_tile_neighbour(&self, coordinate: Coordinates) -> Vec<Entity> {
         self.tile_map
             .safe_square_at(coordinate)
+            .filter(|c| !self.flagged_tiles.contains(c))
             .filter_map(|c| self.covered_tiles.get(&c))
             .copied()
             .collect()
