@@ -34,9 +34,8 @@ impl Plugin for ResourcePlugin {
 pub(crate) enum GameState {
     Win,
     Lose,
-    Loading,
-    Pause,
     Playing,
+    FirstMove,
     #[default]
     Disabled,
 }

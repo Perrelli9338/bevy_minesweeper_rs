@@ -20,6 +20,7 @@ pub struct Board {
     pub covered_tiles: HashMap<Coordinates, Entity>,
     pub flagged_tiles: HashSet<Coordinates>,
     pub entity: Entity,
+    pub safe_start: bool
 }
 
 impl Board {

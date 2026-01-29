@@ -1,6 +1,7 @@
+use std::iter::once;
 use crate::{components::Coordinates, game::tile::Tile};
 use bevy::utils::HashSet;
-use rand::{thread_rng, Rng};
+use rand::{thread_rng};
 use std::ops::{Deref, DerefMut};
 use rand::seq::SliceRandom;
 
@@ -49,6 +50,17 @@ impl TileMap {
             self.map[coordinates.y as usize][coordinates.x as usize].is_bomb()
     }
 
+    fn coord_to_idx(&self, c: Coordinates) -> usize {
+        (c.y as usize * self.width as usize) + c.x as usize
+    }
+
+    fn idx_to_coord(&self, idx: usize) -> Coordinates {
+        Coordinates {
+            x: (idx % self.width as usize) as u16,
+            y: (idx / self.width as usize) as u16,
+        }
+    }
+
     pub fn bomb_count_at(&self, coordinates: Coordinates) -> u8 {
         if self.is_bomb_at(coordinates) {
             return 0;
@@ -60,21 +72,40 @@ impl TileMap {
         res as u8
     }
 
-    pub fn set_bombs(&mut self, bomb_count: u16) {
+    pub fn set_bombs(&mut self, bomb_count: u16, safe_coord: Option<Coordinates>) {
         self.bomb_count = bomb_count;
         let mut rng = thread_rng();
+        let total_tiles = self.width as usize * self.height as usize;
+        let mut tiles: Vec<usize> = (0..total_tiles).collect();
 
-        let mut indices: Vec<usize> = (0..(self.width as usize * self.height as usize)).collect();
-        indices.shuffle(&mut rng);
-        for &idx in indices.iter().take(bomb_count as usize) {
-            let column = (idx / self.width as usize) as u16;
-            let row = (idx % self.height as usize) as u16;
-            self[column as usize][row as usize] = Tile::Bomb;
-            self.bomb_coordinates.insert(Coordinates {
-                y: column,
-                x: row,
-            });
+        let mut tiles_range = HashSet::new();
+
+        if let Some(coord) = safe_coord {
+            let neighbours: Vec<usize> = self.safe_square_at(coord)
+                .chain(once(coord))
+                .map(|c| self.coord_to_idx(c))
+                .collect();
+
+            if total_tiles.saturating_sub(neighbours.len()) >= bomb_count as usize {
+                tiles_range.extend(neighbours);
+            } else {
+                tiles_range.insert(self.coord_to_idx(coord));
+            }
         }
+
+        tiles.retain(|idx| !tiles_range.contains(idx));
+
+        tiles.shuffle(&mut rng);
+
+        let bombs = tiles.len().min(bomb_count as usize);
+
+        for &idx in tiles.iter().take(bombs) {
+            let coord = self.idx_to_coord(idx);
+
+            self[coord.y as usize][coord.x as usize] = Tile::Bomb;
+            self.bomb_coordinates.insert(coord);
+        }
+
         for bomb_tile in self.bomb_coordinates.iter().cloned().collect::<Vec<_>>() {
             for neighbor in self.safe_square_at(bomb_tile) {
                 if neighbor.x >= self.width || neighbor.y >= self.height {

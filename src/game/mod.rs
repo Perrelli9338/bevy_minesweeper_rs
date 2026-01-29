@@ -1,14 +1,12 @@
 use crate::{
     components::{
         timer::GameTimer,
-        uncover::Uncover,
-        Bomb, BombNeighbor, Coordinates
+        Coordinates
     },
     game::{
         board::Board,
         bounds::Bounds2,
         settings::{GameSettings, Position, TileSize},
-        tile::Tile,
         tile_map::TileMap
     },
     resources::{
@@ -23,7 +21,10 @@ use bevy::{
     color::palettes::basic,
     prelude::*
 };
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use crate::components::{Bomb, BombNeighbor};
+use crate::game::events::TileTriggerEvent;
+use crate::game::tile::Tile;
 
 pub mod board;
 pub mod bounds;
@@ -37,6 +38,7 @@ pub struct BoardPlugin;
 impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(AppState::Playing), Self::create)
+            .add_systems(Update, Self::init_board.run_if(in_state(GameState::FirstMove)))
             .add_systems(
                 Update,
                 new_game
@@ -48,11 +50,13 @@ impl Plugin for BoardPlugin {
 
 fn new_game(
     time: Res<Time>,
-    mut timer: ResMut<GameTimer>,
+    mut timer: Option<ResMut<GameTimer>>,
     mut game_state: ResMut<NextState<GameState>>,
 ) {
-    if timer.tick(time.delta()).finished() {
-        game_state.set(GameState::Playing);
+    if let Some(mut timer) = timer {
+        if timer.tick(time.delta()).finished() {
+            game_state.set(GameState::FirstMove);
+        }
     }
 }
 
@@ -62,18 +66,15 @@ impl BoardPlugin {
         options: Res<GameSettings>,
         assets: (Res<TextureAssets>, Res<FontAssets>),
     ) {
-        let mut safe_start: Option<Entity> = None;
-
         let (textures, fonts) = assets;
         let config = options.clone();
 
         let tile_size = match config.tile_size {
             TileSize::Fixed(size) => size,
-            TileSize::Adaptive { .. } => todo!(),
+            TileSize::Adaptive { .. } => 50.0,
         };
 
         let mut tile_map = TileMap::new(config.map_size.0, config.map_size.1);
-
         let mut covered_tiles =
             HashMap::with_capacity((tile_map.get_width() * tile_map.get_height()).into());
 
@@ -93,8 +94,6 @@ impl BoardPlugin {
             Position::Custom(p) => p,
         };
 
-        tile_map.set_bombs(config.bomb_count);
-
         let e = commands
             .spawn((
                 Name::new("Board"),
@@ -109,23 +108,14 @@ impl BoardPlugin {
                     &tile_map,
                     tile_size,
                     config.tile_padding,
-                    fonts.font.clone(),
                     Color::WHITE,
-                    textures.bomb.clone(),
                     textures.tile.clone(),
                     textures.covered_tile.clone(),
                     Color::from(basic::TEAL),
                     &mut covered_tiles,
-                    &mut safe_start,
                 );
             })
             .id();
-
-        if config.easy_mode {
-            if let Some(entity) = safe_start {
-                commands.entity(entity).insert(Uncover);
-            }
-        }
 
         commands.insert_resource(Board {
             tile_map: tile_map.clone(),
@@ -135,8 +125,9 @@ impl BoardPlugin {
             },
             tile_size,
             covered_tiles,
-            flagged_tiles: HashSet::new(),
+            flagged_tiles: Default::default(),
             entity: e,
+            safe_start: config.easy_mode
         });
     }
 
@@ -146,14 +137,11 @@ impl BoardPlugin {
         tile_map: &TileMap,
         tile_size: f32,
         tile_padding: f32,
-        font: Handle<Font>,
         background_color: Color,
-        bomb_image: Handle<Image>,
         tile_image: Handle<Image>,
         covered_tile_image: Handle<Image>,
         covered_background_color: Color,
         covered_tiles: &mut HashMap<Coordinates, Entity>,
-        safe_start: &mut Option<Entity>,
     ) {
         let size = tile_size - tile_padding;
         let sprites_size = Some(Vec2::splat(size));
@@ -195,70 +183,109 @@ impl BoardPlugin {
                         })
                         .id();
                     covered_tiles.insert(coordinates, e);
-                    if safe_start.is_none() && *tile == Tile::Empty || !(*tile == Tile::Bomb) {
-                        *safe_start = Some(e);
-                    }
                 });
 
-                match tile {
-                    Tile::Bomb => {
-                        commands.insert(Bomb);
-                        commands.with_children(|parent| {
-                            parent.spawn(SpriteBundle {
-                                sprite: Sprite {
-                                    color: Color::from(basic::RED),
-                                    custom_size: sprites_size,
-                                    ..Default::default()
-                                },
-                                transform: Transform::from_xyz(0., 0., 1.),
-                                texture: bomb_image.clone(),
-                                ..Default::default()
-                            });
-                        });
-                    }
-                    Tile::BombNeighbour(bombs_count) => {
-                        commands.insert(BombNeighbor {
-                            count: *bombs_count,
-                        });
-                        commands.with_children(|parent| {
-                            parent.spawn(Self::bomb_count_text_bundle(
-                                *bombs_count,
-                                font.clone(),
-                                size,
-                            ));
-                        });
-                    }
-                    _ => (),
-                }
+
             }
         }
     }
 
-    fn bomb_count_text_bundle(count: u8, font: Handle<Font>, font_size: f32) -> Text2dBundle {
-        let color = match count {
-            1 => Color::from(basic::BLUE),
-            2 => Color::from(basic::GREEN),
-            3 => Color::from(basic::RED),
-            4 => Color::from(basic::NAVY),
-            5 => Color::from(basic::MAROON),
-            6 => Color::from(basic::AQUA),
-            7 => Color::from(basic::PURPLE),
-            _ => Color::from(basic::SILVER),
-        };
+    #[allow(clippy::too_many_arguments)]
+    pub fn init_board(
+        mut commands: Commands,
+        mut board: ResMut<Board>,
+        config: Res<GameSettings>,
+        assets: Res<TextureAssets>,
+        fonts: Res<FontAssets>,
+        mut tile_trigger_evr: EventReader<TileTriggerEvent>,
+        covered_query: Query<&Parent>,
+        mut game_state: ResMut<NextState<GameState>>,
+    ) {
+        let start_event = tile_trigger_evr.read().next();
+        if let Some(event) = start_event {
+            let safe_click = event.coordinates;
+            let coord = if board.safe_start {
+                Some(safe_click)
+            } else {
+                None
+            };
+            board.tile_map.set_bombs(config.bomb_count, coord);
 
-        let style = TextStyle {
-            font,
-            font_size,
-            color,
-        };
-        // adopted 0.9 to 0.10 and simplified API
-        let text = Text::from_section(count.to_string(), style).with_no_wrap();
+            let tile_size = match config.tile_size {
+                TileSize::Fixed(v) => v,
+                TileSize::Adaptive { .. } => 50.0,
+            } - config.tile_padding;
+            let sprites_size = Some(Vec2::splat(tile_size));
 
-        Text2dBundle {
-            text,
-            // z-order, print text on top of the tile
-            transform: Transform::from_xyz(0.0, 0.0, 1.0),
-            ..Default::default()
+            for (y, line) in board.tile_map.iter().enumerate() {
+                for (x, tile) in line.iter().enumerate() {
+                    let coords = Coordinates { x: x as u16, y: y as u16 };
+
+                    if let Some(covered_entity) = board.covered_tiles.get(&coords) {
+                        if let Ok(tile_parent) = covered_query.get(*covered_entity) {
+                            let tile_entity = tile_parent.get();
+
+                            match tile {
+                                Tile::Bomb => {
+                                    commands.entity(tile_entity).insert(Bomb);
+                                    commands.entity(tile_entity).with_children(|parent| {
+                                        parent.spawn(SpriteBundle {
+                                            sprite: Sprite {
+                                                custom_size: sprites_size,
+                                                color: Color::from(bevy::color::palettes::basic::RED),
+                                                ..Default::default()
+                                            },
+                                            transform: Transform::from_xyz(0., 0., 1.),
+                                            texture: assets.bomb.clone(),
+                                            ..Default::default()
+                                        });
+                                    });
+                                }
+                                Tile::BombNeighbour(count) => {
+                                    commands.entity(tile_entity).insert(BombNeighbor { count: *count });
+                                    commands.entity(tile_entity).with_children(|parent| {
+                                        parent.spawn(bomb_count_text_bundle(
+                                            *count,
+                                            fonts.font.clone(),
+                                            tile_size,
+                                        ));
+                                    });
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                }
+            }
+            game_state.set(GameState::Playing);
         }
+    }
+}
+
+pub fn bomb_count_text_bundle(count: u8, font: Handle<Font>, font_size: f32) -> Text2dBundle {
+    let color = match count {
+        1 => Color::from(basic::BLUE),
+        2 => Color::from(basic::GREEN),
+        3 => Color::from(basic::RED),
+        4 => Color::from(basic::NAVY),
+        5 => Color::from(basic::MAROON),
+        6 => Color::from(basic::AQUA),
+        7 => Color::from(basic::PURPLE),
+        _ => Color::from(basic::SILVER),
+    };
+
+    let style = TextStyle {
+        font,
+        font_size,
+        color,
+    };
+    // adopted 0.9 to 0.10 and simplified API
+    let text = Text::from_section(count.to_string(), style).with_no_wrap();
+
+    Text2dBundle {
+        text,
+        // z-order, print text on top of the tile
+        transform: Transform::from_xyz(0.0, 0.0, 1.0),
+        ..Default::default()
     }
 }

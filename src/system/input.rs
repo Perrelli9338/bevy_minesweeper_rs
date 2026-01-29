@@ -1,12 +1,8 @@
-use crate::{
-    components::timer::GameTimer,
-    game::{
-        settings::GameSettings,
-        board::Board,
-        events::{EndgameEvent, TileFlaggedEvent, TileTriggerEvent},
-    },
-    resources::GameState,
-};
+use crate::{components::timer::GameTimer, game::{
+    settings::GameSettings,
+    board::Board,
+    events::{EndgameEvent, TileFlaggedEvent, TileTriggerEvent},
+}, AppState, resources::GameState};
 use bevy::{
     app::App,
     input::{mouse::MouseButtonInput, touch::TouchPhase, ButtonInput},
@@ -29,7 +25,7 @@ impl Plugin for InputHandling {
                 handle_mouse.run_if(run_if_any_button_mouse_pressed),
                 handle_touch.run_if(run_if_only_one_fingers),
             )
-                .run_if(in_state(GameState::Playing)),
+                .run_if(in_state(AppState::Playing)),
         );
     }
 }
