@@ -2,6 +2,7 @@ use crate::{components::Coordinates, game::tile::Tile};
 use bevy::utils::HashSet;
 use rand::{thread_rng, Rng};
 use std::ops::{Deref, DerefMut};
+use rand::seq::SliceRandom;
 
 const RANGE: [(i8, i8); 8] = [
     (-1, -1),
@@ -61,26 +62,30 @@ impl TileMap {
 
     pub fn set_bombs(&mut self, bomb_count: u16) {
         self.bomb_count = bomb_count;
-        let mut r_bombs = bomb_count;
         let mut rng = thread_rng();
-        while r_bombs > 0 {
-            let row = rng.gen_range(0..self.height) as usize;
-            let column = rng.gen_range(0..self.width) as usize;
-            if let Tile::Empty | Tile::BombNeighbour(0..=8) = self[row][column] {
-                self[row][column] = Tile::Bomb;
-                self.bomb_coordinates.insert(Coordinates {
-                    y: row as u16,
-                    x: column as u16,
-                });
-                r_bombs -= 1;
-            }
+
+        let mut indices: Vec<usize> = (0..(self.width as usize * self.height as usize)).collect();
+        indices.shuffle(&mut rng);
+        for &idx in indices.iter().take(bomb_count as usize) {
+            let column = (idx / self.width as usize) as u16;
+            let row = (idx % self.height as usize) as u16;
+            self[column as usize][row as usize] = Tile::Bomb;
+            self.bomb_coordinates.insert(Coordinates {
+                y: column,
+                x: row,
+            });
         }
-        for row in 0..self.height {
-            for col in 0..self.width {
-                let bomb_count = self.bomb_count_at(Coordinates { y: row, x: col });
-                if bomb_count > 0 {
-                    let tile = &mut self[row as usize][col as usize];
-                    *tile = Tile::BombNeighbour(bomb_count);
+        for bomb_tile in self.bomb_coordinates.iter().cloned().collect::<Vec<_>>() {
+            for neighbor in self.safe_square_at(bomb_tile) {
+                if neighbor.x >= self.width || neighbor.y >= self.height {
+                    continue;
+                }
+
+                let tile = &mut self[neighbor.y as usize][neighbor.x as usize];
+                match tile {
+                    Tile::Empty => *tile = Tile::BombNeighbour(1),
+                    Tile::BombNeighbour(count) => *tile = Tile::BombNeighbour(*count + 1),
+                    _ => {}
                 }
             }
         }
