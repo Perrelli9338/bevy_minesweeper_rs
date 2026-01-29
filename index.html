@@ -17,7 +17,7 @@
         
         
         <link rel="icon" href="icon.ico">
-        <style nonce="3M2D5HIdToOmtfqdSW+cqw==">body, html, .game-container {
+        <style>body, html, .game-container {
     height: 100%;
     width: 100%;
 }
@@ -71,9 +71,9 @@ body {
 }
 </style>
         <link href="build/web/manifest.json" rel="manifest">
-    <link rel="modulepreload" href="./Minesweeper-b109826c55588efd.js" crossorigin=anonymous integrity="sha384-QEZRa7CN9BagZybqqkaK9rfoA/C8gACt/4U77K6XGEL91pIZU5xM29Iw+Uwe4vKW"><link rel="preload" href="./Minesweeper-b109826c55588efd_bg.wasm" crossorigin=anonymous integrity="sha384-PjLapP3u9J8mFd03SLq9nUIXiAcitcjrHkQHGrfiW5OZnTz6JSQ0tqQ0AMXiMsCK" as="fetch" type="application/wasm"></head>
+    <link rel="modulepreload" href="./Minesweeper-fb0001c8484c3b98.js" crossorigin="anonymous" integrity="sha384-xVJ+0J6mISuL7RJoSQoayhQcI+lkJRkLdrkkFRg50yO/ATF1s+W9LPGDBqUePlGt"><link rel="preload" href="./Minesweeper-fb0001c8484c3b98_bg.wasm" crossorigin="anonymous" integrity="sha384-KUc2ZIeIvd3hZL7us+qe/EZn12DepWqOLIPOCF/u8GIEZJEA9XU6pCYbhAG1xG3x" as="fetch" type="application/wasm"></head>
     <body>
-        <script nonce="lp5UrJlRgFaABoJuoFSsCw==">// Insert hack to make sound autoplay on Chrome as soon as the user interacts with the tab:
+        <script>// Insert hack to make sound autoplay on Chrome as soon as the user interacts with the tab:
 // https://developers.google.com/web/updates/2018/11/web-audio-autoplay#moving-forward
 
 // the following function keeps track of all AudioContexts and resumes them on the first user
@@ -143,9 +143,9 @@ body {
             </canvas>
         </div>
     
-<script type="module" nonce="Y/JswXUxTPWZzPKndCpqSg==">
-import init, * as bindings from './Minesweeper-b109826c55588efd.js';
-const wasm = await init('./Minesweeper-b109826c55588efd_bg.wasm');
+<script type="module">
+import init, * as bindings from './Minesweeper-fb0001c8484c3b98.js';
+const wasm = await init('./Minesweeper-fb0001c8484c3b98_bg.wasm');
 
 
 window.wasmBindings = bindings;
