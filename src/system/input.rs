@@ -113,7 +113,7 @@ pub fn handle_touch(
                     *status = TouchStatus {
                         first_touch: touch.position,
                         is_covered: false,
-                    }
+                    };
                     tile_trigger_ewr.send(TileTriggerEvent {
                         coordinates: tile_coordinates,
                     });
