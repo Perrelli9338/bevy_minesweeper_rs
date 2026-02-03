@@ -88,28 +88,32 @@ pub fn handle_touch(
     mut tile_trigger_ewr: EventWriter<TileTriggerEvent>,
     mut touch_events: EventReader<TouchInput>,
     time: Res<Time>,
-    mut commands: Commands,
     cameras: Query<(&Camera, &GlobalTransform)>,
 ) {
     let (camera, transform) = cameras.single();
+    timer.0.tick(time.delta());
         for touch in touch_events.read() {
             if touch.phase == TouchPhase::Started {
-                commands.insert_resource(TouchStatus {
+                *status = TouchStatus {
                     first_touch: touch.position,
                     is_covered: true,
-                });
+                };
                 timer.0.reset();
             } else if let Some(tile_coordinates) = board.press_position(camera, transform, status.first_touch) {
                 if status.is_covered {
                 if timer.0.finished() {
-                    commands.insert_resource(TouchStatus {
+                    *status = TouchStatus {
                         first_touch: touch.position,
                         is_covered: false,
-                    });
+                    };
                     flag_trigger_ewr.send(TileFlaggedEvent {
                         coordinates: tile_coordinates,
                     });
                 } else if touch.phase == TouchPhase::Ended {
+                    *status = TouchStatus {
+                        first_touch: touch.position,
+                        is_covered: false,
+                    }
                     tile_trigger_ewr.send(TileTriggerEvent {
                         coordinates: tile_coordinates,
                     });
@@ -117,8 +121,7 @@ pub fn handle_touch(
             }
         }
     }
-    timer.0.tick(time.delta());
-}
+   }
 
 pub fn endgame_input_handling(
     mouse_input: EventReader<MouseButtonInput>,
