@@ -241,34 +241,6 @@ jobs:
           tag: ${{ env.VERSION }}
           overwrite: true
 
-  build-for-Android-debug:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: get-version
-    env:
-      VERSION: ${{needs.get-version.outputs.version}}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Add Android targets
-        run: rustup target add aarch64-linux-android armv7-linux-androideabi
-      - name: Install Cargo APK
-        run: cargo install --force cargo-apk
-      - name: Build app for Android
-        run: ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME cargo apk build --package mobile
-      - name: Zip release
-        run: |
-          cd target/debug/apk && zip "${{ env.GAME_EXECUTABLE_NAME }}_android-debug.zip" ${{ env.GAME_OSX_APP_NAME }}.apk && cd ../../../
-      - name: Upload release
-        uses: svenstaro/upload-release-action@2.9.0
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/debug/apk/${{ env.GAME_EXECUTABLE_NAME }}_android-debug.zip
-          asset_name: ${{ env.GAME_EXECUTABLE_NAME }}_${{ env.VERSION }}_android-debug.zip
-          release_name: ${{ env.VERSION }}
-          tag: ${{ env.VERSION }}
-          overwrite: true
-
   build-for-Android-release:
     runs-on: ubuntu-latest
     timeout-minutes: 30
