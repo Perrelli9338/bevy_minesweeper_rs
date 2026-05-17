@@ -79,7 +79,7 @@ pub fn create_scene_endgame(
     let mut msg = "You've ".to_owned();
     msg.push_str(match game_state.get() {
         GameState::Lose => "lose!",
-        GameState::Win => "win!",
+        GameState::Win => "won!",
         _ => "[This is an easter egg ;)]",
     });
     let min = stopwatch.total_time.as_secs() / 60;
