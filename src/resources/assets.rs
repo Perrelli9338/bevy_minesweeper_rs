@@ -17,10 +17,8 @@ pub struct TextureAssets {
     pub bomb: Handle<Image>,
     #[asset(path = "embedded://textures/flag.png")]
     pub flag: Handle<Image>,
-    #[asset(path = "embedded://textures/tile_uncovered.png")]
+    #[asset(path = "embedded://textures/tile.png")]
     pub tile: Handle<Image>,
-    #[asset(path = "embedded://textures/tile_covered.png")]
-    pub covered_tile: Handle<Image>,
     #[asset(path = "embedded://textures/wrong.png")]
     pub wrong: Handle<Image>,
 }

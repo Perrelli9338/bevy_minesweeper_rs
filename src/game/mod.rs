@@ -103,7 +103,6 @@ impl BoardPlugin {
                     config.tile_padding,
                     Color::WHITE,
                     textures.tile.clone(),
-                    textures.covered_tile.clone(),
                     Color::from(basic::TEAL),
                     &mut covered_tiles,
                 );
@@ -132,7 +131,6 @@ impl BoardPlugin {
         tile_padding: f32,
         background_color: Color,
         tile_image: Handle<Image>,
-        covered_tile_image: Handle<Image>,
         covered_background_color: Color,
         covered_tiles: &mut HashMap<Coordinates, Entity>,
     ) {
@@ -171,7 +169,7 @@ impl BoardPlugin {
                                 ..Default::default()
                             },
                             transform: Transform::from_xyz(0.0, 0.0, 2.0),
-                            texture: covered_tile_image.clone(),
+                            texture: tile_image.clone(),
                             ..Default::default()
                         })
                         .id();
