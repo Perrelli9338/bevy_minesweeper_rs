@@ -6,12 +6,18 @@ use bevy::{
 };
 use Minesweeper::GamePlugin;
 use std::io::Cursor;
+use std::time::Duration;
+use bevy::winit::{UpdateMode, WinitSettings};
 use winit::window::Icon;
 
 fn main() {
     App::new()
         .insert_resource(Msaa::Off)
         .insert_resource(ClearColor(Color::linear_rgb(0.4, 0.4, 0.4)))
+        .insert_resource(WinitSettings {
+            focused_mode: UpdateMode::reactive_low_power(Duration::from_secs_f64(1.0 / 120.0)),
+            unfocused_mode: UpdateMode::reactive_low_power(Duration::from_secs_f64(1.0 / 120.0)),
+        })
         .add_plugins((
             DefaultPlugins
                 .set(WindowPlugin {
