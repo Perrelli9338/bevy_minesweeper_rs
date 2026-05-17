@@ -15,7 +15,6 @@ pub enum SettingsMenuButtonAction {
     HeightBoard(bool),
     SafeStart(bool),
     TurnFlag(bool),
-    StartTimer(bool),
     TouchTimer(bool),
 }
 
@@ -113,7 +112,6 @@ impl SettingsMenu {
                                                                .to_string());
                                                        });
                                                        bar.add_tab_container("Accessibility".into(), |children| {
-                                                           children.settings(SettingsMenuButtonAction::StartTimer(false), SettingsMenuButtonAction::StartTimer(true), "Start delay",  &format!("{:.01}s", config.timer_start));
                                                            children.settings(SettingsMenuButtonAction::TouchTimer(false), SettingsMenuButtonAction::TouchTimer(true), "Touch delay",  &format!("{:.2}s", config.timer_touch));
                                                    });
                                                    },
@@ -167,13 +165,6 @@ impl SettingsMenu {
                     SettingsMenuButtonAction::SafeStart(b) => {
                         config.easy_mode = *b;
                     }
-                    SettingsMenuButtonAction::StartTimer(b) => {
-                        if *b && config.timer_start < 3.0 {
-                            config.timer_start += 0.1;
-                        } else if config.timer_start > 0.0 {
-                            config.timer_start = (config.timer_start * 10.0 - 1.0) / 10.0;
-                        }
-                    }
                     SettingsMenuButtonAction::TurnFlag(b) => {
                         config.flag_mode = *b;
                     }
@@ -193,7 +184,6 @@ impl SettingsMenu {
                 }
                 let mut settings_values = vec![
                     format!("{:.2}s", config.timer_touch),
-                    format!("{:.01}s", config.timer_start),
                     match config.flag_mode {
                         true => "On",
                         false => "Off",
@@ -218,7 +208,6 @@ impl SettingsMenu {
                     tile_size: config.clone().tile_size,
                     tile_padding: config.tile_padding,
                     easy_mode: config.easy_mode,
-                    timer_start: config.timer_start,
                     timer_touch: config.timer_touch,
                     flag_mode: config.flag_mode,
                 })
@@ -262,11 +251,6 @@ impl SettingsMenu {
                 }
                 SettingsMenuButtonAction::SafeStart(b) => {
                     if (*b && config.easy_mode) || (!*b && !config.easy_mode) {
-                        commands.entity(e).insert(BTNdisabled);
-                    }
-                }
-                SettingsMenuButtonAction::StartTimer(b) => {
-                    if !(config.timer_start > 0.) && !(*b && config.timer_start < 3.0) {
                         commands.entity(e).insert(BTNdisabled);
                     }
                 }

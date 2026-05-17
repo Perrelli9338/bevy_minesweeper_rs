@@ -1,6 +1,5 @@
 use crate::{
     components::{
-        timer::GameTimer,
         Coordinates
     },
     game::{
@@ -49,15 +48,9 @@ impl Plugin for BoardPlugin {
 }
 
 fn new_game(
-    time: Res<Time>,
-    mut timer: Option<ResMut<GameTimer>>,
     mut game_state: ResMut<NextState<GameState>>,
 ) {
-    if let Some(mut timer) = timer {
-        if timer.tick(time.delta()).finished() {
-            game_state.set(GameState::FirstMove);
-        }
-    }
+    game_state.set(GameState::FirstMove);
 }
 
 impl BoardPlugin {

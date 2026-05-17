@@ -1,8 +1,8 @@
 use crate::system::input::InputHandling;
 use crate::{
-    components::{stopwatch::GameStopwatch, timer::GameTimer},
+    components::{stopwatch::GameStopwatch},
     resources::GameState,
-    game::{events::*, settings::GameSettings},
+    game::{events::*},
     AppState,
 };
 use bevy::{
@@ -22,8 +22,7 @@ pub struct SystemPlugins;
 
 impl Plugin for SystemPlugins {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnExit(AppState::Menu), set_timer)
-            .add_systems(OnEnter(GameState::Playing), GameStopwatch::new)
+        app.add_systems(OnEnter(GameState::Playing), GameStopwatch::new)
             .add_systems(OnExit(GameState::Playing), GameStopwatch::pause)
             .add_systems(
                 Update,
@@ -42,13 +41,6 @@ impl Plugin for SystemPlugins {
             .add_event::<GameWinEvent>()
             .add_event::<GameLoseEvent>();
     }
-}
-
-fn set_timer(mut commands: Commands, settings: Res<GameSettings>) {
-    commands.insert_resource(GameTimer(Timer::from_seconds(
-        settings.timer_start,
-        TimerMode::Once,
-    )));
 }
 
 pub fn game_state_handler(
