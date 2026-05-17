@@ -52,17 +52,16 @@ pub fn exit(
 }
 
 pub fn timer_endgame(mut commands: Commands) {
-    commands.insert_resource(GameTimer(Timer::from_seconds(2.0, TimerMode::Once)));
+    commands.insert_resource(GameTimer::from_seconds(2.0));
 }
 
 pub fn cleanup_board(
     mut commands: Commands,
     board: Res<Board>,
-    time: Res<Time>,
     mut timer: ResMut<GameTimer>,
     mut app_state: ResMut<NextState<AppState>>,
 ) {
-    if timer.tick(time.delta()).finished() {
+    if timer.finished() {
         commands.entity(board.entity).despawn_recursive();
         app_state.set(AppState::Endgame);
     }

@@ -17,6 +17,7 @@ impl Plugin for InputHandling {
         app.insert_resource(TouchStatus {
             first_touch: Default::default(),
             is_covered: true,
+            start_time: web_time::Instant::now(),
         })
         .add_systems(OnEnter(GameState::Playing), setup)
         .add_systems(
@@ -31,10 +32,7 @@ impl Plugin for InputHandling {
 }
 
 fn setup(mut commands: Commands, config: Res<GameSettings>) {
-    commands.insert_resource(GameTimer(Timer::from_seconds(
-        config.timer_touch,
-        TimerMode::Once,
-    )))
+    commands.insert_resource(GameTimer::from_seconds(config.timer_touch));
 }
 
 fn run_if_any_button_mouse_pressed(mouse_input: EventReader<MouseButtonInput>) -> bool {
@@ -76,6 +74,7 @@ fn handle_mouse(
 struct TouchStatus {
     first_touch: Vec2,
     is_covered: bool,
+    start_time: web_time::Instant,
 }
 #[allow(clippy::too_many_arguments)]
 #[allow(private_interfaces)]
@@ -83,41 +82,42 @@ struct TouchStatus {
 pub fn handle_touch(
     board: Res<Board>,
     mut status: ResMut<TouchStatus>,
-    mut timer: ResMut<GameTimer>,
     mut flag_trigger_ewr: EventWriter<TileFlaggedEvent>,
     mut tile_trigger_ewr: EventWriter<TileTriggerEvent>,
     mut touch_events: EventReader<TouchInput>,
-    time: Res<Time>,
     cameras: Query<(&Camera, &GlobalTransform)>,
+    config: Res<GameSettings>,
 ) {
     let (camera, transform) = cameras.single();
-    timer.0.tick(time.delta());
         for touch in touch_events.read() {
             if touch.phase == TouchPhase::Started {
                 *status = TouchStatus {
                     first_touch: touch.position,
                     is_covered: true,
+                    start_time: web_time::Instant::now()
                 };
-                timer.0.reset();
             } else if let Some(tile_coordinates) = board.press_position(camera, transform, status.first_touch) {
                 if status.is_covered {
-                if timer.0.finished() {
-                    *status = TouchStatus {
-                        first_touch: touch.position,
-                        is_covered: false,
-                    };
-                    flag_trigger_ewr.send(TileFlaggedEvent {
-                        coordinates: tile_coordinates,
-                    });
-                } else if touch.phase == TouchPhase::Ended {
-                    *status = TouchStatus {
-                        first_touch: touch.position,
-                        is_covered: false,
-                    };
-                    tile_trigger_ewr.send(TileTriggerEvent {
-                        coordinates: tile_coordinates,
-                    });
-                }
+                    let elapsed = web_time::Instant::now().duration_since(status.start_time);
+                    if elapsed.as_secs_f32() >= config.timer_touch {
+                        *status = TouchStatus {
+                            first_touch: touch.position,
+                            is_covered: false,
+                            start_time: web_time::Instant::now(),
+                        };
+                        flag_trigger_ewr.send(TileFlaggedEvent {
+                            coordinates: tile_coordinates,
+                        });
+                    } else if touch.phase == TouchPhase::Ended {
+                        *status = TouchStatus {
+                            first_touch: touch.position,
+                            is_covered: false,
+                            start_time: web_time::Instant::now(),
+                        };
+                        tile_trigger_ewr.send(TileTriggerEvent {
+                            coordinates: tile_coordinates,
+                        });
+                    }
             }
         }
     }
